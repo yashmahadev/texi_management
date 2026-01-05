@@ -22,14 +22,19 @@ class DutyService
     public function createMonthlyDuty(array $data, int $creatorId)
     {
         return DB::transaction(function () use ($data, $creatorId) {
+            $vehicle = \App\Models\Vehicle::findOrFail($data['vehicle_id']);
+            
             $duty = MonthlyDuty::create([
                 'department_name' => $data['department_name'],
                 'officer_name' => $data['officer_name'],
                 'vehicle_id' => $data['vehicle_id'],
-                'primary_driver_id' => $data['primary_driver_id'],
+                'primary_driver_id' => $vehicle->driver_id,
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
                 'expected_start_time' => $data['expected_start_time'],
+                'state' => $data['state'] ?? null,
+                'city' => $data['city'] ?? null,
+                'pincode' => $data['pincode'] ?? null,
                 'created_by' => $creatorId,
             ]);
 

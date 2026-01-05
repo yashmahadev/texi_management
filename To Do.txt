@@ -16,6 +16,8 @@ Need to change in monthly duties module
 ============================
 
 
+threshold time for start & end duty with alert msg
+
 3. check all WhatsApp message in whole project
 another pdf report for passing the bill and it has been customisable all dates entries
 Monthly Duty form inside state, city, pincode

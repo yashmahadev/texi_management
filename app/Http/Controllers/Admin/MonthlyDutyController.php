@@ -29,14 +29,9 @@ class MonthlyDutyController extends Controller
     public function create()
     {
         $this->authorize('create', MonthlyDuty::class);
-        $drivers = Driver::where('status', 'active')->get();
         $types = config('taxi.vehicle_types');
-        // Initial vehicles for 'all' or first type?
-        // Let's pass empty vehicles first, they will be loaded via AJAX or 
-        // we can pass all and filter in JS if the list is small. 
-        // But user asked for dependent dropdown logic.
         $vehicles = []; 
-        return view('admin.monthly-duties.create', compact('drivers', 'types', 'vehicles'));
+        return view('admin.monthly-duties.create', compact('types', 'vehicles'));
     }
 
     public function store(\App\Http\Requests\CreateMonthlyDutyRequest $request)
@@ -57,10 +52,20 @@ class MonthlyDutyController extends Controller
     public function getVehiclesByType(Request $request)
     {
         $type = $request->type;
-        $vehicles = Vehicle::where('status', 'active')
+        $vehicles = Vehicle::with('driver')
+            ->where('status', 'active')
             ->where('vehicle_type', $type)
-            ->get(['id', 'vehicle_number']);
+            ->get();
             
-        return response()->json($vehicles);
+        $data = $vehicles->map(function($v) {
+            return [
+                'id' => $v->id,
+                'vehicle_number' => $v->vehicle_number,
+                'driver_name' => $v->driver->name ?? 'No Driver',
+                'driver_mobile' => $v->driver->mobile_number ?? '',
+            ];
+        });
+
+        return response()->json($data);
     }
 }

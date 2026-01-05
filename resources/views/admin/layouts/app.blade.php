@@ -67,11 +67,6 @@
                     </a>
                     @endcan
 
-                    @can('view_drivers')
-                    <a href="{{ route('admin.drivers.index') }}" class="{{ request()->routeIs('admin.drivers.*') ? 'active' : '' }}">
-                        <i class="bi bi-person-badge me-2"></i> Drivers
-                    </a>
-                    @endcan
 
                     @can('view_reports')
                     <a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">

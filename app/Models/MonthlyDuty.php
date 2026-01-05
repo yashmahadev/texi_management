@@ -17,6 +17,9 @@ class MonthlyDuty extends Model
         'start_date',
         'end_date',
         'expected_start_time',
+        'state',
+        'city',
+        'pincode',
         'created_by',
     ];
 

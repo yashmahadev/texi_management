@@ -12,4 +12,4 @@ Artisan::command('inspire', function () {
 
 // Schedule Automated Jobs
 Schedule::job(new CheckDelayedDutiesJob)->everyMinute();
-Schedule::job(new MarkMissingDutiesJob)->dailyAt('00:01');
+Schedule::job(new MarkMissingDutiesJob)->everyMinute();

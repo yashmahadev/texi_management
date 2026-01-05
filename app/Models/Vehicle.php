@@ -13,7 +13,24 @@ class Vehicle extends Model
         'vehicle_number',
         'vehicle_type',
         'status',
+        'driver_id',
+        'puc_expiry_date',
+        'is_driver_owner',
+        'owner_name',
+        'owner_mobile',
+        'owner_aadhaar_number',
+        'owner_pancard_number',
     ];
+
+    protected $casts = [
+        'puc_expiry_date' => 'date',
+        'is_driver_owner' => 'boolean',
+    ];
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
 
     public function monthlyDuties()
     {

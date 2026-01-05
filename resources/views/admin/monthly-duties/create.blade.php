@@ -39,18 +39,6 @@
                     </select>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Primary Driver *</label>
-                    <select name="primary_driver_id" class="form-select" required>
-                        <option value="">Select Driver</option>
-                        @foreach($drivers as $driver)
-                            <option value="{{ $driver->id }}" {{ old('primary_driver_id') == $driver->id ? 'selected' : '' }}>
-                                {{ $driver->name }} ({{ $driver->mobile_number }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Start Date *</label>
                     <input type="date" name="start_date" class="form-control" value="{{ old('start_date') }}" required>
@@ -64,6 +52,21 @@
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Expected Start Time *</label>
                     <input type="time" name="expected_start_time" class="form-control" value="{{ old('expected_start_time') }}" required>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">State</label>
+                    <input type="text" name="state" class="form-control" value="{{ old('state') }}">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" class="form-control" value="{{ old('city') }}">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Pincode</label>
+                    <input type="text" name="pincode" class="form-control" value="{{ old('pincode') }}">
                 </div>
             </div>
             
@@ -103,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(vehicle => {
                         const option = document.createElement('option');
                         option.value = vehicle.id;
-                        option.textContent = vehicle.vehicle_number;
+                        option.textContent = `${vehicle.vehicle_number} - ${vehicle.driver_name} (${vehicle.driver_mobile})`;
                         vehicleSelect.appendChild(option);
                     });
                     vehicleSelect.disabled = false;

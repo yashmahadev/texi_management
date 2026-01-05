@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->string('vehicle_number');
+            $table->string('vehicle_number')->unique();
             $table->string('vehicle_type'); // sedan, suv, etc
             $table->string('status')->default('active');
             $table->timestamps();

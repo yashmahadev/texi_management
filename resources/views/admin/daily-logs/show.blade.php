@@ -125,6 +125,10 @@
                     </button>
                 @endif
 
+                <a href="{{ route('admin.daily-logs.edit', $log->id) }}" class="btn btn-primary w-100 mb-2">
+                    Edit Log Entry
+                </a>
+
                 <a href="{{ route('admin.replacements.create', $log->id) }}" class="btn btn-outline-dark">
                     Assign Replacement
                 </a>

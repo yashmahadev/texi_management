@@ -14,8 +14,22 @@ class Driver extends Authenticatable
     protected $fillable = [
         'name',
         'mobile_number',
+        'driving_licence_number',
+        'driving_licence_document',
+        'aadhaar_number',
+        'aadhaar_document',
+        'alternate_contact_number',
+        'relationship_with_alternate_contact',
+        'state',
+        'city',
+        'pincode',
         'status',
     ];
+
+    public function vehicle()
+    {
+        return $this->hasOne(Vehicle::class);
+    }
 
     // Relationships
     public function monthlyDuties()

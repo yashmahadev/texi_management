@@ -17,6 +17,11 @@ class DailyDutyLogController extends Controller
     {
         $query = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver']);
 
+        // Default: only records up to current date
+        if (!$request->filled('start_date') && !$request->filled('end_date')) {
+            $query->whereDate('duty_date', '<=', now()->toDateString());
+        }
+
         // Filter by Date Range
         if ($request->filled('start_date')) {
             $query->whereDate('duty_date', '>=', $request->start_date);
@@ -53,6 +58,32 @@ class DailyDutyLogController extends Controller
         return view('admin.daily-logs.show', compact('log'));
     }
     
+    public function edit(DailyDutyLog $log)
+    {
+        // Only Admin and Operator can edit
+        $this->authorize('update', $log);
+        return view('admin.daily-logs.edit', compact('log'));
+    }
+
+    public function update(Request $request, DailyDutyLog $log)
+    {
+        $this->authorize('update', $log);
+
+        $request->validate([
+            'start_time' => 'nullable',
+            'end_time' => 'nullable',
+            'start_km' => 'nullable|integer',
+            'end_km' => 'nullable|integer',
+            'total_km' => 'nullable|integer',
+            'status' => 'required|in:pending,started,completed,missing,approved,disputed,replaced',
+        ]);
+
+        $log->update($request->all());
+
+        return redirect()->route('admin.daily-logs.show', $log->id)
+            ->with('success', 'Log updated successfully.');
+    }
+
     // update status (approve/dispute)
     public function updateStatus(Request $request, DailyDutyLog $log)
     {

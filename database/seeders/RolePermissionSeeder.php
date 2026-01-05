@@ -24,11 +24,6 @@ class RolePermissionSeeder extends Seeder
             'edit_vehicles' => 'Edit Vehicles',
             'delete_vehicles' => 'Delete Vehicles',
             
-            // Drivers
-            'view_drivers' => 'View Drivers',
-            'create_drivers' => 'Add Drivers',
-            'edit_drivers' => 'Edit Drivers',
-            'delete_drivers' => 'Delete Drivers',
             
             // Duties
             'view_monthly_duties' => 'View Monthly Duties',
@@ -36,6 +31,7 @@ class RolePermissionSeeder extends Seeder
             'edit_monthly_duties' => 'Edit Monthly Duties',
             'delete_monthly_duties' => 'Delete Monthly Duties',
             'view_daily_logs' => 'View Daily Logs',
+            'edit_daily_logs' => 'Edit Daily Logs',
             'verify_daily_logs' => 'Verify Daily Logs',
             'view_replacements' => 'View Replacements',
             'assign_replacements' => 'Assign Replacements',

@@ -72,6 +72,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('daily-logs/{log}/status', [DailyDutyLogController::class, 'updateStatus'])
             ->name('daily-logs.update-status')
             ->middleware('can:verify_daily_logs');
+        Route::get('daily-logs/{log}/edit', [DailyDutyLogController::class, 'edit'])
+            ->name('daily-logs.edit')
+            ->middleware('can:edit_daily_logs');
+        Route::put('daily-logs/{log}', [DailyDutyLogController::class, 'update'])
+            ->name('daily-logs.update')
+            ->middleware('can:edit_daily_logs');
         
         // Replacement
         Route::get('daily-logs/{log}/replace', [DutyReplacementController::class, 'create'])
@@ -94,7 +100,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Modules
         Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class);
-        Route::resource('drivers', \App\Http\Controllers\Admin\DriverController::class);
+
         
         // Access Control
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)

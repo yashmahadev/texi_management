@@ -17,6 +17,8 @@
                         <th>#</th>
                         <th>Vehicle Number</th>
                         <th>Type</th>
+                        <th>Driver</th>
+                        <th>Owner</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -27,6 +29,11 @@
                         <td>{{ $loop->iteration }}</td>
                         <td class="fw-bold">{{ $vehicle->vehicle_number }}</td>
                         <td>{{ $vehicle->vehicle_type }}</td>
+                        <td>
+                            {{ $vehicle->driver->name ?? 'N/A' }}<br>
+                            <small class="text-muted">{{ $vehicle->driver->mobile_number ?? '' }}</small>
+                        </td>
+                        <td>{{ $vehicle->owner_name ?? 'N/A' }}</td>
                         <td>
                             <span class="badge bg-{{ $vehicle->status == 'active' ? 'success' : ($vehicle->status == 'maintenance' ? 'warning' : 'secondary') }}">
                                 {{ ucfirst($vehicle->status) }}
@@ -47,7 +54,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-4">No vehicles found.</td>
+                        <td colspan="7" class="text-center py-4">No vehicles found.</td>
                     </tr>
                     @endforelse
                 </tbody>
