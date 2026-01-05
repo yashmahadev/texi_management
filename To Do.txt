@@ -1,0 +1,26 @@
+To Do
+============================
+need to change in current vehicle and driver module
+1. Merge driver & vehicle form in single create and edit form like when vehicle exist there driver also exist like vehicle with theire driver or vehicle with another driver
+2. add PUC expiry date field
+3. Driver licence & aadhar number with photo copy upload, alternate number of driver with relation selection
+4. also add state, city, pincode field
+
+Need to change in daily logs modules
+1. default Daily Duty Logs lisitng show max till current date not feature dates
+2. log entries edit option for admin & operator not driver
+
+Need to change in monthly duties module
+1. add state, city, pincode fields
+
+============================
+
+
+3. check all WhatsApp message in whole project
+another pdf report for passing the bill and it has been customisable all dates entries
+Monthly Duty form inside state, city, pincode
+
+============================
+
+additional
+when vehicle & driver registered then send message on WhatsApp.

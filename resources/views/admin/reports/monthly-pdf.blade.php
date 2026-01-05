@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monthly Duty Report</title>
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .footer { margin-top: 50px; }
+        .summary { margin-top: 20px; float: right; width: 300px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Government Vehicle Log Book</h2>
+        <h3>Duty Report for {{ $monthlyDuty->start_date->format('F Y') }}</h3>
+    </div>
+
+    <div>
+        <p><strong>Department:</strong> {{ $monthlyDuty->department_name }}</p>
+        <p><strong>Officer:</strong> {{ $monthlyDuty->officer_name }}</p>
+        <p><strong>Vehicle No:</strong> {{ $monthlyDuty->vehicle->vehicle_number }} ({{ ucfirst($monthlyDuty->vehicle->vehicle_type) }})</p>
+        <p><strong>Primary Driver:</strong> {{ $monthlyDuty->primaryDriver->name }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Start KM</th>
+                <th>End KM</th>
+                <th>Total KM</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($monthlyDuty->dailyLogs as $log)
+            <tr>
+                <td>{{ $log->duty_date->format('d/m/Y') }}</td>
+                <td>{{ $log->start_time }}</td>
+                <td>{{ $log->end_time }}</td>
+                <td>{{ $log->start_km }}</td>
+                <td>{{ $log->end_km }}</td>
+                <td>{{ $log->total_km }}</td>
+                <td>{{ ucfirst($log->status) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <div class="summary">
+        <table style="width: 100%">
+            <tr>
+                <th>Total KM Run</th>
+                <td>{{ $totalKm }}</td>
+            </tr>
+            <tr>
+                <th>Total Duties</th>
+                <td>{{ $totalDuties }}</td>
+            </tr>
+            <tr>
+                <th>Completed</th>
+                <td>{{ $completedDuties }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <table style="border: none;">
+            <tr style="border: none;">
+                <td style="border: none; text-align: center; height: 100px; vertical-align: bottom;">
+                    _____________________<br>
+                    Signature of Officer
+                </td>
+                <td style="border: none; text-align: center; height: 100px; vertical-align: bottom;">
+                    _____________________<br>
+                    Signature of Driver
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
