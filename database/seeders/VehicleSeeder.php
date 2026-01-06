@@ -24,7 +24,7 @@ class VehicleSeeder extends Seeder
                 // 1. Create Driver
                 $driver = \App\Models\Driver::create([
                     'name' => $driverName,
-                    'mobile_number' => '+9199' . str_pad($driverIndex, 8, '0', STR_PAD_LEFT),
+                    'mobile_number' => '99' . str_pad($driverIndex, 8, '0', STR_PAD_LEFT),
                     'status' => 'active',
                 ]);
 
@@ -32,7 +32,7 @@ class VehicleSeeder extends Seeder
                 $isDriverOwner = ($driverIndex % 2 == 0); // Toggle ownership for variety
                 
                 $ownerName = $isDriverOwner ? $driver->name : "Owner for " . $driver->name;
-                $ownerMobile = $isDriverOwner ? $driver->mobile_number : '+9188' . str_pad($driverIndex, 8, '0', STR_PAD_LEFT);
+                $ownerMobile = $isDriverOwner ? $driver->mobile_number : '88' . str_pad($driverIndex, 8, '0', STR_PAD_LEFT);
 
                 // 3. Create Vehicle
                 Vehicle::create([

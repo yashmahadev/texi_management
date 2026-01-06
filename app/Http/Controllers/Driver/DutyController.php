@@ -73,12 +73,15 @@ class DutyController extends Controller
     {
         $driverId = auth()->guard('driver')->id();
         
-        $logs = DailyDutyLog::whereHas('monthlyDuty', function($q) use ($driverId) {
-            $q->where('primary_driver_id', $driverId);
+        $logs = DailyDutyLog::where(function($query) use ($driverId) {
+            $query->whereHas('monthlyDuty', function($q) use ($driverId) {
+                $q->where('primary_driver_id', $driverId);
+            })
+            ->orWhereHas('replacements', function($q) use ($driverId) {
+                $q->where('replacement_driver_id', $driverId);
+            });
         })
-        ->orWhereHas('replacements', function($q) use ($driverId) {
-            $q->where('replacement_driver_id', $driverId);
-        })
+        ->whereDate('duty_date', '<=', now()->toDateString())
         ->latest('duty_date')
         ->paginate(15);
 

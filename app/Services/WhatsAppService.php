@@ -182,7 +182,7 @@ class WhatsAppService
                 $options['body'] = $text;
             }
 
-            $message = $this->client->messages->create($to, $options);
+            $message = $this->client->messages->create("+91".$to, $options);
 
             if ($message->sid) {
                 $log->update(['status' => 'sent', 'message_id' => $message->sid]); // Assuming message_id column exists or just status update
