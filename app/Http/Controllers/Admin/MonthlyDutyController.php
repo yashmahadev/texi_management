@@ -52,17 +52,34 @@ class MonthlyDutyController extends Controller
     public function getVehiclesByType(Request $request)
     {
         $type = $request->type;
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+
         $vehicles = Vehicle::with('driver')
             ->where('status', 'active')
             ->where('vehicle_type', $type)
             ->get();
+
+        // Check for overlaps if dates are provided
+        $overlappingVehicleIds = [];
+        if ($startDate && $endDate) {
+            $overlappingVehicleIds = MonthlyDuty::where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('start_date', [$startDate, $endDate])
+                      ->orWhereBetween('end_date', [$startDate, $endDate])
+                      ->orWhere(function ($q) use ($startDate, $endDate) {
+                          $q->where('start_date', '<=', $startDate)
+                            ->where('end_date', '>=', $endDate);
+                      });
+            })->pluck('vehicle_id')->toArray();
+        }
             
-        $data = $vehicles->map(function($v) {
+        $data = $vehicles->map(function($v) use ($overlappingVehicleIds) {
             return [
                 'id' => $v->id,
                 'vehicle_number' => $v->vehicle_number,
                 'driver_name' => $v->driver->name ?? 'No Driver',
                 'driver_mobile' => $v->driver->mobile_number ?? '',
+                'is_assigned' => in_array($v->id, $overlappingVehicleIds)
             ];
         });
 

@@ -21,6 +21,16 @@
                     <label class="form-label">Officer Name *</label>
                     <input type="text" name="officer_name" class="form-control" value="{{ old('officer_name') }}" required>
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Start Date *</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">End Date *</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ old('end_date') }}" required>
+                </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Vehicle Type *</label>
@@ -35,23 +45,18 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Vehicle *</label>
                     <select name="vehicle_id" id="vehicle_id" class="form-select" required disabled>
-                        <option value="">Select Vehicle Type First</option>
+                        <option value="">Select Dates & Type First</option>
                     </select>
                 </div>
                 
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Start Date *</label>
-                    <input type="date" name="start_date" class="form-control" value="{{ old('start_date') }}" required>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">End Date *</label>
-                    <input type="date" name="end_date" class="form-control" value="{{ old('end_date') }}" required>
-                </div>
-                
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Expected Start Time *</label>
                     <input type="time" name="expected_start_time" class="form-control" value="{{ old('expected_start_time') }}" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Expected End Time</label>
+                    <input type="time" name="expected_end_time" class="form-control" value="{{ old('expected_end_time') }}">
                 </div>
 
                 <div class="col-md-4 mb-3">
@@ -83,20 +88,24 @@
 document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('vehicle_type');
     const vehicleSelect = document.getElementById('vehicle_id');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
 
-    typeSelect.addEventListener('change', function() {
-        const type = this.value;
+    function fetchVehicles() {
+        const type = typeSelect.value;
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
         
-        // Reset and disable vehicle select
-        vehicleSelect.innerHTML = '<option value="">Loading...</option>';
-        vehicleSelect.disabled = true;
-
-        if (!type) {
-            vehicleSelect.innerHTML = '<option value="">Select Vehicle Type First</option>';
+        if (!type || !startDate || !endDate) {
+            vehicleSelect.innerHTML = '<option value="">Select Dates & Type First</option>';
+            vehicleSelect.disabled = true;
             return;
         }
 
-        fetch(`{{ route('admin.monthly-duties.vehicles-by-type') }}?type=${type}`)
+        vehicleSelect.innerHTML = '<option value="">Loading...</option>';
+        vehicleSelect.disabled = true;
+
+        fetch(`{{ route('admin.monthly-duties.vehicles-by-type') }}?type=${type}&start_date=${startDate}&end_date=${endDate}`)
             .then(response => response.json())
             .then(data => {
                 vehicleSelect.innerHTML = '<option value="">Select Vehicle</option>';
@@ -106,7 +115,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(vehicle => {
                         const option = document.createElement('option');
                         option.value = vehicle.id;
-                        option.textContent = `${vehicle.vehicle_number} - ${vehicle.driver_name} (${vehicle.driver_mobile})`;
+                        let label = `${vehicle.vehicle_number} - ${vehicle.driver_name} (${vehicle.driver_mobile})`;
+                        
+                        if (vehicle.is_assigned) {
+                            option.disabled = true;
+                            label += ' [Already Assigned]';
+                        }
+                        
+                        option.textContent = label;
                         vehicleSelect.appendChild(option);
                     });
                     vehicleSelect.disabled = false;
@@ -116,7 +132,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error fetching vehicles:', error);
                 vehicleSelect.innerHTML = '<option value="">Error loading vehicles</option>';
             });
-    });
+    }
+
+    typeSelect.addEventListener('change', fetchVehicles);
+    startDateInput.addEventListener('change', fetchVehicles);
+    endDateInput.addEventListener('change', fetchVehicles);
 });
 </script>
 @endpush

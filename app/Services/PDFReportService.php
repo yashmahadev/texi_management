@@ -20,4 +20,28 @@ class PDFReportService
         
         return $pdf;
     }
+
+    public function generateBillProcessingReport($startDate, $endDate, $monthlyDutyId = null, $prefetchedLogs = null)
+    {
+        if ($prefetchedLogs) {
+            $logs = $prefetchedLogs;
+        } else {
+            $query = \App\Models\DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver'])
+                ->whereBetween('duty_date', [$startDate, $endDate]);
+
+            if ($monthlyDutyId) {
+                $query->where('monthly_duty_id', $monthlyDutyId);
+            }
+
+            $logs = $query->orderBy('duty_date')
+                ->get()
+                ->groupBy(function($log) {
+                    return $log->duty_date->format('Y-m-d');
+                });
+        }
+
+        $pdf = Pdf::loadView('admin.reports.bill-processing-pdf', compact('logs', 'startDate', 'endDate'));
+        
+        return $pdf;
+    }
 }

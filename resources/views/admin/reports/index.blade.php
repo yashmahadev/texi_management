@@ -1,7 +1,12 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<h2>Reports</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Reports</h2>
+    <a href="{{ route('admin.reports.bill-processing') }}" class="btn btn-primary">
+        <i class="bi bi-calculator"></i> Bill Processing Report
+    </a>
+</div>
 
 <div class="card shadow-sm mt-4">
     <div class="table-responsive">

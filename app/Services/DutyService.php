@@ -32,6 +32,7 @@ class DutyService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
                 'expected_start_time' => $data['expected_start_time'],
+                'expected_end_time' => $data['expected_end_time'] ?? null,
                 'state' => $data['state'] ?? null,
                 'city' => $data['city'] ?? null,
                 'pincode' => $data['pincode'] ?? null,

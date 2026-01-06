@@ -16,10 +16,34 @@ class CreateMonthlyDutyRequest extends FormRequest
         return [
             'department_name' => 'required|string|max:255',
             'officer_name' => 'required|string|max:255',
-            'vehicle_id' => 'required|exists:vehicles,id',
+            'vehicle_id' => [
+                'required',
+                'exists:vehicles,id',
+                function ($attribute, $value, $fail) {
+                    $startDate = $this->input('start_date');
+                    $endDate = $this->input('end_date');
+
+                    if ($startDate && $endDate) {
+                        $overlap = \App\Models\MonthlyDuty::where('vehicle_id', $value)
+                            ->where(function ($query) use ($startDate, $endDate) {
+                                $query->whereBetween('start_date', [$startDate, $endDate])
+                                      ->orWhereBetween('end_date', [$startDate, $endDate])
+                                      ->orWhere(function ($q) use ($startDate, $endDate) {
+                                          $q->where('start_date', '<=', $startDate)
+                                            ->where('end_date', '>=', $endDate);
+                                      });
+                            })->exists();
+
+                        if ($overlap) {
+                            $fail('This vehicle is already assigned to another duty during the selected period.');
+                        }
+                    }
+                },
+            ],
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'expected_start_time' => 'required',
+            'expected_end_time' => 'nullable',
             'state' => 'nullable|string|max:100',
             'city' => 'nullable|string|max:100',
             'pincode' => 'nullable|string|max:10',

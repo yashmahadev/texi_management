@@ -15,13 +15,13 @@ Need to change in monthly duties module
 
 ============================
 
+when vehicle delete driver should also delete
 
-threshold time for start & end duty with alert msg
+threshold time for start & end duty for alert msg trigger
 
-3. check all WhatsApp message in whole project
 another pdf report for passing the bill and it has been customisable all dates entries
-Monthly Duty form inside state, city, pincode
 
+check all WhatsApp message in whole project
 ============================
 
 additional

@@ -9,6 +9,17 @@
     <div class="card border-0 shadow-sm mb-3">
         <div class="card-body">
             <form action="{{ route('admin.daily-logs.index') }}" method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Duty (Dept/Officer)</label>
+                    <select name="monthly_duty_id" class="form-select">
+                        <option value="">All Duties</option>
+                        @foreach($duties as $duty)
+                            <option value="{{ $duty->id }}" {{ request('monthly_duty_id') == $duty->id ? 'selected' : '' }}>
+                                {{ $duty->department_name }} ({{ $duty->officer_name }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold">Start Date</label>
                     <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
@@ -19,7 +30,7 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold">Status</label>
-                    <select name="status" class="form-control">
+                    <select name="status" class="form-select">
                         <option value="">All Status</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Started</option>
@@ -28,10 +39,6 @@
                         <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="disputed" {{ request('status') == 'disputed' ? 'selected' : '' }}>Disputed</option>
                     </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Search (Vehicle/Driver)</label>
-                    <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ request('search') }}">
                 </div>
                 <div class="col-md-3 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>

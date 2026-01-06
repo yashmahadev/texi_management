@@ -15,11 +15,17 @@ class DailyDutyLogController extends Controller
 
     public function index(Request $request)
     {
+        $duties = \App\Models\MonthlyDuty::with(['vehicle', 'primaryDriver'])->latest()->get();
         $query = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver']);
 
-        // Default: only records up to current date
-        if (!$request->filled('start_date') && !$request->filled('end_date')) {
+        // Default: only records up to current date (if no filters)
+        if (!$request->filled('start_date') && !$request->filled('end_date') && !$request->filled('monthly_duty_id')) {
             $query->whereDate('duty_date', '<=', now()->toDateString());
+        }
+
+        // Filter by Monthly Duty
+        if ($request->filled('monthly_duty_id')) {
+            $query->where('monthly_duty_id', $request->monthly_duty_id);
         }
 
         // Filter by Date Range
@@ -49,7 +55,7 @@ class DailyDutyLogController extends Controller
 
         $logs = $query->latest('duty_date')->paginate(20)->withQueryString();
             
-        return view('admin.daily-logs.index', compact('logs'));
+        return view('admin.daily-logs.index', compact('logs', 'duties'));
     }
 
     public function show(DailyDutyLog $log)

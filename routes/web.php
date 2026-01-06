@@ -94,6 +94,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('reports', [ReportController::class, 'index'])
             ->name('reports.index')
             ->middleware('can:view_reports');
+        Route::get('reports/bill-processing', [ReportController::class, 'billProcessing'])
+            ->name('reports.bill-processing')
+            ->middleware('can:view_reports');
+        Route::post('reports/bill-processing/download', [ReportController::class, 'downloadBillProcessing'])
+            ->name('reports.bill-processing.download')
+            ->middleware('can:view_reports');
+        Route::post('reports/bill-processing/preview-download', [ReportController::class, 'previewBillProcessingPDF'])
+            ->name('reports.bill-processing.preview')
+            ->middleware('can:view_reports');
         Route::get('reports/{monthlyDuty}/download', [ReportController::class, 'download'])
             ->name('reports.download')
             ->middleware('can:download_reports');

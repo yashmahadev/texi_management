@@ -9,6 +9,17 @@ class Vehicle extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($vehicle) {
+            if ($vehicle->driver) {
+                $vehicle->driver->delete();
+            }
+        });
+    }
+
     protected $fillable = [
         'vehicle_number',
         'vehicle_type',
