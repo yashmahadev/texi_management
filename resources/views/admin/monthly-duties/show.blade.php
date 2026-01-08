@@ -18,7 +18,7 @@
                 <h6 class="text-muted">Assignment</h6>
                 <p class="mb-1"><strong>Dept:</strong> {{ $monthlyDuty->department_name }}</p>
                 <p class="mb-1"><strong>Officer:</strong> {{ $monthlyDuty->officer_name }}</p>
-                <p class="mb-1"><strong>Vehicle:</strong> {{ $monthlyDuty->vehicle->vehicle_number }}</p>
+                <p class="mb-1"><strong>Vehicle:</strong> <a href="{{ route('admin.vehicles.edit', $monthlyDuty->vehicle->id) }}"> {{ $monthlyDuty->vehicle->vehicle_number }} ({{ $monthlyDuty->vehicle->owner_mobile }}) </a></p>
                 <p class="mb-0"><strong>Driver:</strong> {{ $monthlyDuty->primaryDriver->name }}</p>
             </div>
         </div>

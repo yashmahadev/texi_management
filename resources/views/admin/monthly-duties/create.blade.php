@@ -14,12 +14,22 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Department Name *</label>
-                    <input type="text" name="department_name" class="form-control" value="{{ old('department_name') }}" required>
+                    <select name="department_name" id="department_name" class="form-control select2-tags" required>
+                        <option value="">Select or Type New Department</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept }}" {{ old('department_name') == $dept ? 'selected' : '' }}>{{ $dept }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Officer Name *</label>
-                    <input type="text" name="officer_name" class="form-control" value="{{ old('officer_name') }}" required>
+                    <select name="officer_name" id="officer_name" class="form-control select2-tags" required>
+                        <option value="">Select or Type New Officer</option>
+                        @foreach($officers as $officer)
+                            <option value="{{ $officer }}" {{ old('officer_name') == $officer ? 'selected' : '' }}>{{ $officer }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -87,6 +97,14 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2
+    $('.select2-tags').select2({
+        tags: true,
+        placeholder: 'Select or Type New',
+        allowClear: true,
+        width: '100%'
+    });
+
     const typeSelect = document.getElementById('vehicle_type');
     const vehicleSelect = document.getElementById('vehicle_id');
     const startDateInput = document.getElementById('start_date');
