@@ -18,7 +18,7 @@
                         <th>Vehicle Number</th>
                         <th>Type</th>
                         <th>Driver</th>
-                        <th>Owner</th>
+                        <th>Owner/Vendor</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>

@@ -129,7 +129,7 @@
             <div id="owner_details_section" class="{{ old('is_driver_owner', '1') == '1' ? 'd-none' : '' }}">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Owner Name *</label>
+                        <label class="form-label">Owner/Vendor Name *</label>
                         <input type="text" name="owner_name" class="form-control @error('owner_name') is-invalid @enderror" value="{{ old('owner_name') }}">
                         @error('owner_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
