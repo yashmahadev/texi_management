@@ -75,8 +75,9 @@
                 </div>
             </div>
             
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary px-4">Create Duty & Generate Logs</button>
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" name="action" value="save" class="btn btn-primary px-4">Create Duty & Generate Logs</button>
+                <button type="submit" name="action" value="save_and_create" class="btn btn-outline-primary px-4">Save & Create Another</button>
             </div>
         </form>
     </div>

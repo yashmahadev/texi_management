@@ -35,4 +35,9 @@ class DailyDutyLog extends Model
     {
         return $this->hasMany(DutyReplacement::class);
     }
+
+    public function billingLog()
+    {
+        return $this->hasOne(BillingLog::class);
+    }
 }

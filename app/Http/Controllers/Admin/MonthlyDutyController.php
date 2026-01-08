@@ -19,10 +19,28 @@ class MonthlyDutyController extends Controller
         $this->dutyService = $dutyService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', MonthlyDuty::class);
-        $duties = MonthlyDuty::with(['vehicle', 'primaryDriver'])->latest()->paginate(10);
+        $query = MonthlyDuty::with(['vehicle', 'primaryDriver']);
+
+        if ($request->filled('department')) {
+            $query->where('department_name', 'like', '%' . $request->department . '%');
+        }
+
+        if ($request->filled('officer')) {
+            $query->where('officer_name', 'like', '%' . $request->officer . '%');
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('end_date', '<=', $request->end_date);
+        }
+
+        $duties = $query->latest()->paginate(10)->withQueryString();
         return view('admin.monthly-duties.index', compact('duties'));
     }
 
@@ -38,6 +56,10 @@ class MonthlyDutyController extends Controller
     {
         $this->authorize('create', MonthlyDuty::class);
         $this->dutyService->createMonthlyDuty($request->validated(), Auth::id());
+
+        if ($request->input('action') === 'save_and_create') {
+            return redirect()->route('admin.monthly-duties.create')->with('success', 'Monthly duty created. You can create another one now.');
+        }
 
         return redirect()->route('admin.monthly-duties.index')->with('success', 'Monthly duty created successfully.');
     }

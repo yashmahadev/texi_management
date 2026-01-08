@@ -26,3 +26,10 @@ check all WhatsApp message in whole project
 
 additional
 when vehicle & driver registered then send message on WhatsApp.
+
+
+Naming changes in whole project
+in monthly duties add btn save & create
+in montly duties show filters
+dropdown with create 
+save billing proccessing data into other table like OG logs of driver & copy for billing

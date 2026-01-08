@@ -3,22 +3,26 @@
 <head>
     <title>Bill Processing Report</title>
     <style>
-        body { font-family: sans-serif; font-size: 11px; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+    <style>
+        @page { margin: 20px; }
+        body { font-family: sans-serif; font-size: 10px; color: #333; margin: 0; padding: 0; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: left; word-wrap: break-word; overflow: hidden; }
         th { background-color: #f0f0f0; font-weight: bold; }
-        .header { text-align: center; margin-bottom: 25px; }
-        .footer { margin-top: 40px; }
-        .summary { margin-top: 20px; float: right; width: 250px; }
-        .date-header { background-color: #e9ecef; font-weight: bold; padding: 8px; border: 1px solid #000; }
+        .header { text-align: center; margin-bottom: 15px; }
+        .footer { margin-top: 30px; position: relative; }
+        .summary { margin-top: 15px; float: right; width: 200px; }
+        .date-header { background-color: #e9ecef; font-weight: bold; padding: 6px; border: 1px solid #000; }
         .grand-total { font-weight: bold; background: #eee; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2>Government Vehicle Log Book</h2>
-        <h3>Consolidated Bill Processing Report</h3>
-        <p>Period: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+        <h2 style="margin: 0; padding: 0;">Government Vehicle Log Book</h2>
+        <h3 style="margin: 5px 0; padding: 0;">Consolidated Bill Processing Report</h3>
+        <p style="margin: 0; padding: 0;">Period: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
     </div>
 
     @php 
@@ -29,14 +33,14 @@
     <table>
         <thead>
             <tr>
-                <th width="80">Date</th>
-                <th width="100">Vehicle</th>
-                <th width="100">Driver</th>
+                <th width="70">Date</th>
+                <th width="90">Vehicle</th>
+                <th width="110">Driver</th>
                 <th>Dept / Description</th>
-                <th width="70">Times</th>
-                <th width="60">KM Start</th>
-                <th width="60">KM End</th>
-                <th width="60">Total</th>
+                <th width="120">Times</th>
+                <th width="70" class="text-right">KM Start</th>
+                <th width="70" class="text-right">KM End</th>
+                <th width="60" class="text-right">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -55,10 +59,10 @@
                     <td>{{ $log->monthlyDuty->vehicle->vehicle_number }}</td>
                     <td>{{ $log->monthlyDuty->primaryDriver->name }}</td>
                     <td>{{ $log->monthlyDuty->department_name }}</td>
-                    <td>{{ $log->start_time }} - {{ $log->end_time }}</td>
-                    <td>{{ $log->start_km }}</td>
-                    <td>{{ $log->end_km }}</td>
-                    <td style="font-weight: bold;">{{ $log->total_km }}</td>
+                    <td class="text-center">{{ $log->start_time ?? '-' }} - {{ $log->end_time ?? '-' }}</td>
+                    <td class="text-right">{{ $log->start_km ?? '0' }}</td>
+                    <td class="text-right">{{ $log->end_km ?? '0' }}</td>
+                    <td class="text-right" style="font-weight: bold;">{{ $log->total_km ?? '0' }}</td>
                 </tr>
                 @endforeach
             @empty

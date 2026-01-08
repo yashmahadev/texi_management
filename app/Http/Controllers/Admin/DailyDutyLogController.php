@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 
 class DailyDutyLogController extends Controller
 {
-    public function __construct()
+    protected $auditLogger;
+
+    public function __construct(\App\Services\AuditLogService $auditLogger)
     {
-        // Protected by middleware in web.php
+        $this->auditLogger = $auditLogger;
     }
 
     public function index(Request $request)
@@ -86,6 +88,8 @@ class DailyDutyLogController extends Controller
 
         $log->update($request->all());
 
+        $this->auditLogger->log('Manual Update', 'daily_duty_logs', $log->id, "Updated by Admin/Operator");
+
         return redirect()->route('admin.daily-logs.show', $log->id)
             ->with('success', 'Log updated successfully.');
     }
@@ -104,15 +108,7 @@ class DailyDutyLogController extends Controller
         
         $log->update(['status' => $request->status]);
         
-        // Audit log? handled by service or manually here?
-        // Better to use Service or creating AuditLog directly
-        \App\Models\AuditLog::create([
-            'entity_type' => 'daily_duty_logs',
-            'entity_id' => $log->id,
-            'action' => 'verify_status_' . $request->status,
-            'performed_by' => \Illuminate\Support\Facades\Auth::id(),
-            'remarks' => $request->remarks,
-        ]);
+        $this->auditLogger->log('verify_status_' . $request->status, 'daily_duty_logs', $log->id, $request->remarks);
         
         return back()->with('success', 'Status updated.');
     }

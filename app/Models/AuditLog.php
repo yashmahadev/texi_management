@@ -14,11 +14,12 @@ class AuditLog extends Model
         'entity_id',
         'action',
         'performed_by',
+        'performer_type',
         'remarks',
     ];
 
     public function performer()
     {
-        return $this->belongsTo(User::class, 'performed_by');
+        return $this->morphTo('performer', 'performer_type', 'performed_by');
     }
 }

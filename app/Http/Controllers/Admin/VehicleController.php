@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Storage;
 class VehicleController extends Controller
 {
     protected $whatsAppService;
+    protected $auditLogger;
 
-    public function __construct(WhatsAppService $whatsAppService)
+    public function __construct(WhatsAppService $whatsAppService, \App\Services\AuditLogService $auditLogger)
     {
         $this->whatsAppService = $whatsAppService;
+        $this->auditLogger = $auditLogger;
     }
 
     /**
@@ -131,6 +133,8 @@ class VehicleController extends Controller
                 'owner_pancard_number' => $ownerPan,
             ]);
 
+            $this->auditLogger->log('Create Vehicle', 'vehicles', $vehicle->id, "Created vehicle {$vehicle->vehicle_number} with driver {$driver->name}");
+
             DB::commit();
 
             return redirect()->route('admin.vehicles.index')
@@ -236,6 +240,8 @@ class VehicleController extends Controller
                 'owner_pancard_number' => $ownerPan,
             ]);
 
+            $this->auditLogger->log('Update Vehicle', 'vehicles', $vehicle->id, "Updated details for {$vehicle->vehicle_number}");
+
             DB::commit();
 
             return redirect()->route('admin.vehicles.index')
@@ -258,7 +264,11 @@ class VehicleController extends Controller
             return back()->withErrors(['error' => 'Cannot delete vehicle with associated duties.']);
         }
 
+        $vehicleNumber = $vehicle->vehicle_number;
+        $vehicleId = $vehicle->id;
         $vehicle->delete();
+
+        $this->auditLogger->log('Delete Vehicle', 'vehicles', $vehicleId, "Deleted vehicle {$vehicleNumber}");
 
         return redirect()->route('admin.vehicles.index')
             ->with('success', 'Vehicle deleted successfully.');

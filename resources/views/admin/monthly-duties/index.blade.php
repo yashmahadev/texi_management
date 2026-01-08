@@ -8,6 +8,33 @@
     </a>
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form action="{{ route('admin.monthly-duties.index') }}" method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Department</label>
+                <input type="text" name="department" class="form-control" placeholder="Search Dept..." value="{{ request('department') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Officer</label>
+                <input type="text" name="officer" class="form-control" placeholder="Search Officer..." value="{{ request('officer') }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Start Date</label>
+                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">End Date</label>
+                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <a href="{{ route('admin.monthly-duties.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="card shadow-sm">
     <div class="table-responsive">
         <table class="table table-hover mb-0">

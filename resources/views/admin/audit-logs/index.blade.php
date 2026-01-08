@@ -40,8 +40,9 @@
                     <td>
                         @if($log->performer)
                             {{ $log->performer->name }}
+                            <small class="text-muted">({{ $log->performer_type == \App\Models\User::class ? 'Admin' : 'Driver' }})</small>
                         @elseif($log->performed_by)
-                            <span class="text-muted">ID: {{ $log->performed_by }}</span>
+                            <span class="text-muted">ID: {{ $log->performed_by }} ({{ $log->performer_type }})</span>
                         @else
                             <span class="badge bg-secondary">System</span>
                         @endif
