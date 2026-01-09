@@ -61,8 +61,8 @@ class RolePermissionSeeder extends Seeder
 
         // Assign Permissions
         $permissionNames = array_keys($permissions);
-        $ownerRole->givePermissionTo($permissionNames); // Owner has all permissions
-        $adminRole->givePermissionTo($permissionNames); // Admin has all permissions (for now)
+        $ownerRole->syncPermissions($permissionNames); // Owner has all permissions
+        $adminRole->syncPermissions($permissionNames); // Admin has all permissions (for now)
         
         // Driver permissions - strictly for the driver guard
         // Note: Spatie Permission separates permissions by guard. 

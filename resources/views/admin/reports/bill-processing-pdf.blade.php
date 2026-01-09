@@ -20,9 +20,32 @@
 </head>
 <body>
     <div class="header">
-        <h2 style="margin: 0; padding: 0;">Government Vehicle Log Book</h2>
-        <h3 style="margin: 5px 0; padding: 0;">Consolidated Bill Processing Report</h3>
-        <p style="margin: 0; padding: 0;">Period: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+        <table style="border: none; width: 100%;">
+            <tr style="border: none;">
+                <td style="border: none; width: 100px; vertical-align: middle;">
+                    @if($company['logo'])
+                        <img src="{{ public_path('storage/' . $company['logo']) }}" style="max-height: 60px;">
+                    @endif
+                </td>
+                <td style="border: none; text-align: left; vertical-align: middle;">
+                    <h2 style="margin: 0; padding: 0;">{{ $company['name'] }}</h2>
+                    @if($company['address'])
+                        <p style="margin: 2px 0; font-size: 9px;">{{ $company['address'] }}</p>
+                    @endif
+                    @if($company['mobile'] || $company['email'])
+                        <p style="margin: 1px 0; font-size: 9px;">
+                            {{ $company['mobile'] ? 'Mob: ' . $company['mobile'] : '' }}
+                            {{ $company['mobile'] && $company['email'] ? ' | ' : '' }}
+                            {{ $company['email'] ? 'Email: ' . $company['email'] : '' }}
+                        </p>
+                    @endif
+                </td>
+                <td style="border: none; text-align: right; vertical-align: bottom;">
+                    <h3 style="margin: 0; padding: 0; text-decoration: underline;">Bill Processing Report</h3>
+                    <p style="margin: 2px 0; padding: 0;">Period: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     @php 

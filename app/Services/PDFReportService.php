@@ -17,9 +17,22 @@ class PDFReportService
         $totalDuties = $monthlyDuty->dailyLogs->count();
         $completedDuties = $monthlyDuty->dailyLogs->where('status', 'completed')->count();
 
-        $pdf = Pdf::loadView('admin.reports.monthly-pdf', compact('monthlyDuty', 'totalKm', 'totalDuties', 'completedDuties'));
+        $company = $this->getCompanySettings();
+
+        $pdf = Pdf::loadView('admin.reports.monthly-pdf', compact('monthlyDuty', 'totalKm', 'totalDuties', 'completedDuties', 'company'));
         
         return $pdf;
+    }
+
+    private function getCompanySettings()
+    {
+        return [
+            'name' => \App\Models\Setting::get('company_name', 'Government Vehicle Log Book'),
+            'address' => \App\Models\Setting::get('company_address'),
+            'mobile' => \App\Models\Setting::get('company_mobile'),
+            'email' => \App\Models\Setting::get('company_email'),
+            'logo' => \App\Models\Setting::get('company_logo'),
+        ];
     }
 
     public function generateBillProcessingReport($startDate, $endDate, $monthlyDutyId = null, $prefetchedLogs = null)
@@ -51,7 +64,9 @@ class PDFReportService
                 });
         }
 
-        $pdf = Pdf::loadView('admin.reports.bill-processing-pdf', compact('logs', 'startDate', 'endDate'))
+        $company = $this->getCompanySettings();
+
+        $pdf = Pdf::loadView('admin.reports.bill-processing-pdf', compact('logs', 'startDate', 'endDate', 'company'))
             ->setPaper('a4', 'landscape');
         
         return $pdf;

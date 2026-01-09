@@ -14,8 +14,21 @@
 </head>
 <body>
     <div class="header">
-        <h2>Government Vehicle Log Book</h2>
-        <h3>Duty Report for {{ $monthlyDuty->start_date->format('F Y') }}</h3>
+        @if($company['logo'])
+            <img src="{{ public_path('storage/' . $company['logo']) }}" style="max-height: 80px; margin-bottom: 10px;">
+        @endif
+        <h2 style="margin: 0; padding: 0;">{{ $company['name'] }}</h2>
+        @if($company['address'])
+            <p style="margin: 5px 0; font-size: 10px;">{{ $company['address'] }}</p>
+        @endif
+        @if($company['mobile'] || $company['email'])
+            <p style="margin: 2px 0; font-size: 10px;">
+                {{ $company['mobile'] ? 'Mobile: ' . $company['mobile'] : '' }}
+                {{ $company['mobile'] && $company['email'] ? ' | ' : '' }}
+                {{ $company['email'] ? 'Email: ' . $company['email'] : '' }}
+            </p>
+        @endif
+        <h3 style="margin: 15px 0 5px 0; padding: 0; text-decoration: underline;">Monthly Duty Report - {{ $monthlyDuty->start_date->format('F Y') }}</h3>
     </div>
 
     <div>
