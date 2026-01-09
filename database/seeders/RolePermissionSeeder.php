@@ -71,14 +71,17 @@ class RolePermissionSeeder extends Seeder
         // If drivers use a different guard, we must ensure permissions exist for that guard.
         
         $driverPermissions = [
-            'view_monthly_duty',
-            'log_duty',
+            'view_monthly_duty' => 'Driver Monthly Duties',
+            'log_duty' => 'Driver Duties Log',
         ];
         
-        foreach ($driverPermissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'driver']);
+        foreach ($driverPermissions as $name => $displayName) {
+            Permission::firstOrCreate(
+                ['name' => $name, 'guard_name' => 'driver'],
+                ['display_name' => $displayName]
+            )->update(['display_name' => $displayName]);
         }
         
-        $driverRole->givePermissionTo($driverPermissions);
+        $driverRole->syncPermissions(array_keys($driverPermissions));
     }
 }
