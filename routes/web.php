@@ -121,6 +121,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])
             ->name('audit-logs.index')
             ->middleware('can:view_audit_logs');
+
+        // Settings
+        Route::get('settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])
+            ->name('settings.index')
+            ->middleware('can:manage_settings');
+        Route::post('settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])
+            ->name('settings.update')
+            ->middleware('can:manage_settings');
     });
 });
 

@@ -104,6 +104,12 @@
                         <i class="bi bi-key me-2"></i> Permissions
                     </a>
                     @endcan
+
+                    @can('manage_settings')
+                    <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <i class="bi bi-gear me-2"></i> Settings
+                    </a>
+                    @endcan
                     <form action="{{ route('admin.logout') }}" method="POST" class="mt-3">
                         @csrf
                         <button type="submit" class="btn btn-link text-white w-100 text-start">

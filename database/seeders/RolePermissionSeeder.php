@@ -44,6 +44,7 @@ class RolePermissionSeeder extends Seeder
             // Access Control
             'manage_roles' => 'Manage Roles',
             'manage_permissions' => 'Manage Permissions',
+            'manage_settings' => 'Manage System Settings',
         ];
 
         foreach ($permissions as $name => $displayName) {
