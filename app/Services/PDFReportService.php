@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\MonthlyDuty;
+use App\Models\DailyDutyLog;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PDFReportService
