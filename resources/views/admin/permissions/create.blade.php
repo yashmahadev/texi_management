@@ -28,6 +28,17 @@
                 <div class="form-text mt-2">Use snake_case for permission names (e.g., manage_fleet).</div>
             </div>
 
+            <div class="mb-4">
+                <label class="form-label">Guard *</label>
+                <select name="guard_name" class="form-select @error('guard_name') is-invalid @enderror" required>
+                    <option value="web" {{ old('guard_name') == 'web' ? 'selected' : '' }}>Web (Admin Panel)</option>
+                    <option value="driver" {{ old('guard_name') == 'driver' ? 'selected' : '' }}>Driver (App)</option>
+                </select>
+                @error('guard_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-save me-2"></i> Create Permission
             </button>

@@ -24,11 +24,13 @@ class PermissionController extends Controller
         $request->validate([
             'name' => 'required|unique:permissions,name',
             'display_name' => 'required|string|max:255',
+            'guard_name' => 'required|in:web,driver',
         ]);
 
         Permission::create([
             'name' => $request->name,
             'display_name' => $request->display_name,
+            'guard_name' => $request->guard_name,
         ]);
 
         return redirect()->route('admin.permissions.index')->with('success', 'Permission created successfully.');
