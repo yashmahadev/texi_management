@@ -24,6 +24,7 @@ class Driver extends Authenticatable
         'city',
         'pincode',
         'status',
+        'fcm_token',
     ];
 
     public function vehicle()

@@ -41,6 +41,50 @@ Route::get('/test-whatsapp', function (\App\Services\WhatsAppService $whatsapp) 
     ];
 });
 
+Route::get('/test-fcm', function (Illuminate\Http\Request $request, \App\Services\FcmService $fcm) {
+    $token = $request->query('token');
+    $title = $request->query('title', 'Test Notification');
+    $body = $request->query('body', 'This is a test notification from Laravel.');
+
+    if (!$token) {
+        return response()->json([
+            'error' => 'Device token is required. Use ?token=YOUR_TOKEN',
+            'hint' => 'You also need to place your Firebase Service Account JSON at storage/app/firebase-auth.json'
+        ], 400);
+    }
+
+    $success = $fcm->sendNotification($token, $title, $body, ['click_action' => 'FLUTTER_NOTIFICATION_CLICK']);
+
+    return response()->json([
+        'success' => $success,
+        'message' => $success ? 'Notification sent successfully' : 'Failed to send notification. Check logs.',
+    ]);
+});
+
+Route::post('/update-fcm-token', function (Illuminate\Http\Request $request) {
+    try {
+        $request->validate([
+            'token' => 'required|string',
+        ]);
+
+        $user = null;
+        if (auth('web')->check()) {
+            $user = auth('web')->user();
+        } elseif (auth('driver')->check()) {
+            $user = auth('driver')->user();
+        }
+
+        if ($user) {
+            $user->update(['fcm_token' => $request->token]);
+            return response()->json(['success' => true, 'message' => 'Token updated successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+})->name('update-fcm-token');
+
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
     
