@@ -109,6 +109,18 @@ class WhatsAppService
     }
 
     /**
+     * Unified method to send any template message.
+     * 
+     * @param string $to Recipient phone number (e.g., 9876543210 or +919876543210)
+     * @param string $templateName Key from config/services.php
+     * @param array $placeholders Map of placeholders e.g. ["1" => "Value1"]
+     */
+    public function sendWithTemplate(string $to, string $templateName, array $placeholders = [])
+    {
+        return $this->sendByName($templateName, $to, $placeholders);
+    }
+
+    /**
      * Send a WhatsApp message using a pre-defined template name from config.
      * 
      * @param string $name Template name (key in config/services.php twilio.templates)
@@ -170,9 +182,15 @@ class WhatsAppService
         }
 
         try {
-            // Ensure phone number has whatsapp: prefix and no extra quotes/spaces
-            $target = trim($phoneNumber, " \"'");
-            $to = str_starts_with($target, 'whatsapp:') ? $target : "whatsapp:{$target}";
+            // Normalize phone number
+            $target = trim($phoneNumber, " \"'+");
+            
+            // Assume 91 if no country code provided (10 digits)
+            if (strlen($target) === 10) {
+                $target = "91" . $target;
+            }
+            
+            $to = "whatsapp:+" . $target;
 
             $options = array_merge([
                 'from' => $this->from,
@@ -182,10 +200,10 @@ class WhatsAppService
                 $options['body'] = $text;
             }
 
-            $message = $this->client->messages->create("+91".$to, $options);
+            $message = $this->client->messages->create($to, $options);
 
             if ($message->sid) {
-                $log->update(['status' => 'sent', 'message_id' => $message->sid]); // Assuming message_id column exists or just status update
+                $log->update(['status' => 'sent', 'message_id' => $message->sid]);
                 return true;
             } else {
                 $log->update(['status' => 'failed']);

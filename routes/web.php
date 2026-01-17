@@ -85,6 +85,49 @@ Route::post('/update-fcm-token', function (Illuminate\Http\Request $request) {
     }
 })->name('update-fcm-token');
 
+Route::get('/test-whatsapp-template', function (Illuminate\Http\Request $request, \App\Services\WhatsAppService $whatsapp) {
+    $to = $request->query('to');
+    $template = $request->query('template', 'otp');
+    
+    if (!$to) {
+        return response()->json([
+            'error' => 'Phone number is required. Use ?to=9876543210',
+            'available_templates' => ['otp', 'duty_assigned', 'delay_alert', 'duty_cancelled', 'payment_invoice']
+        ], 400);
+    }
+
+    // Example variables for various templates based on current config/services.php
+    $vars = match($template) {
+        'otp' => ["1" => "123456"],
+        'duty_assigned' => [
+            "1" => "John Doe",
+            "2" => "GJ01AB1234",
+            "3" => "10:00 AM",
+            "4" => "Airport Terminal 1"
+        ],
+        'delay_alert' => [
+            "1" => "Logistics",
+            "2" => "GJ01AB1234",
+            "3" => "09:30 AM"
+        ],
+        'duty_cancelled' => ["1" => "DUTY-123"],
+        'payment_invoice' => [
+            "1" => "Jane Smith",
+            "2" => "1500",
+            "3" => "INV-2024-001"
+        ],
+        default => ["1" => "Test Value"]
+    };
+
+    $success = $whatsapp->sendWithTemplate('+91'.$to, $template, $vars);
+
+    return response()->json([
+        'success' => $success,
+        'message' => $success ? "Template '{$template}' sent to {$to}" : "Failed to send template '{$template}'",
+        'hint' => 'Check Twilio logs or WhatsAppLog table/Laravel logs for details.'
+    ]);
+});
+
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
     
