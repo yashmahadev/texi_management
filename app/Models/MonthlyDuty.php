@@ -10,6 +10,8 @@ class MonthlyDuty extends Model
     use HasFactory;
 
     protected $fillable = [
+        'group',
+        'department_id',
         'department_name',
         'officer_name',
         'vehicle_id',
@@ -23,6 +25,11 @@ class MonthlyDuty extends Model
         'pincode',
         'created_by',
     ];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 
     protected $casts = [
         'start_date' => 'date',

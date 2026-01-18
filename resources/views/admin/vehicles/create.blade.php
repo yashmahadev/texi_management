@@ -2,169 +2,283 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Add Vehicle & Driver</h2>
+    <h2>Add Owner, Vehicles & Drivers</h2>
     <a href="{{ route('admin.vehicles.index') }}" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left me-2"></i> Back
     </a>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body">
-        <form action="{{ route('admin.vehicles.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            
-            <h5 class="mb-3 text-primary">Vehicle Details</h5>
-            <div class="row mb-4">
+<form action="{{ route('admin.vehicles.store') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    
+    <!-- Owner Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Owner Details</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Vehicle Number *</label>
-                    <input type="text" name="vehicle_number" class="form-control @error('vehicle_number') is-invalid @enderror" value="{{ old('vehicle_number') }}" required placeholder="e.g. GJ01AB1234">
-                    @error('vehicle_number')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">Owner/Vendor Name *</label>
+                    <input type="text" name="owner_name" class="form-control @error('owner_name') is-invalid @enderror" value="{{ old('owner_name') }}" required>
+                    @error('owner_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Type *</label>
-                    <select name="vehicle_type" class="form-select @error('vehicle_type') is-invalid @enderror" required>
-                        <option value="">Select Type</option>
-                        @foreach($types as $type)
-                            <option value="{{ $type }}" {{ old('vehicle_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
-                        @endforeach
-                    </select>
-                    @error('vehicle_type')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">Owner Mobile *</label>
+                    <input type="text" name="owner_mobile" class="form-control @error('owner_mobile') is-invalid @enderror" value="{{ old('owner_mobile') }}" required maxlength="10">
+                    @error('owner_mobile') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">PUC Expiry Date</label>
-                    <input type="date" name="puc_expiry_date" class="form-control @error('puc_expiry_date') is-invalid @enderror" value="{{ old('puc_expiry_date') }}">
-                    @error('puc_expiry_date')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">Owner Aadhaar Number</label>
+                    <input type="text" name="owner_aadhaar_number" class="form-control @error('owner_aadhaar_number') is-invalid @enderror" value="{{ old('owner_aadhaar_number') }}">
                 </div>
-
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Status *</label>
-                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
-                        <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="maintenance" {{ old('status') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
-                        <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                    @error('status')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">Owner PAN Card Number</label>
+                    <input type="text" name="owner_pancard_number" class="form-control @error('owner_pancard_number') is-invalid @enderror" value="{{ old('owner_pancard_number') }}">
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Owner Address</label>
+                    <textarea name="owner_address" class="form-control @error('owner_address') is-invalid @enderror" rows="1">{{ old('owner_address') }}</textarea>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <hr>
-
-            <h5 class="mb-3 text-primary">Driver Details (Mandatory)</h5>
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Driver Name *</label>
-                    <input type="text" name="driver_name" class="form-control @error('driver_name') is-invalid @enderror" value="{{ old('driver_name') }}" required>
-                    @error('driver_name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Mobile Number *</label>
-                    <input type="text" name="mobile_number" class="form-control @error('mobile_number') is-invalid @enderror" value="{{ old('mobile_number') }}" required maxlength="10">
-                    @error('mobile_number')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Driving Licence Number</label>
-                    <input type="text" name="driving_licence_number" class="form-control @error('driving_licence_number') is-invalid @enderror" value="{{ old('driving_licence_number') }}">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">DL Document</label>
-                    <input type="file" name="driving_licence_document" class="form-control @error('driving_licence_document') is-invalid @enderror">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Aadhaar Number</label>
-                    <input type="text" name="aadhaar_number" class="form-control @error('aadhaar_number') is-invalid @enderror" value="{{ old('aadhaar_number') }}">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Aadhaar Document</label>
-                    <input type="file" name="aadhaar_document" class="form-control @error('aadhaar_document') is-invalid @enderror">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Alternate Contact</label>
-                    <input type="text" name="alternate_contact_number" class="form-control" value="{{ old('alternate_contact_number') }}">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Relation</label>
-                    <select name="relationship_with_alternate_contact" class="form-select">
-                        <option value="">Select Relation</option>
-                        @foreach(['Father', 'Mother', 'Brother', 'Sister', 'Wife', 'Friend', 'Other'] as $relation)
-                            <option value="{{ $relation }}" {{ old('relationship_with_alternate_contact') == $relation ? 'selected' : '' }}>{{ $relation }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">State</label>
-                    <input type="text" name="state" class="form-control" value="{{ old('state') }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">City</label>
-                    <input type="text" name="city" class="form-control" value="{{ old('city') }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Pincode</label>
-                    <input type="text" name="pincode" class="form-control" value="{{ old('pincode') }}">
-                </div>
-            </div>
-
-            <hr>
-
-            <h5 class="mb-3 text-primary">Ownership Info</h5>
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" name="is_driver_owner" id="is_driver_owner" value="1" {{ old('is_driver_owner', '1') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label fw-bold" for="is_driver_owner">Driver is the Owner</label>
-            </div>
-
-            <div id="owner_details_section" class="{{ old('is_driver_owner', '1') == '1' ? 'd-none' : '' }}">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Owner/Vendor Name *</label>
-                        <input type="text" name="owner_name" class="form-control @error('owner_name') is-invalid @enderror" value="{{ old('owner_name') }}">
-                        @error('owner_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Owner Mobile *</label>
-                        <input type="text" name="owner_mobile" class="form-control @error('owner_mobile') is-invalid @enderror" value="{{ old('owner_mobile') }}" maxlength="10">
-                        @error('owner_mobile') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Owner Aadhaar Number</label>
-                        <input type="text" name="owner_aadhaar_number" class="form-control" value="{{ old('owner_aadhaar_number') }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Owner PAN Card Number</label>
-                        <input type="text" name="owner_pancard_number" class="form-control" value="{{ old('owner_pancard_number') }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end mt-4">
-                <button type="submit" class="btn btn-primary btn-lg px-5">
-                    <i class="bi bi-save me-2"></i> Save Vehicle & Driver
+    <!-- Vehicles & Drivers Container -->
+    <div id="vehicle-driver-container">
+        <!-- Initial Section -->
+        <div class="vehicle-driver-block card shadow-sm border-0 mb-4" data-index="0">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Vehicle & Driver #1</h5>
+                <button type="button" class="btn btn-danger btn-sm remove-block d-none">
+                    <i class="bi bi-trash me-1"></i> Remove
                 </button>
             </div>
-        </form>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Vehicle Details -->
+                    <div class="col-md-12 mb-2">
+                        <h6 class="text-primary border-bottom pb-2">Vehicle Details</h6>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Vehicle Number *</label>
+                        <input type="text" name="vehicles[0][vehicle_number]" class="form-control" required placeholder="GJ01AB1234">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Make & Model *</label>
+                        <input type="text" name="vehicles[0][make_model]" class="form-control" required placeholder="e.g. Swift Dzire">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Fuel Type *</label>
+                        <select name="vehicles[0][fuel_type]" class="form-select" required>
+                            <option value="Petrol">Petrol</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="CNG">CNG</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Transmission *</label>
+                        <select name="vehicles[0][transmission_type]" class="form-select" required>
+                            <option value="Manual">Manual</option>
+                            <option value="Automatic">Automatic</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Color</label>
+                        <input type="text" name="vehicles[0][color]" class="form-control" placeholder="e.g. White">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Vehicle Category *</label>
+                        <select name="vehicles[0][vehicle_type]" class="form-select vehicle-type-select" required>
+                            @foreach($types as $type)
+                                <option value="{{ $type }}">{{ $type }}</option>
+                            @endforeach
+                            <option value="Bus">Bus</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3 d-none custom-type-input">
+                        <label class="form-label">Specify Type *</label>
+                        <input type="text" name="vehicles[0][vehicle_type_custom]" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Pass Type *</label>
+                        <select name="vehicles[0][pass_type]" class="form-select" required>
+                            <option value="Private">Private Pass</option>
+                            <option value="Taxi">Taxi Pass</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">PUC Expiry</label>
+                        <input type="date" name="vehicles[0][puc_expiry_date]" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">RC Book (Upload)</label>
+                        <input type="file" name="vehicles[0][rc_book]" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Challan Count</label>
+                        <input type="number" name="vehicles[0][challan_count]" class="form-control" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Total Challan Amt</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="vehicles[0][challan_amount]" class="form-control" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Insurance Details</label>
+                        <textarea name="vehicles[0][insurance_details]" class="form-control" rows="1"></textarea>
+                    </div>
+
+                    <!-- Driver Details -->
+                    <div class="col-md-12 mb-2 mt-2">
+                        <h6 class="text-primary border-bottom pb-2">Driver Details</h6>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Driver Name *</label>
+                        <input type="text" name="vehicles[0][driver_name]" class="form-control" required>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Mobile *</label>
+                        <input type="text" name="vehicles[0][driver_mobile]" class="form-control" required maxlength="10">
+                    </div>
+                    <div class="col-md-1 mb-3">
+                        <label class="form-label">Age</label>
+                        <input type="number" name="vehicles[0][driver_age]" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">DL Number</label>
+                        <input type="text" name="vehicles[0][driver_dl_number]" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">DL Expiry</label>
+                        <input type="date" name="vehicles[0][driver_dl_expiry]" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Driver Address</label>
+                        <input type="text" name="vehicles[0][driver_address]" class="form-control">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Police Verified?</label>
+                        <select name="vehicles[0][is_police_verified]" class="form-select police-verified-select">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3 d-none police-doc-input">
+                        <label class="form-label">PV Document *</label>
+                        <input type="file" name="vehicles[0][police_verification_document]" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">DL (Upload)</label>
+                        <input type="file" name="vehicles[0][driver_dl_document]" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+
+    <div class="mb-4">
+        <button type="button" id="add-vehicle" class="btn btn-outline-primary px-4">
+            <i class="bi bi-plus-circle me-2"></i> Add Another Vehicle & Driver
+        </button>
+    </div>
+
+    <div class="d-flex justify-content-end mb-5">
+        <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+            <i class="bi bi-save me-2"></i> Save All Details
+        </button>
+    </div>
+</form>
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('is_driver_owner');
-        const section = document.getElementById('owner_details_section');
-        toggle.addEventListener('change', function() {
-            section.classList.toggle('d-none', this.checked);
+        let blockIndex = 1;
+        const container = document.getElementById('vehicle-driver-container');
+        const addButton = document.getElementById('add-vehicle');
+
+        // Function to handle conditional inputs
+        function initBlockEvents(block) {
+            const vehicleTypeSelect = block.querySelector('.vehicle-type-select');
+            const customTypeInput = block.querySelector('.custom-type-input');
+            const policeVerifiedSelect = block.querySelector('.police-verified-select');
+            const policeDocInput = block.querySelector('.police-doc-input');
+
+            vehicleTypeSelect.addEventListener('change', function() {
+                if (this.value === 'Bus') {
+                    customTypeInput.classList.remove('d-none');
+                    customTypeInput.querySelector('input').setAttribute('required', 'required');
+                } else {
+                    customTypeInput.classList.add('d-none');
+                    customTypeInput.querySelector('input').removeAttribute('required');
+                }
+            });
+
+            policeVerifiedSelect.addEventListener('change', function() {
+                if (this.value === '1') {
+                    policeDocInput.classList.remove('d-none');
+                    policeDocInput.querySelector('input').setAttribute('required', 'required');
+                } else {
+                    policeDocInput.classList.add('d-none');
+                    policeDocInput.querySelector('input').removeAttribute('required');
+                }
+            });
+
+            const removeBtn = block.querySelector('.remove-block');
+            removeBtn.addEventListener('click', function() {
+                block.remove();
+                updateBlockCounters();
+            });
+        }
+
+        function updateBlockCounters() {
+            const blocks = container.querySelectorAll('.vehicle-driver-block');
+            blocks.forEach((block, idx) => {
+                block.querySelector('h5').innerText = `Vehicle & Driver #${idx + 1}`;
+                const removeBtn = block.querySelector('.remove-block');
+                if (blocks.length > 1) {
+                    removeBtn.classList.remove('d-none');
+                } else {
+                    removeBtn.classList.add('d-none');
+                }
+            });
+        }
+
+        // Initialize first block
+        initBlockEvents(container.querySelector('.vehicle-driver-block'));
+
+        addButton.addEventListener('click', function() {
+            const firstBlock = container.querySelector('.vehicle-driver-block');
+            const newBlock = firstBlock.cloneNode(true);
+            
+            // Update names to use new index
+            const inputs = newBlock.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    input.setAttribute('name', name.replace(/\[\d+\]/, `[${blockIndex}]`));
+                }
+                if (input.type !== 'radio' && input.type !== 'checkbox') {
+                    input.value = '';
+                }
+                if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                }
+                // Remove required if it was added conditionally
+                if (input.closest('.d-none')) {
+                    input.removeAttribute('required');
+                }
+            });
+
+            // Reset visibility for conditional fields
+            newBlock.querySelectorAll('.custom-type-input, .police-doc-input').forEach(el => el.classList.add('d-none'));
+
+            container.appendChild(newBlock);
+            initBlockEvents(newBlock);
+            blockIndex++;
+            updateBlockCounters();
         });
     });
 </script>

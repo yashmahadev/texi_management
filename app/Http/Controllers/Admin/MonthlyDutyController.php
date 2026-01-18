@@ -49,10 +49,10 @@ class MonthlyDutyController extends Controller
         $this->authorize('create', MonthlyDuty::class);
         $types = config('taxi.vehicle_types');
         $vehicles = []; 
-        $departments = MonthlyDuty::distinct()->pluck('department_name');
+        $groups = ['Government', 'Corporate'];
         $officers = MonthlyDuty::distinct()->pluck('officer_name');
         
-        return view('admin.monthly-duties.create', compact('types', 'vehicles', 'departments', 'officers'));
+        return view('admin.monthly-duties.create', compact('types', 'vehicles', 'groups', 'officers'));
     }
 
     public function store(\App\Http\Requests\CreateMonthlyDutyRequest $request)

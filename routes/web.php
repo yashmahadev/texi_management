@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\MonthlyDutyController;
 use App\Http\Controllers\Admin\DailyDutyLogController;
 use App\Http\Controllers\Admin\DutyReplacementController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\VehicleController;
+use App\Http\Controllers\Admin\DepartmentController;
 
 use App\Http\Controllers\Driver\DriverAuthController;
 use App\Http\Controllers\Driver\DashboardController as DriverDashboardController;
@@ -149,6 +151,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('monthly-duties.vehicles-by-type');
 
         Route::resource('monthly-duties', MonthlyDutyController::class);
+
+        // Departments
+        Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
+        Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
+
+        // Vehicles
+        Route::resource('vehicles', VehicleController::class);
         
         Route::get('daily-logs', [DailyDutyLogController::class, 'index'])
             ->name('daily-logs.index')

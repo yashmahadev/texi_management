@@ -25,13 +25,29 @@ class Vehicle extends Model
         'vehicle_type',
         'status',
         'driver_id',
+        'owner_id',
         'puc_expiry_date',
+        'fuel_type',
+        'transmission_type',
+        'color',
+        'make_model',
+        'vehicle_type_custom',
+        'pass_type',
+        'challan_count',
+        'challan_amount',
+        'rc_book_path',
+        'insurance_details',
         'is_driver_owner',
         'owner_name',
         'owner_mobile',
         'owner_aadhaar_number',
         'owner_pancard_number',
     ];
+
+    public function owner()
+    {
+        return $this->belongsTo(Owner::class);
+    }
 
     protected $casts = [
         'puc_expiry_date' => 'date',

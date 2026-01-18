@@ -23,12 +23,23 @@ class DashboardController extends Controller
         $currentDuty = MonthlyDuty::where('primary_driver_id', $driverId)
             ->where('start_date', '<=', $today)
             ->where('end_date', '>=', $today)
-            ->with(['vehicle', 'dailyLogs' => function($q) use ($today) {
-                $q->where('duty_date', $today);
-            }])
             ->first();
 
-        if (!$currentDuty) {
+        if ($currentDuty) {
+            // Ensure today's log exists
+            $todayLog = \App\Models\DailyDutyLog::firstOrCreate(
+                [
+                    'monthly_duty_id' => $currentDuty->id,
+                    'duty_date' => $today,
+                ],
+                [
+                    'status' => 'pending',
+                ]
+            );
+            
+            $currentDuty->load(['vehicle']);
+            $currentDuty->setRelation('dailyLogs', collect([$todayLog]));
+        } else {
             // Check if I am a replacement for TODAY
             $replacementLog = \App\Models\DailyDutyLog::whereDate('duty_date', $today)
                 ->whereHas('replacements', function($q) use ($driverId) {
@@ -39,7 +50,6 @@ class DashboardController extends Controller
 
             if ($replacementLog) {
                 $currentDuty = $replacementLog->monthlyDuty;
-                // Manually set the dailyLogs relation to include only this log, matching view expectations
                 $currentDuty->setRelation('dailyLogs', collect([$replacementLog]));
             }
         }

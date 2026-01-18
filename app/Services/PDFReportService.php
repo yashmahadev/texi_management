@@ -67,7 +67,7 @@ class PDFReportService
         $company = $this->getCompanySettings();
 
         $pdf = Pdf::loadView('admin.reports.bill-processing-pdf', compact('logs', 'startDate', 'endDate', 'company'))
-            ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'portrait');
         
         return $pdf;
     }

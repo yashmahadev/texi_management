@@ -14,7 +14,9 @@ class CreateMonthlyDutyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'department_name' => 'required|string|max:255',
+            'group' => 'required|in:Government,Corporate',
+            'department_id' => 'required|exists:departments,id',
+            'department_name' => 'nullable|string|max:255',
             'officer_name' => 'required|string|max:255',
             'vehicle_id' => [
                 'required',

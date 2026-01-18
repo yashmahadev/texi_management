@@ -13,9 +13,11 @@ class Driver extends Authenticatable
 
     protected $fillable = [
         'name',
+        'age',
         'mobile_number',
         'driving_licence_number',
         'driving_licence_document',
+        'dl_expiry',
         'aadhaar_number',
         'aadhaar_document',
         'alternate_contact_number',
@@ -23,6 +25,9 @@ class Driver extends Authenticatable
         'state',
         'city',
         'pincode',
+        'address',
+        'is_police_verified',
+        'police_verification_document',
         'status',
         'fcm_token',
     ];

@@ -23,9 +23,12 @@ class DutyService
     {
         return DB::transaction(function () use ($data, $creatorId) {
             $vehicle = \App\Models\Vehicle::findOrFail($data['vehicle_id']);
+            $department = \App\Models\Department::findOrFail($data['department_id']);
             
             $duty = MonthlyDuty::create([
-                'department_name' => $data['department_name'],
+                'group' => $data['group'],
+                'department_id' => $data['department_id'],
+                'department_name' => $data['department_name'] ?? $department->name,
                 'officer_name' => $data['officer_name'],
                 'vehicle_id' => $data['vehicle_id'],
                 'primary_driver_id' => $vehicle->driver_id,

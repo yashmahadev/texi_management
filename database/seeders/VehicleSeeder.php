@@ -17,6 +17,13 @@ class VehicleSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
 
         $types = config('taxi.vehicle_types');
+        $owners = \App\Models\Owner::all();
+        
+        if ($owners->isEmpty()) {
+            $this->command->error("No owners found. Please run OwnerSeeder first.");
+            return;
+        }
+
         $driverPool = [
             ['name' => 'Rajesh Sharma', 'mobile' => '9876543210'],
             ['name' => 'Amit Verma', 'mobile' => '9123456780'],
@@ -30,65 +37,50 @@ class VehicleSeeder extends Seeder
             ['name' => 'Deepak Punia', 'mobile' => '9666666667'],
         ];
 
-        $vendorPool = [
-            ['name' => 'A1 Travels', 'mobile' => '8181818181'],
-            ['name' => 'Shiva Logistics', 'mobile' => '8282828282'],
-            ['name' => 'Gujarat Cab Corp', 'mobile' => '8383838383'],
-            ['name' => 'Skyline Motors', 'mobile' => '8484848484'],
-        ];
+        $makes = ['Maruti Suzuki', 'Hyundai', 'Tata Motors', 'Toyota'];
+        $models = ['Swift Dzire', 'Aura', 'Tigor', 'Innova Crysta'];
+        $transmission = ['Manual', 'Automatic'];
+        $fuels = ['CNG', 'Diesel', 'Petrol', 'Electric'];
         
         try {
-            $driverIndex = 0;
+            $index = 0;
             foreach ($types as $type) {
-                // Create 3 vehicles for each type (Total 9)
+                // Create 3 vehicles for each type
                 for ($i = 1; $i <= 3; $i++) {
-                    $driverInfo = $driverPool[$driverIndex % count($driverPool)];
-                    
+                    $driverInfo = $driverPool[$index % count($driverPool)];
+                    $owner = $owners->random();
+
                     // 1. Create/Update Driver
                     $driver = \App\Models\Driver::updateOrCreate(
                         ['mobile_number' => $driverInfo['mobile']],
                         [
                             'name' => $driverInfo['name'],
+                            'age' => rand(25, 50),
                             'driving_licence_number' => 'DL-' . rand(10000, 99999) . 'GJ',
-                            'aadhaar_number' => '1234' . rand(1000, 9999) . rand(1000, 9999),
-                            'state' => 'Gujarat',
-                            'city' => 'Ahmedabad',
-                            'pincode' => '3800' . rand(10, 99),
+                            'address' => 'Sample Address ' . ($index + 1),
+                            'is_police_verified' => (rand(1, 10) > 3),
                             'status' => 'active',
                         ]
                     );
 
-                    // 2. Ownership / Vendor Logic
-                    $isDriverOwner = ($driverIndex % 2 == 0);
-                    if ($isDriverOwner) {
-                        $ownerName = $driver->name;
-                        $ownerMobile = $driver->mobile_number;
-                    } else {
-                        $vendor = $vendorPool[$driverIndex % count($vendorPool)];
-                        $ownerName = $vendor['name'];
-                        $ownerMobile = $vendor['mobile'];
-                    }
-
-                    // 3. Status Variety
-                    $statuses = ['active', 'active', 'active', 'maintenance', 'inactive'];
-                    $status = $statuses[$driverIndex % count($statuses)];
-
-                    // 4. Create/Update Vehicle
+                    // 2. Create/Update Vehicle
                     Vehicle::updateOrCreate(
-                        ['vehicle_number' => "GJ01" . strtoupper(substr($type, 0, 2)) . (8000 + $driverIndex)],
+                        ['vehicle_number' => "GJ01" . strtoupper(substr($type, 0, 2)) . (8000 + $index)],
                         [
-                            'vehicle_type' => $type,
-                            'puc_expiry_date' => now()->addMonths(rand(-3, 12))->format('Y-m-d'),
+                            'owner_id' => $owner->id,
                             'driver_id' => $driver->id,
-                            'is_driver_owner' => $isDriverOwner,
-                            'owner_name' => $ownerName,
-                            'owner_mobile' => $ownerMobile,
-                            'owner_aadhaar_number' => !$isDriverOwner ? '5678' . rand(1000, 9999) . rand(1000, 9999) : $driver->aadhaar_number,
-                            'status' => $status,
+                            'vehicle_type' => $type,
+                            'make_model' => $makes[rand(0, 3)] . ' ' . $models[rand(0, 3)],
+                            'fuel_type' => $fuels[rand(0, 3)],
+                            'transmission_type' => $transmission[rand(0, 1)],
+                            'color' => 'White',
+                            'pass_type' => rand(0, 1) ? 'Private' : 'Taxi',
+                            'puc_expiry_date' => now()->addMonths(rand(-3, 12))->format('Y-m-d'),
+                            'status' => 'active',
                         ]
                     );
 
-                    $driverIndex++;
+                    $index++;
                 }
             }
         } catch (\Exception $e) {
