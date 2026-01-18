@@ -224,7 +224,7 @@
             }
         });
     </script>
-    @include('partials.fcm-scripts')
+    @include('partials.fcm-scripts', ['guard' => 'web'])
     @stack('scripts')
 </body>
 </html>

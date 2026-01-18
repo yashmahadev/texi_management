@@ -64,9 +64,20 @@
                     </td>
                     <td>{{ $duty->created_at->format('d M Y') }}</td>
                     <td>
-                        <a href="{{ route('admin.monthly-duties.show', $duty->id) }}" class="btn btn-sm btn-outline-info">
-                            <i class="bi bi-eye"></i> View
-                        </a>
+                        <div class="btn-group">
+                            <a href="{{ route('admin.monthly-duties.show', $duty->id) }}" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            @can('delete', $duty)
+                                <form action="{{ route('admin.monthly-duties.destroy', $duty->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this duty? All associated daily logs, replacements, and billing records will be permanently removed.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            @endcan
+                        </div>
                     </td>
                 </tr>
                 @empty

@@ -24,9 +24,27 @@ class FcmService
         try {
             $messaging = Firebase::messaging();
 
+            $logo = \App\Models\Setting::get('company_logo');
+            $icon = $logo ? asset('storage/' . $logo) : null;
+
             $message = CloudMessage::withTarget('token', $deviceToken)
                 ->withNotification(Notification::create($title, $body))
-                ->withData($data);
+                ->withData($data)
+                ->withWebPushConfig([
+                    'notification' => [
+                        'icon' => $icon,
+                        'sound' => 'default',
+                    ],
+                    'fcm_options' => [
+                        'link' => $data['link'] ?? url('/'),
+                    ],
+                ])
+                ->withAndroidConfig([
+                    'notification' => [
+                        'sound' => 'default',
+                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                    ],
+                ]);
 
             $messaging->send($message);
 

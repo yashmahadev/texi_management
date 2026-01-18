@@ -118,6 +118,12 @@
     const promptText = document.getElementById('fcm-prompt-text');
 
     window.checkPermission = function() {
+        const isAuthenticated = {{ auth($guard ?? "web")->check() ? 'true' : 'false' }};
+        if (!isAuthenticated) {
+            console.log('FCM: Skipping permission check as user is not authenticated.');
+            return;
+        }
+
         console.log('FCM: Checking permission state:', Notification.permission);
         if (Notification.permission === 'granted') {
             overlay.style.display = 'none';
@@ -140,9 +146,10 @@
         console.log('FCM: Foreground message received:', payload);
         if (Notification.permission === 'granted') {
             const notificationTitle = payload.notification.title;
+            const logo = '{{ \App\Models\Setting::get("company_logo") ? asset("storage/" . \App\Models\Setting::get("company_logo")) : asset("favicon.ico") }}';
             const notificationOptions = {
                 body: payload.notification.body,
-                icon: '/favicon.ico',
+                icon: logo,
                 data: payload.data
             };
             new Notification(notificationTitle, notificationOptions);
@@ -163,16 +170,19 @@
         messaging.getToken(tokenOptions)
             .then((currentToken) => {
                 if (currentToken) {
-                    const lastSyncedToken = localStorage.getItem('last_synced_fcm_token');
+                    const guard = '{{ $guard ?? "web" }}';
+                    const userId = '{{ auth($guard ?? "web")->id() }}';
+                    const syncKey = 'last_synced_fcm_token_' + guard + '_' + userId;
+                    const lastSyncedToken = localStorage.getItem(syncKey);
                     
                     if (lastSyncedToken === currentToken) {
-                        console.log('FCM: Token is already synced with server. Skipping update.');
+                        console.log('FCM: Token is already synced for this account. Skipping.');
                         return;
                     }
 
-                    console.log('FCM: New token detected. Syncing with server...');
+                    console.log('FCM: New token or account detected. Syncing with server...');
                     
-                    fetch('{{ route("update-fcm-token") }}', {
+                    fetch('/update-fcm-token', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -182,17 +192,20 @@
                             token: currentToken
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('FCM: Update Response Status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
-                            console.log('FCM: Token synced with server successfully.');
-                            localStorage.setItem('last_synced_fcm_token', currentToken);
+                            console.log('FCM: Token synced successfully.', data.sync_info);
+                            localStorage.setItem(syncKey, currentToken);
                         } else {
-                            console.error('FCM: Server failed to sync token:', data.message);
+                            console.error('FCM: Sync failed:', data.message);
                         }
                     })
                     .catch(error => {
-                        console.error('FCM: Failed to sync token with server:', error);
+                        console.error('FCM: Sync Error:', error);
                     });
 
                 } else {
@@ -222,6 +235,8 @@
 
     // Automatically request permission on page load
     window.addEventListener('load', () => {
-        window.checkPermission();
+        setTimeout(() => {
+            window.checkPermission();
+        }, 1000);
     });
 </script>

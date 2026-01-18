@@ -7,7 +7,7 @@
 </div>
 
 <div class="row mb-4 g-3">
-    <div class="col-md-3">
+    <div class="col-6 col-lg-3">
         <div class="card bg-warning text-dark border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
@@ -15,12 +15,12 @@
                         <h3 class="mb-0">{{ $pendingDuties }}</h3>
                         <p class="mb-0 small fw-bold">Pending Today</p>
                     </div>
-                    <i class="bi bi-clock-history fs-1 opacity-25"></i>
+                    <i class="bi bi-clock-history fs-1 opacity-25 d-none d-sm-block"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-lg-3">
         <div class="card bg-success text-white border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
@@ -28,12 +28,12 @@
                         <h3 class="mb-0">{{ $completedDuties }}</h3>
                         <p class="mb-0 small fw-bold">Completed Today</p>
                     </div>
-                    <i class="bi bi-check-circle fs-1 opacity-25"></i>
+                    <i class="bi bi-check-circle fs-1 opacity-25 d-none d-sm-block"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-lg-3">
         <div class="card bg-info text-white border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
@@ -41,12 +41,12 @@
                         <h3 class="mb-0">{{ number_format($monthlyKm) }}</h3>
                         <p class="mb-0 small fw-bold">KM This Month</p>
                     </div>
-                    <i class="bi bi-speedometer fs-1 opacity-25"></i>
+                    <i class="bi bi-speedometer fs-1 opacity-25 d-none d-sm-block"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-lg-3">
         <div class="card bg-danger text-white border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
@@ -54,7 +54,7 @@
                         <h3 class="mb-0">{{ $missingDuties }}</h3>
                         <p class="mb-0 small fw-bold">Missing Duties</p>
                     </div>
-                    <i class="bi bi-exclamation-triangle fs-1 opacity-25"></i>
+                    <i class="bi bi-exclamation-triangle fs-1 opacity-25 d-none d-sm-block"></i>
                 </div>
             </div>
         </div>

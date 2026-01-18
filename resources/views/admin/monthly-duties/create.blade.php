@@ -45,17 +45,17 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">Start Date *</label>
                     <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}" required>
                 </div>
                 
-                <div class="col-md-6 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">End Date *</label>
                     <input type="date" name="end_date" id="end_date" class="form-control" value="{{ old('end_date') }}" required>
                 </div>
                 
-                <div class="col-md-6 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">Vehicle Type *</label>
                     <select id="vehicle_type" class="form-select" required>
                         <option value="">Select Vehicle Type</option>
@@ -65,34 +65,34 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">Vehicle *</label>
                     <select name="vehicle_id" id="vehicle_id" class="form-select" required disabled>
                         <option value="">Select Dates & Type First</option>
                     </select>
                 </div>
                 
-                <div class="col-md-6 mb-3">
+                <div class="col-sm-6 mb-3">
                     <label class="form-label">Expected Start Time *</label>
                     <input type="time" name="expected_start_time" class="form-control" value="{{ old('expected_start_time') }}" required>
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-sm-6 mb-3">
                     <label class="form-label">Expected End Time</label>
                     <input type="time" name="expected_end_time" class="form-control" value="{{ old('expected_end_time') }}">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-sm-4 col-6 mb-3">
                     <label class="form-label">State</label>
                     <input type="text" name="state" class="form-control" value="{{ old('state') }}">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-sm-4 col-6 mb-3">
                     <label class="form-label">City</label>
                     <input type="text" name="city" class="form-control" value="{{ old('city') }}">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-sm-4 col-12 mb-3">
                     <label class="form-label">Pincode</label>
                     <input type="text" name="pincode" class="form-control" value="{{ old('pincode') }}">
                 </div>

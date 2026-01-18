@@ -31,7 +31,7 @@ class DriverAuthController extends Controller
             'mobile_number' => 'required|string|exists:drivers,mobile_number',
         ]);
 
-        $otp = (string) rand(100000, 999999);
+        $otp = env('APP_ENV') == 'local' ? '123456' :(string) rand(100000, 999999);
         $expiry = now()->addMinutes(10);
 
         OtpVerification::create([

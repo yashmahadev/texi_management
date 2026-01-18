@@ -69,21 +69,51 @@ Route::post('/update-fcm-token', function (Illuminate\Http\Request $request) {
             'token' => 'required|string',
         ]);
 
-        $user = null;
-        if (auth('web')->check()) {
+        $adminCheck = auth('web')->check();
+        $driverCheck = auth('driver')->check();
+
+        \Illuminate\Support\Facades\Log::info('FCM Token Sync Start', [
+            'token_length' => strlen($request->token),
+            'admin_auth' => $adminCheck,
+            'driver_auth' => $driverCheck,
+        ]);
+
+        $updated = false;
+        
+        // Update Admin
+        if ($adminCheck) {
             $user = auth('web')->user();
-        } elseif (auth('driver')->check()) {
-            $user = auth('driver')->user();
+            $user->fcm_token = $request->token;
+            $user->save();
+            \Illuminate\Support\Facades\Log::info('FCM Token saved for Admin', ['id' => $user->id, 'email' => $user->email]);
+            $updated = true;
+        }
+        
+        // Update Driver
+        if ($driverCheck) {
+            $driver = auth('driver')->user();
+            $driver->fcm_token = $request->token;
+            $driver->save();
+            \Illuminate\Support\Facades\Log::info('FCM Token saved for Driver', ['id' => $driver->id, 'mobile' => $driver->mobile_number]);
+            $updated = true;
         }
 
-        if ($user) {
-            $user->update(['fcm_token' => $request->token]);
-            return response()->json(['success' => true, 'message' => 'Token updated successfully']);
+        if ($updated) {
+            return response()->json([
+                'success' => true, 
+                'message' => 'Token updated successfully',
+                'sync_info' => [
+                    'admin' => $adminCheck,
+                    'driver' => $driverCheck
+                ]
+            ]);
         }
 
+        \Illuminate\Support\Facades\Log::warning('FCM Token Sync failed: No active sessions found.');
         return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
     } catch (\Exception $e) {
-        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        \Illuminate\Support\Facades\Log::error('FCM Token Sync Exception: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        return response()->json(['success' => false, 'message' => 'Internal server error during sync'], 500);
     }
 })->name('update-fcm-token');
 

@@ -28,11 +28,11 @@
                     <input type="text" name="owner_mobile" class="form-control @error('owner_mobile') is-invalid @enderror" value="{{ old('owner_mobile') }}" required maxlength="10">
                     @error('owner_mobile') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-sm-4 col-6 mb-3">
                     <label class="form-label">Owner Aadhaar Number</label>
                     <input type="text" name="owner_aadhaar_number" class="form-control @error('owner_aadhaar_number') is-invalid @enderror" value="{{ old('owner_aadhaar_number') }}">
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-sm-4 col-6 mb-3">
                     <label class="form-label">Owner PAN Card Number</label>
                     <input type="text" name="owner_pancard_number" class="form-control @error('owner_pancard_number') is-invalid @enderror" value="{{ old('owner_pancard_number') }}">
                 </div>
@@ -68,7 +68,7 @@
                         <label class="form-label">Make & Model *</label>
                         <input type="text" name="vehicles[0][make_model]" class="form-control" required placeholder="e.g. Swift Dzire">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Fuel Type *</label>
                         <select name="vehicles[0][fuel_type]" class="form-select" required>
                             <option value="Petrol">Petrol</option>
@@ -76,19 +76,19 @@
                             <option value="CNG">CNG</option>
                         </select>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Transmission *</label>
                         <select name="vehicles[0][transmission_type]" class="form-select" required>
                             <option value="Manual">Manual</option>
                             <option value="Automatic">Automatic</option>
                         </select>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Color</label>
                         <input type="text" name="vehicles[0][color]" class="form-control" placeholder="e.g. White">
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">Vehicle Category *</label>
+                    <div class="col-6 col-md-3 mb-3">
+                        <label class="form-label">Category *</label>
                         <select name="vehicles[0][vehicle_type]" class="form-select vehicle-type-select" required>
                             @foreach($types as $type)
                                 <option value="{{ $type }}">{{ $type }}</option>
@@ -100,14 +100,14 @@
                         <label class="form-label">Specify Type *</label>
                         <input type="text" name="vehicles[0][vehicle_type_custom]" class="form-control">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Pass Type *</label>
                         <select name="vehicles[0][pass_type]" class="form-select" required>
                             <option value="Private">Private Pass</option>
                             <option value="Taxi">Taxi Pass</option>
                         </select>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">PUC Expiry</label>
                         <input type="date" name="vehicles[0][puc_expiry_date]" class="form-control">
                     </div>
@@ -115,7 +115,7 @@
                         <label class="form-label">RC Book (Upload)</label>
                         <input type="file" name="vehicles[0][rc_book]" class="form-control">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Challan Count</label>
                         <input type="number" name="vehicles[0][challan_count]" class="form-control" value="0">
                     </div>
@@ -139,19 +139,19 @@
                         <label class="form-label">Driver Name *</label>
                         <input type="text" name="vehicles[0][driver_name]" class="form-control" required>
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-6 col-sm-2 mb-3">
                         <label class="form-label">Mobile *</label>
                         <input type="text" name="vehicles[0][driver_mobile]" class="form-control" required maxlength="10">
                     </div>
-                    <div class="col-md-1 mb-3">
+                    <div class="col-6 col-sm-1 mb-3">
                         <label class="form-label">Age</label>
                         <input type="number" name="vehicles[0][driver_age]" class="form-control">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-sm-3 col-12 mb-3">
                         <label class="form-label">DL Number</label>
                         <input type="text" name="vehicles[0][driver_dl_number]" class="form-control">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-6 col-sm-3 mb-3">
                         <label class="form-label">DL Expiry</label>
                         <input type="date" name="vehicles[0][driver_dl_expiry]" class="form-control">
                     </div>

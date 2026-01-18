@@ -110,4 +110,37 @@ class MonthlyDutyController extends Controller
 
         return response()->json($data);
     }
+
+    public function destroy(MonthlyDuty $monthlyDuty)
+    {
+        $this->authorize('delete', $monthlyDuty);
+
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // Get all log IDs for this duty
+            $logIds = $monthlyDuty->dailyLogs()->pluck('id');
+
+            // 1. Delete Replacements
+            \App\Models\DutyReplacement::whereIn('daily_duty_log_id', $logIds)->delete();
+
+            // 2. Delete Billing Logs
+            \App\Models\BillingLog::whereIn('daily_duty_log_id', $logIds)->delete();
+
+            // 3. Delete Daily Logs
+            $monthlyDuty->dailyLogs()->delete();
+
+            // 4. Delete Monthly Duty
+            $monthlyDuty->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return redirect()->route('admin.monthly-duties.index')
+                ->with('success', 'Monthly duty and all associated records deleted successfully.');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->withErrors(['error' => 'Failed to delete: ' . $e->getMessage()]);
+        }
+    }
 }

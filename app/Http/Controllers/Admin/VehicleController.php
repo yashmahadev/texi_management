@@ -7,6 +7,8 @@ use App\Models\Vehicle;
 use App\Models\Driver;
 use App\Models\Owner;
 use App\Services\WhatsAppService;
+use App\Services\FcmService;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -15,11 +17,13 @@ class VehicleController extends Controller
 {
     protected $whatsAppService;
     protected $auditLogger;
+    protected $fcmService;
 
-    public function __construct(WhatsAppService $whatsAppService, \App\Services\AuditLogService $auditLogger)
+    public function __construct(WhatsAppService $whatsAppService, AuditLogService $auditLogger, FcmService $fcmService)
     {
         $this->whatsAppService = $whatsAppService;
         $this->auditLogger = $auditLogger;
+        $this->fcmService = $fcmService;
     }
 
     /**
@@ -187,6 +191,16 @@ class VehicleController extends Controller
                 }
 
                 $this->auditLogger->log('Create Vehicle', 'vehicles', $vehicle->id, "Created vehicle {$vehicle->vehicle_number} for owner {$owner->name}");
+
+                // Notify Driver
+                if ($driver->fcm_token) {
+                    $this->fcmService->sendNotification(
+                        $driver->fcm_token,
+                        "Vehicle Assigned",
+                        "You have been assigned to vehicle {$vehicle->vehicle_number} ({$vehicle->make_model})",
+                        ['link' => route('driver.dashboard')]
+                    );
+                }
             }
 
             DB::commit();
@@ -292,6 +306,17 @@ class VehicleController extends Controller
             }
 
             $this->auditLogger->log('Update Vehicle', 'vehicles', $vehicle->id, "Updated vehicle {$vehicle->vehicle_number}");
+
+            // Notify Driver (if assigned)
+            $driver = $vehicle->driver;
+            if ($driver && $driver->fcm_token) {
+                $this->fcmService->sendNotification(
+                    $driver->fcm_token,
+                    "Vehicle Profile Updated",
+                    "Your assigned vehicle {$vehicle->vehicle_number} has been updated.",
+                    ['link' => route('driver.dashboard')]
+                );
+            }
 
             DB::commit();
 

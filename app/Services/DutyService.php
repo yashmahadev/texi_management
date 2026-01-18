@@ -13,10 +13,12 @@ use App\Services\AuditLogService;
 class DutyService
 {
     protected $auditLogger;
+    protected $fcmService;
 
-    public function __construct(AuditLogService $auditLogger)
+    public function __construct(AuditLogService $auditLogger, FcmService $fcmService)
     {
         $this->auditLogger = $auditLogger;
+        $this->fcmService = $fcmService;
     }
 
     public function createMonthlyDuty(array $data, int $creatorId)
@@ -55,6 +57,16 @@ class DutyService
             }
 
             $this->auditLogger->log('Create Monthly Duty', 'monthly_duties', $duty->id, "Created duty for {$duty->department_name}");
+
+            // Push Notification to Driver
+            if ($duty->primaryDriver && $duty->primaryDriver->fcm_token) {
+                $this->fcmService->sendNotification(
+                    $duty->primaryDriver->fcm_token,
+                    "New Monthly Duty Assigned",
+                    "You have been assigned a new duty for {$duty->department_name} starting from " . $duty->start_date->format('d M'),
+                    ['link' => route('driver.dashboard')]
+                );
+            }
 
             return $duty;
         });
@@ -138,6 +150,17 @@ class DutyService
             // I'll leave status as 'pending' but log the replacement action.
             
             $this->auditLogger->log('Assign Replacement', 'duty_replacements', $log->id, "Replaced with Driver ID {$replacementDriverId}");
+
+            // Push Notification to Replacement Driver
+            $replacementDriver = Driver::find($replacementDriverId);
+            if ($replacementDriver && $replacementDriver->fcm_token) {
+                $this->fcmService->sendNotification(
+                    $replacementDriver->fcm_token,
+                    "Replacement Duty Assigned",
+                    "You have been assigned as a replacement for today's duty ({$log->duty_date})",
+                    ['link' => route('driver.dashboard')]
+                );
+            }
         });
     }
 }

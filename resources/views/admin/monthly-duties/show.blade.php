@@ -7,6 +7,15 @@
         <a href="{{ route('admin.reports.download', $monthlyDuty->id) }}" class="btn btn-outline-danger me-2">
             <i class="bi bi-file-pdf"></i> Download PDF
         </a>
+        @can('delete', $monthlyDuty)
+            <form action="{{ route('admin.monthly-duties.destroy', $monthlyDuty->id) }}" method="POST" class="d-inline me-2" onsubmit="return confirm('Are you sure you want to delete this duty? All associated daily logs, replacements, and billing records will be permanently removed.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete Duty
+                </button>
+            </form>
+        @endcan
         <a href="{{ route('admin.monthly-duties.index') }}" class="btn btn-outline-secondary">Back</a>
     </div>
 </div>
