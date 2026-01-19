@@ -17,15 +17,24 @@ class FcmService
      * @param string $title
      * @param string $body
      * @param array $data
+     * @param string $recipientType 'admin' or 'driver'
      * @return bool
      */
-    public function sendNotification(string $deviceToken, string $title, string $body, array $data = []): bool
+    public function sendNotification(string $deviceToken, string $title, string $body, array $data = [], string $recipientType = 'driver'): bool
     {
         try {
             $messaging = Firebase::messaging();
 
             $logo = \App\Models\Setting::get('company_logo');
-            $icon = $logo ? asset('storage/' . $logo) : null;
+            $icon = $logo ? asset('storage/' . $logo) : asset('favicon.ico');
+            
+            $soundFile = \App\Models\Setting::get('notification_sound', 'default');
+            $soundPath = $soundFile !== 'default' ? asset('storage/' . $soundFile) : 'default';
+
+            // Determine default link based on recipient type
+            $defaultLink = $recipientType === 'admin' ? route('admin.dashboard') : route('driver.dashboard');
+            $link = $data['link'] ?? $defaultLink;
+            $data['link'] = $link;
 
             $message = CloudMessage::withTarget('token', $deviceToken)
                 ->withNotification(Notification::create($title, $body))
@@ -33,15 +42,15 @@ class FcmService
                 ->withWebPushConfig([
                     'notification' => [
                         'icon' => $icon,
-                        'sound' => 'default',
+                        'sound' => $soundPath,
                     ],
                     'fcm_options' => [
-                        'link' => $data['link'] ?? url('/'),
+                        'link' => $link,
                     ],
                 ])
                 ->withAndroidConfig([
                     'notification' => [
-                        'sound' => 'default',
+                        'sound' => $soundFile === 'default' ? 'default' : $soundFile,
                         'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     ],
                 ]);

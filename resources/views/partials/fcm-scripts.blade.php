@@ -150,9 +150,34 @@
             const notificationOptions = {
                 body: payload.notification.body,
                 icon: logo,
-                data: payload.data
+                data: {
+                    link: payload.fcmOptions?.link || payload.fcm_options?.link || payload.data?.link || null
+                }
             };
-            new Notification(notificationTitle, notificationOptions);
+            const notification = new Notification(notificationTitle, notificationOptions);
+            notification.onclick = function(event) {
+                event.preventDefault();
+                
+                // Robust link retrieval for different browser event objects
+                const data = (event.notification && event.notification.data) 
+                    ? event.notification.data 
+                    : (event.target && event.target.data ? event.target.data : {});
+                
+                const link = data.link;
+                console.log('FCM: Foreground notification clicked. Data:', data);
+
+                if (link) {
+                    // If it's an absolute URL and matches current origin, or is relative
+                    if (link.startsWith('/') || link.includes(window.location.host)) {
+                        window.location.href = link;
+                    } else {
+                        window.open(link, '_blank');
+                    }
+                } else {
+                    window.focus();
+                }
+                notification.close();
+            };
         }
     });
 

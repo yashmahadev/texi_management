@@ -74,6 +74,25 @@
                                       placeholder="Full business address...">{{ old('company_address', $settings['company_address']) }}</textarea>
                             @error('company_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+
+                        <div class="col-12 mb-3">
+                            <label class="form-label d-block">Notification Sound</label>
+                            <div class="d-flex align-items-center gap-3">
+                                <input type="file" name="notification_sound" class="form-control @error('notification_sound') is-invalid @enderror">
+                                @if($settings['notification_sound'] && $settings['notification_sound'] !== 'default')
+                                    <div class="d-flex align-items-center">
+                                        <audio controls class="me-2" style="height: 30px;">
+                                            <source src="{{ asset('storage/' . $settings['notification_sound']) }}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    </div>
+                                @else
+                                    <span class="badge bg-secondary">Using Default System Sound</span>
+                                @endif
+                            </div>
+                            <div class="form-text mt-1 small">MP3, WAV, OGG (Max 2MB). Used for push notifications.</div>
+                            @error('notification_sound') <div class="invalid-feedback text-danger d-block">{{ $message }}</div> @enderror
+                        </div>
                     </div>
 
                     <hr class="my-4 opacity-50">

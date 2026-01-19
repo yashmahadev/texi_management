@@ -17,6 +17,7 @@ class SettingController extends Controller
             'company_mobile' => Setting::get('company_mobile'),
             'company_email' => Setting::get('company_email'),
             'company_logo' => Setting::get('company_logo'),
+            'notification_sound' => Setting::get('notification_sound'),
         ];
 
         return view('admin.settings.index', compact('settings'));
@@ -30,6 +31,7 @@ class SettingController extends Controller
             'company_mobile' => 'nullable|string|max:20',
             'company_email' => 'nullable|email|max:255',
             'company_logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'notification_sound' => 'nullable|file|mimes:mp3,wav,ogg|max:2048',
         ]);
 
         if ($request->hasFile('company_logo')) {
@@ -43,8 +45,19 @@ class SettingController extends Controller
             Setting::set('company_logo', $path);
         }
 
+        if ($request->hasFile('notification_sound')) {
+            // Delete old sound if exists
+            $oldSound = Setting::get('notification_sound');
+            if ($oldSound && $oldSound !== 'default') {
+                Storage::disk('public')->delete($oldSound);
+            }
+
+            $path = $request->file('notification_sound')->store('sounds', 'public');
+            Setting::set('notification_sound', $path);
+        }
+
         foreach ($data as $key => $value) {
-            if ($key !== 'company_logo') {
+            if ($key !== 'company_logo' && $key !== 'notification_sound') {
                 Setting::set($key, $value);
             }
         }
