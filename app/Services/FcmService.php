@@ -35,11 +35,19 @@ class FcmService
             $defaultLink = $recipientType === 'admin' ? route('admin.dashboard') : route('driver.dashboard');
             $link = $data['link'] ?? $defaultLink;
             $data['link'] = $link;
+            $data['title'] = $title;
+            $data['body']  = $body;
+            $data['icon']  = $icon;
+            $data['sound'] = $soundPath;
 
             $message = CloudMessage::withTarget('token', $deviceToken)
                 ->withNotification(Notification::create($title, $body))
                 ->withData($data)
                 ->withWebPushConfig([
+                    'headers' => [
+                        'TTL' => '86400',
+                        'Urgency' => 'high',
+                    ],
                     'notification' => [
                         'icon' => $icon,
                         'sound' => $soundPath,
@@ -49,9 +57,10 @@ class FcmService
                     ],
                 ])
                 ->withAndroidConfig([
+                    'priority' => 'high',
                     'notification' => [
-                        'sound' => $soundFile === 'default' ? 'default' : $soundFile,
-                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                        'sound' => $soundPath,
+                        // 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     ],
                 ]);
 
