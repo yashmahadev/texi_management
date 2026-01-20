@@ -22,6 +22,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $request->session()->flash('fcm_sync_required', true);
             return redirect()->intended(route('admin.dashboard'));
         }
 

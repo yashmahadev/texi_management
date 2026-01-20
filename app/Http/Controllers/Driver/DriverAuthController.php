@@ -83,6 +83,7 @@ class DriverAuthController extends Controller
 
         $request->session()->forget('auth_mobile');
         $request->session()->regenerate();
+        $request->session()->flash('fcm_sync_required', true);
 
         return redirect()->route('driver.dashboard');
     }
