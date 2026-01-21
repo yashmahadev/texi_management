@@ -14,6 +14,8 @@
     <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0d6efd">
     
     <style>
         :root {
@@ -223,8 +225,15 @@
                 });
             }
         });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.error('SW registration failed', err));
+        }
+
     </script>
-    @include('partials.fcm-scripts', ['guard' => 'web'])
+    <!-- @include('partials.fcm-scripts', ['guard' => 'web']) -->
     @stack('scripts')
 </body>
 </html>

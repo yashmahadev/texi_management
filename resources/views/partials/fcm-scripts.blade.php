@@ -198,17 +198,17 @@
                     const guard = '{{ $guard ?? "web" }}';
                     const userId = '{{ auth($guard ?? "web")->id() }}';
                     const syncKey = 'last_synced_fcm_token_' + guard + '_' + userId;
-                    const lastSyncedToken = localStorage.getItem(syncKey);
-                    const forceSync = {{ session('fcm_sync_required') ? 'true' : 'false' }};
+                    // const lastSyncedToken = localStorage.getItem(syncKey);
+                    // const forceSync = {{ session('fcm_sync_required') ? 'true' : 'false' }};
                     
-                    if (!forceSync && lastSyncedToken === currentToken) {
-                        console.log('FCM: Token is already synced for this account. Skipping.');
-                        return;
-                    }
+                    // if (!forceSync && lastSyncedToken === currentToken) {
+                    //     console.log('FCM: Token is already synced for this account. Skipping.');
+                    //     return;
+                    // }
 
-                    if (forceSync) {
-                        console.log('FCM: Fresh login detected. Forcing token sync.');
-                    }
+                    // if (forceSync) {
+                    //     console.log('FCM: Fresh login detected. Forcing token sync.');
+                    // }
 
                     console.log('FCM: New token or account detected. Syncing with server...');
                     

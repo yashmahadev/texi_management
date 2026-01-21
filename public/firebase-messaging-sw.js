@@ -16,6 +16,13 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+
+/**
+ * VERY IMPORTANT
+ * This empty fetch handler makes Chrome treat SW as active-capable
+ */
+self.addEventListener('fetch', () => {});
+
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message', payload);
