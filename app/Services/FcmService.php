@@ -49,50 +49,40 @@ class FcmService
 
             // Build the message with proper configuration
             $message = CloudMessage::withTarget('token', $deviceToken)
-                ->withNotification(
-                    Notification::create($title, $body)
-                        ->withImageUrl($icon)
-                )
+                ->withNotification(Notification::create($title, $body)->withImageUrl($icon))
                 ->withData($notificationData);
 
             // Web Push Configuration for browsers
             $webPushConfig = WebPushConfig::fromArray([
                 'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                    'icon' => $icon,
-                    'badge' => $icon,
                     'sound' => $soundPath,
-                    'requireInteraction' => true, // Keeps notification until user interacts
-                    'tag' => 'notification-' . time(), // Unique tag for each notification
+                    'requireInteraction' => true,
+                    'tag' => 'duty-alert',
                     'renotify' => true,
-                    'vibrate' => [200, 100, 200],
-                    'timestamp' => now()->timestamp * 1000,
                 ],
                 'fcm_options' => [
                     'link' => $link,
                 ],
                 'headers' => [
-                    'TTL' => '86400', // Time to live: 24 hours
                     'Urgency' => 'high',
                 ],
             ]);
 
             $message = $message->withWebPushConfig($webPushConfig);
 
-            // Android Configuration
+            // Android Configuration (Strict V1 API)
             $androidConfig = AndroidConfig::fromArray([
-                'priority' => 'high',
+                'priority' => 'high', // This is valid at top level of AndroidConfig
                 'notification' => [
                     'sound' => $soundFile === 'default' ? 'default' : $soundFile,
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     'channel_id' => 'high_importance_channel',
-                    'priority' => 'high',
+                    'notification_priority' => 'PRIORITY_HIGH', // V1 equivalent for notification emphasis
                     'default_sound' => true,
                     'default_vibrate_timings' => true,
                     'default_light_settings' => true,
                 ],
-                'ttl' => '86400s', // 24 hours
+                'ttl' => '86400s',
             ]);
 
             $message = $message->withAndroidConfig($androidConfig);
