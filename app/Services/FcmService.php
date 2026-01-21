@@ -82,12 +82,12 @@ class FcmService
 
             // Android Configuration
             $androidConfig = AndroidConfig::fromArray([
-                // 'priority' => 'high',
+                'priority' => 'high',
                 'notification' => [
                     'sound' => $soundFile === 'default' ? 'default' : $soundFile,
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     'channel_id' => 'high_importance_channel',
-                    // 'priority' => 'high',
+                    'priority' => 'high',
                     'default_sound' => true,
                     'default_vibrate_timings' => true,
                     'default_light_settings' => true,

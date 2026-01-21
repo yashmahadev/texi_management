@@ -1,4 +1,5 @@
 // public/firebase-messaging-sw.js
+// [v1.0.3] Force SW update
 // Import Firebase scripts
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
@@ -21,35 +22,24 @@ const messaging = firebase.messaging();
  * VERY IMPORTANT
  * This empty fetch handler makes Chrome treat SW as active-capable
  */
-self.addEventListener('fetch', () => {});
+self.addEventListener('fetch', () => { });
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Received background message', payload);
-
-    const notificationTitle = payload.data?.title || payload.notification?.title || 'New Notification';
+    console.log('[firebase-messaging-sw.js] Received background message ', payload);
+    const notificationTitle = payload.notification?.title || payload.data?.title || 'New Assignment';
     const notificationOptions = {
-        body: payload.data?.body || payload.notification?.body || 'You have a new notification',
-        icon: payload.data?.icon || payload.notification?.icon || '/favicon.ico',
-        badge: payload.data?.icon || '/favicon.ico',
-        tag: payload.data?.tag || 'notification-' + Date.now(),
-        requireInteraction: true,
-        vibrate: [200, 100, 200],
+        body: payload.notification?.body || payload.data?.body || 'Please check your dashboard.',
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
         data: {
-            url: payload.data?.link || payload.fcmOptions?.link || '/',
-            click_action: payload.data?.click_action || payload.data?.link,
+            url: payload.fcmOptions?.link || payload.fcm_options?.link || payload.data?.link || payload.data?.click_action || '/',
             ...payload.data
         },
-        actions: [
-            {
-                action: 'open',
-                title: 'Open'
-            },
-            {
-                action: 'close',
-                title: 'Close'
-            }
-        ]
+        requireInteraction: true,
+        tag: 'duty-alert',
+        renotify: true,
+        vibrate: [200, 100, 200]
     };
 
     // Show notification
@@ -68,7 +58,7 @@ self.addEventListener('notificationclick', (event) => {
     }
 
     // Get the URL from notification data
-    const urlToOpen = event.notification.data?.url || event.notification.data?.click_action || '/';
+    const urlToOpen = event.notification.data?.url || '/';
 
     event.waitUntil(
         clients.matchAll({
@@ -78,7 +68,8 @@ self.addEventListener('notificationclick', (event) => {
             // Check if there's already a window open
             for (let i = 0; i < clientList.length; i++) {
                 const client = clientList[i];
-                if (client.url === urlToOpen && 'focus' in client) {
+                // Check if the client is at our base URL (for simpler matching)
+                if (urlToOpen !== '/' && client.url.includes(urlToOpen) && 'focus' in client) {
                     return client.focus();
                 }
             }
@@ -99,12 +90,9 @@ self.addEventListener('push', (event) => {
         return;
     }
 
-    try {
-        const payload = event.data.json();
-        console.log('[firebase-messaging-sw.js] Push payload:', payload);
-    } catch (error) {
-        console.error('[firebase-messaging-sw.js] Error parsing push data:', error);
-    }
+    // We let onBackgroundMessage handle it if possible, but we log here.
+    // Ensure we don't display double notifications by checking tag if possible, 
+    // but FCM's SDK usually handles this.
 });
 
 // Periodic sync to keep service worker alive (optional)
