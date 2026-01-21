@@ -227,7 +227,7 @@
         });
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            navigator.serviceWorker.register('/firebase-messaging-sw.js?v={{ time() }}')
                 .then(reg => console.log('Service Worker registered'))
                 .catch(err => console.error('SW registration failed', err));
         }

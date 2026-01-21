@@ -103,7 +103,7 @@
 
     // Register Service Worker
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        navigator.serviceWorker.register('/firebase-messaging-sw.js?v={{ time() }}')
             .then((registration) => {
                 console.log('FCM: Service Worker registered. Scope:', registration.scope);
                 window.fcmRegistration = registration;

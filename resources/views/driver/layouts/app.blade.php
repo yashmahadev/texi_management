@@ -108,7 +108,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            navigator.serviceWorker.register('/firebase-messaging-sw.js?v={{ time() }}')
                 .then(reg => console.log('Service Worker registered'))
                 .catch(err => console.error('SW registration failed', err));
         }
