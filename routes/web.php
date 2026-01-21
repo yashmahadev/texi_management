@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Driver\DriverAuthController;
 use App\Http\Controllers\Driver\DashboardController as DriverDashboardController;
 use App\Http\Controllers\Driver\DutyController;
+use App\Models\Driver;
 
 Route::get('/', function () {
     return redirect()->route('driver.login');
@@ -49,13 +50,16 @@ Route::get('/test-fcm', function (Illuminate\Http\Request $request, \App\Service
     $body = $request->query('body', 'This is a test notification from Laravel.');
 
     if (!$token) {
-        return response()->json([
-            'error' => 'Device token is required. Use ?token=YOUR_TOKEN',
-            'hint' => 'You also need to place your Firebase Service Account JSON at storage/app/firebase-auth.json'
-        ], 400);
+        $token = Driver::where('mobile_number', '8690065830')->first()->fcm_token ?? $token;
+        // return response()->json([
+        //     'error' => 'Device token is required. Use ?token=YOUR_TOKEN',
+        //     'hint' => 'You also need to place your Firebase Service Account JSON at storage/app/firebase-auth.json'
+        // ], 400);
     }
+    // dd($token);
 
-    $success = $fcm->sendNotification($token, $title, $body, ['click_action' => 'FLUTTER_NOTIFICATION_CLICK']);
+    $url = route('driver.dashboard');
+    $success = $fcm->sendNotification($token, $title, $body, $url);
 
     return response()->json([
         'success' => $success,

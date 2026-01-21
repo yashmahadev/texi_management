@@ -22,93 +22,118 @@ class FcmService
      * @param string $recipientType 'admin' or 'driver'
      * @return bool
      */
-    public function sendNotification(string $deviceToken, string $title, string $body, array $data = [], string $recipientType = 'driver'): bool
+    public function sendNotification(string $token, string $title, string $body, string $url)
     {
+        $messaging = \Kreait\Laravel\Firebase\Facades\Firebase::messaging();
+
+        $message = CloudMessage::withTarget('token', $token)
+            ->withData([
+                'title' => $title,
+                'body'  => $body,
+                'url'   => $url,
+                'icon'  => asset('favicon.ico'),
+                'ts'    => now()->timestamp,
+            ]);
+
         try {
-            $messaging = Firebase::messaging();
-
-            $logo = \App\Models\Setting::get('company_logo');
-            $icon = $logo ? asset('storage/' . $logo) : asset('favicon.ico');
-            
-            $soundFile = \App\Models\Setting::get('notification_sound', 'default');
-            $soundPath = $soundFile !== 'default' ? asset('storage/' . $soundFile) : 'default';
-
-            // Determine default link based on recipient type
-            $defaultLink = $recipientType === 'admin' ? route('admin.dashboard') : route('driver.dashboard');
-            $link = $data['link'] ?? $defaultLink;
-            
-            // Add essential data for background notifications
-            $notificationData = array_merge($data, [
-                'link' => $link,
-                'title' => $title,
-                'body' => $body,
-                'icon' => $icon,
-                'click_action' => $link,
-                'timestamp' => now()->timestamp,
-            ]);
-
-            // Build the message with proper configuration
-            $message = CloudMessage::withTarget('token', $deviceToken)
-                ->withNotification(Notification::create($title, $body)->withImageUrl($icon))
-                ->withData($notificationData);
-
-            // Web Push Configuration for browsers
-            $webPushConfig = WebPushConfig::fromArray([
-                'notification' => [
-                    'sound' => $soundPath,
-                    'requireInteraction' => true,
-                    'tag' => 'duty-alert',
-                    'renotify' => true,
-                ],
-                'fcm_options' => [
-                    'link' => $link,
-                ],
-                'headers' => [
-                    'Urgency' => 'high',
-                ],
-            ]);
-
-            $message = $message->withWebPushConfig($webPushConfig);
-
-            // Android Configuration (Strict V1 API)
-            $androidConfig = AndroidConfig::fromArray([
-                'priority' => 'high', // This is valid at top level of AndroidConfig
-                'notification' => [
-                    'sound' => $soundFile === 'default' ? 'default' : $soundFile,
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                    'channel_id' => 'high_importance_channel',
-                    'notification_priority' => 'PRIORITY_HIGH', // V1 equivalent for notification emphasis
-                    'default_sound' => true,
-                    'default_vibrate_timings' => true,
-                    'default_light_settings' => true,
-                ],
-                'ttl' => '86400s',
-            ]);
-
-            $message = $message->withAndroidConfig($androidConfig);
-
-            // Send the message
-            $result = $messaging->send($message);
-
-            Log::info('FCM Notification Sent Successfully', [
-                'token' => substr($deviceToken, 0, 20) . '...',
-                'title' => $title,
-                'result' => $result,
-            ]);
-
+            $messaging->send($message);
             return true;
-        } catch (Exception $e) {
-            Log::error('FCM Send Error: ' . $e->getMessage(), [
-                'token' => substr($deviceToken, 0, 20) . '...',
-                'title' => $title,
-                'body' => $body,
-                'data' => $data,
-                'trace' => $e->getTraceAsString(),
-            ]);
+        } catch (NotFound $e) {
+            // Token is DEAD — delete it
+            \DB::table('drivers')
+                ->where('fcm_token', $token)
+                ->update(['fcm_token' => null]);
 
             return false;
         }
     }
+    // public function sendNotification(string $deviceToken, string $title, string $body, array $data = [], string $recipientType = 'driver'): bool
+    // {
+    //     try {
+    //         $messaging = Firebase::messaging();
+
+    //         $logo = \App\Models\Setting::get('company_logo');
+    //         $icon = $logo ? asset('storage/' . $logo) : asset('favicon.ico');
+            
+    //         $soundFile = \App\Models\Setting::get('notification_sound', 'default');
+    //         $soundPath = $soundFile !== 'default' ? asset('storage/' . $soundFile) : 'default';
+
+    //         // Determine default link based on recipient type
+    //         $defaultLink = $recipientType === 'admin' ? route('admin.dashboard') : route('driver.dashboard');
+    //         $link = $data['link'] ?? $defaultLink;
+            
+    //         // Add essential data for background notifications
+    //         $notificationData = array_merge($data, [
+    //             'link' => $link,
+    //             'title' => $title,
+    //             'body' => $body,
+    //             'icon' => $icon,
+    //             'click_action' => $link,
+    //             'timestamp' => now()->timestamp,
+    //         ]);
+
+    //         // Build the message with proper configuration
+    //         $message = CloudMessage::withTarget('token', $deviceToken)
+    //             ->withNotification(Notification::create($title, $body)->withImageUrl($icon))
+    //             ->withData($notificationData);
+
+    //         // Web Push Configuration for browsers
+    //         $webPushConfig = WebPushConfig::fromArray([
+    //             'notification' => [
+    //                 'sound' => $soundPath,
+    //                 'requireInteraction' => true,
+    //                 'tag' => 'duty-alert',
+    //                 'renotify' => true,
+    //             ],
+    //             'fcm_options' => [
+    //                 'link' => $link,
+    //             ],
+    //             'headers' => [
+    //                 'Urgency' => 'high',
+    //             ],
+    //         ]);
+
+    //         $message = $message->withWebPushConfig($webPushConfig);
+
+    //         // Android Configuration (Strict V1 API)
+    //         $androidConfig = AndroidConfig::fromArray([
+    //             'priority' => 'high', // This is valid at top level of AndroidConfig
+    //             'notification' => [
+    //                 'sound' => $soundFile === 'default' ? 'default' : $soundFile,
+    //                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+    //                 'channel_id' => 'high_importance_channel',
+    //                 'notification_priority' => 'PRIORITY_HIGH', // V1 equivalent for notification emphasis
+    //                 'default_sound' => true,
+    //                 'default_vibrate_timings' => true,
+    //                 'default_light_settings' => true,
+    //             ],
+    //             'ttl' => '86400s',
+    //         ]);
+
+    //         $message = $message->withAndroidConfig($androidConfig);
+
+    //         // Send the message
+    //         $result = $messaging->send($message);
+
+    //         Log::info('FCM Notification Sent Successfully', [
+    //             'token' => substr($deviceToken, 0, 20) . '...',
+    //             'title' => $title,
+    //             'result' => $result,
+    //         ]);
+
+    //         return true;
+    //     } catch (Exception $e) {
+    //         Log::error('FCM Send Error: ' . $e->getMessage(), [
+    //             'token' => substr($deviceToken, 0, 20) . '...',
+    //             'title' => $title,
+    //             'body' => $body,
+    //             'data' => $data,
+    //             'trace' => $e->getTraceAsString(),
+    //         ]);
+
+    //         return false;
+    //     }
+    // }
 
     /**
      * Send a notification to multiple devices.
