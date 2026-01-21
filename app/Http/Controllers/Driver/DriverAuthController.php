@@ -22,6 +22,9 @@ class DriverAuthController extends Controller
 
     public function showLogin()
     {
+        if (Auth::guard('driver')->check()) {
+            return redirect()->route('driver.dashboard');
+        }
         return view('driver.auth.login');
     }
 
@@ -49,6 +52,9 @@ class DriverAuthController extends Controller
 
     public function showVerify()
     {
+        if (Auth::guard('driver')->check()) {
+            return redirect()->route('driver.dashboard');
+        }
         if (!session('auth_mobile')) {
             return redirect()->route('driver.login');
         }
