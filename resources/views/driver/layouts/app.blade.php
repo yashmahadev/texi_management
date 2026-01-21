@@ -113,7 +113,7 @@
                 .catch(err => console.error('SW registration failed', err));
         }
     </script>
-    <!-- @include('partials.fcm-scripts', ['guard' => 'driver']) -->
+    @include('partials.fcm-scripts', ['guard' => 'driver'])
     @stack('scripts')
 </body>
 </html>
