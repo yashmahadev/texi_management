@@ -44,7 +44,7 @@ Route::get('/test-whatsapp', function (\App\Services\WhatsAppService $whatsapp) 
     ];
 });
 
-Route::get('/test-fcm', function (Illuminate\Http\Request $request, \App\Services\FcmService $fcm) {
+Route::get('/test-fcm', function (Illuminate\Http\Request $request, \App\Services\NotificationService $notificationService) {
     $token = $request->query('token');
     $title = $request->query('title', 'Test Notification');
     $body = $request->query('body', 'This is a test notification from Laravel.');
@@ -59,7 +59,7 @@ Route::get('/test-fcm', function (Illuminate\Http\Request $request, \App\Service
     // dd($token);
 
     $url = route('driver.dashboard');
-    $success = $fcm->sendNotification($token, $title, $body, $url);
+    $success = $notificationService->sendNotification($token, $title, $body, [], 'driver');
 
     return response()->json([
         'success' => $success,
@@ -280,3 +280,8 @@ Route::prefix('driver')->name('driver.')->group(function () {
         Route::get('history', [DutyController::class, 'history'])->name('history');
     });
 });
+
+
+// Route::get('test-noti', function() {
+//     (new \App\Services\FcmService())->sendWelcomeNotification();
+// });

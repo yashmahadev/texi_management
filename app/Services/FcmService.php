@@ -10,9 +10,24 @@ use Kreait\Laravel\Firebase\Facades\Firebase;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Exception\Messaging\NotFound;
+use App\Traits\FCMPushNotification;
 
 class FcmService
 {
+    use FCMPushNotification;
+    public function sendWelcomeNotification()
+    {
+        // Send to single device
+        $result = $this->sendPushNotification(
+            "dPLwQSNvfAxaQmgOJ7SrkN:APA91bGZbBe6nOiclmx0PM9Etl9hBcF_k7___io043sJD7dKaP1r7XTkGQMFUiPt1pn0PKE_yYvPvh_7bGDDiltyl8gYjaRDTUxWifS7RBIkH2LKZODt7RE",
+            'Welcome!',
+            'Thanks for joining our app',
+            ['user_id' => '123', 'action' => 'welcome'],
+            ['sound' => 'default', 'badge' => 1]
+        );
+        
+        return $result;
+    }
     /**
      * Send a notification to a specific device.
      *
@@ -23,29 +38,29 @@ class FcmService
      * @param string $recipientType 'admin' or 'driver'
      * @return bool
      */
-    public function sendNotification(string $token, string $title, string $body, string $url)
-    {
-        $messaging = \Kreait\Laravel\Firebase\Facades\Firebase::messaging();
+    // public function sendNotification(string $token, string $title, string $body, string $url)
+    // {
+    //     $messaging = \Kreait\Laravel\Firebase\Facades\Firebase::messaging();
 
-        $message = CloudMessage::withTarget('token', $token)
-            ->withData([
-                'title' => $title,
-                'body'  => $body,
-                'url'   => $url,
-                'icon'  => asset('favicon.ico'),
-            ]);
+    //     $message = CloudMessage::withTarget('token', $token)
+    //         ->withData([
+    //             'title' => $title,
+    //             'body'  => $body,
+    //             'url'   => $url,
+    //             'icon'  => asset('favicon.ico'),
+    //         ]);
 
-        try {
-            $messaging->send($message);
-            return true;
-        } catch (NotFound $e) {
-            \DB::table('drivers')
-                ->where('fcm_token', $token)
-                ->update(['fcm_token' => null]);
+    //     try {
+    //         $messaging->send($message);
+    //         return true;
+    //     } catch (NotFound $e) {
+    //         \DB::table('drivers')
+    //             ->where('fcm_token', $token)
+    //             ->update(['fcm_token' => null]);
 
-            return false;
-        }
-    }
+    //         return false;
+    //     }
+    // }
     // public function sendNotification(string $token, string $title, string $body, string $url)
     // {
     //     $messaging = \Kreait\Laravel\Firebase\Facades\Firebase::messaging();
