@@ -102,15 +102,37 @@
     const messaging = firebase.messaging();
 
     // Register Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js?v={{ time() }}')
-            .then((registration) => {
-                console.log('FCM: Service Worker registered. Scope:', registration.scope);
-                window.fcmRegistration = registration;
-            }).catch((err) => {
-                console.error('FCM: Service Worker registration failed:', err);
-            });
-    }
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(() => navigator.serviceWorker.ready)
+    .then((registration) => {
+        console.log('FCM SW ready');
+        return Notification.requestPermission();
+    })
+    .then((permission) => {
+        if (permission !== 'granted') {
+            console.warn('Notifications not allowed');
+            return;
+        }
+
+        return messaging.getToken({
+            vapidKey: 'BIsVK2bY_D2XmJUkcvqLz3ajwLE6qpCihrDouNyy3SHw_iqf7FSjv1FWwAb5GeAb6NkHuE3_paBn0Mt2E6e5J-8'
+        });
+    })
+    .then((token) => {
+        if (!token) return;
+
+        console.log('FCM Token:', token);
+
+        return fetch('/update-fcm-token', {
+                method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ token })
+        });
+    })
+    .catch(err => console.error('FCM init error:', err));
 
     const overlay = document.getElementById('fcm-permission-overlay');
     const deniedHint = document.getElementById('denied-hint');
@@ -143,39 +165,22 @@
 
     // Foreground Message Handler
     messaging.onMessage((payload) => {
-        console.log('FCM: Foreground message received:', payload);
-        if (Notification.permission === 'granted') {
-            const notificationTitle = payload.notification.title;
-            const logo = '{{ \App\Models\Setting::get("company_logo") ? asset("storage/" . \App\Models\Setting::get("company_logo")) : asset("favicon.ico") }}';
-            const notificationOptions = {
-                body: payload.notification.body,
-                icon: logo,
-                data: {
-                    link: payload.fcmOptions?.link || payload.fcm_options?.link || payload.data?.link || null
-                }
-            };
-            const notification = new Notification(notificationTitle, notificationOptions);
-            notification.onclick = function(event) {
-                event.preventDefault();
-                
-                // Robust link retrieval for different browser event objects
-                const data = (event.notification && event.notification.data) 
-                    ? event.notification.data 
-                    : (event.target && event.target.data ? event.target.data : {});
-                
-                const link = data.link;
-                console.log('FCM: Foreground notification clicked. Data:', data);
+        if (!payload.data) return;
 
-                if (link) {
-                    // If it's an absolute URL and matches current origin, or is relative
-                    if (link.startsWith('/') || link.includes(window.location.host)) {
-                        window.location.href = link;
-                    } else {
-                        window.open(link, '_blank');
-                    }
-                } else {
-                    window.focus();
-                }
+        const title = payload.data.title || 'Notification';
+        const body  = payload.data.body || '';
+        const url   = payload.data.url || '/';
+        const icon  = payload.data.icon || '/favicon.ico';
+
+        if (Notification.permission === 'granted') {
+            const notification = new Notification(title, {
+                body,
+                icon,
+                data: { url }
+            });
+
+            notification.onclick = () => {
+                window.location.href = url;
                 notification.close();
             };
         }

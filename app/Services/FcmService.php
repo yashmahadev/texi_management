@@ -9,6 +9,7 @@ use Kreait\Firebase\Messaging\AndroidConfig;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Exception\Messaging\NotFound;
 
 class FcmService
 {
@@ -32,14 +33,12 @@ class FcmService
                 'body'  => $body,
                 'url'   => $url,
                 'icon'  => asset('favicon.ico'),
-                'ts'    => now()->timestamp,
             ]);
 
         try {
             $messaging->send($message);
             return true;
         } catch (NotFound $e) {
-            // Token is DEAD — delete it
             \DB::table('drivers')
                 ->where('fcm_token', $token)
                 ->update(['fcm_token' => null]);
@@ -47,6 +46,31 @@ class FcmService
             return false;
         }
     }
+    // public function sendNotification(string $token, string $title, string $body, string $url)
+    // {
+    //     $messaging = \Kreait\Laravel\Firebase\Facades\Firebase::messaging();
+
+    //     $message = CloudMessage::withTarget('token', $token)
+    //         ->withData([
+    //             'title' => $title,
+    //             'body'  => $body,
+    //             'url'   => $url,
+    //             'icon'  => asset('favicon.ico'),
+    //             'ts'    => now()->timestamp,
+    //         ]);
+
+    //     try {
+    //         $messaging->send($message);
+    //         return true;
+    //     } catch (NotFound $e) {
+    //         // Token is DEAD — delete it
+    //         \DB::table('drivers')
+    //             ->where('fcm_token', $token)
+    //             ->update(['fcm_token' => null]);
+
+    //         return false;
+    //     }
+    // }
     // public function sendNotification(string $deviceToken, string $title, string $body, array $data = [], string $recipientType = 'driver'): bool
     // {
     //     try {
