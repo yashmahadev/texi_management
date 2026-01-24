@@ -63,25 +63,71 @@ Route::get('/test-whatsapp', function (Illuminate\Http\Request $request, \App\Se
 });
 
 Route::get('/test-fcm', function (Illuminate\Http\Request $request, \App\Services\NotificationService $notificationService) {
-    $token = $request->query('token');
-    $title = $request->query('title', 'Test Notification');
-    $body = $request->query('body', 'This is a test notification from Laravel.');
+    if (!$request->has('token')) {
+        $driver = Driver::where('mobile_number', '8690065830')->first();
+        $token = $driver->fcm_token ?? null;
+    } else {
+        $token = $request->query('token');
+    }
 
     if (!$token) {
-        $token = Driver::where('mobile_number', '8690065830')->first()->fcm_token ?? $token;
-        // return response()->json([
-        //     'error' => 'Device token is required. Use ?token=YOUR_TOKEN',
-        //     'hint' => 'You also need to place your Firebase Service Account JSON at storage/app/firebase-auth.json'
-        // ], 400);
+        return response()->json(['error' => 'Device token not found for test driver and not provided in ?token='], 400);
     }
-    // dd($token);
 
-    $url = route('driver.dashboard');
-    $success = $notificationService->sendNotification($token, $title, $body, [], 'driver');
+    $type = $request->query('type', 'all');
+    $results = [];
+
+    if ($type === 'assignment' || $type === 'all') {
+        $results['assignment'] = $notificationService->sendNotification(
+            $token,
+            "🚕 New Monthly Duty!",
+            "You have been assigned to Police Dept starting 25 Jan. Log in to view details.",
+            ['link' => route('driver.dashboard')]
+        );
+    }
+
+    if ($type === 'replacement' || $type === 'all') {
+        $results['replacement'] = $notificationService->sendNotification(
+            $token,
+            "🔄 Replacement Duty Assigned",
+            "You are assigned as a replacement for today's duty (24 Jan). Please report on time.",
+            ['link' => route('driver.dashboard')]
+        );
+    }
+
+    if ($type === 'cancellation' || $type === 'all') {
+        $results['cancellation'] = $notificationService->sendNotification(
+            $token,
+            "🛑 Duty Cancelled",
+            "Your duty for Public Works has been cancelled. Contact admin for details.",
+            ['link' => route('driver.dashboard')]
+        );
+    }
+
+    if ($type === 'delay' || $type === 'all') {
+        $results['delay'] = $notificationService->sendNotification(
+            $token,
+            "⚠️ Alert: Duty Delay",
+            "Your duty for Health Dept was due to start at 09:00 AM. Please report status.",
+            ['link' => route('driver.dashboard')]
+        );
+    }
+
+    if ($type === 'completion' || $type === 'all') {
+        $results['completion'] = $notificationService->sendNotification(
+            $token,
+            "✅ Trip Completed!",
+            "Total Distance: 45 KM. Summary recorded successfully.",
+            ['link' => route('driver.history')]
+        );
+    }
 
     return response()->json([
-        'success' => $success,
-        'message' => $success ? 'Notification sent successfully' : 'Failed to send notification. Check logs.',
+        'target_token' => substr($token, 0, 15) . '...',
+        'selected_type' => $type,
+        'results' => $results,
+        'available_types' => ['all', 'assignment', 'replacement', 'cancellation', 'delay', 'completion'],
+        'message' => 'FCM test notifications attempted. Check your device/console.'
     ]);
 });
 

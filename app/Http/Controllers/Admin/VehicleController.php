@@ -17,13 +17,16 @@ class VehicleController extends Controller
 {
     protected $whatsAppService;
     protected $auditLogger;
-    protected $fcmService;
+    protected $notificationService;
 
-    public function __construct(WhatsAppService $whatsAppService, AuditLogService $auditLogger, FcmService $fcmService)
-    {
+    public function __construct(
+        WhatsAppService $whatsAppService, 
+        AuditLogService $auditLogger, 
+        \App\Services\NotificationService $notificationService
+    ) {
         $this->whatsAppService = $whatsAppService;
         $this->auditLogger = $auditLogger;
-        $this->fcmService = $fcmService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -194,9 +197,9 @@ class VehicleController extends Controller
 
                 // Notify Driver
                 if ($driver->fcm_token) {
-                    $this->fcmService->sendNotification(
+                    $this->notificationService->sendNotification(
                         $driver->fcm_token,
-                        "Vehicle Assigned",
+                        "🚗 Vehicle Assigned",
                         "You have been assigned to vehicle {$vehicle->vehicle_number} ({$vehicle->make_model})",
                         ['link' => route('driver.dashboard')]
                     );
@@ -310,9 +313,9 @@ class VehicleController extends Controller
             // Notify Driver (if assigned)
             $driver = $vehicle->driver;
             if ($driver && $driver->fcm_token) {
-                $this->fcmService->sendNotification(
+                $this->notificationService->sendNotification(
                     $driver->fcm_token,
-                    "Vehicle Profile Updated",
+                    "📋 Vehicle Profile Updated",
                     "Your assigned vehicle {$vehicle->vehicle_number} has been updated.",
                     ['link' => route('driver.dashboard')]
                 );

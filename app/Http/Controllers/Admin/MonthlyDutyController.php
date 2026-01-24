@@ -120,8 +120,20 @@ class MonthlyDutyController extends Controller
 
             // 0. Notify Driver before deletion
             if ($monthlyDuty->primaryDriver) {
+                // WhatsApp Cancellation
                 $whatsapp = app(\App\Services\WhatsAppService::class);
                 $whatsapp->sendDutyCancellation($monthlyDuty->primaryDriver->mobile_number, (string)$monthlyDuty->id);
+
+                // FCM Cancellation
+                if ($monthlyDuty->primaryDriver->fcm_token) {
+                    $notificationService = app(\App\Services\NotificationService::class);
+                    $notificationService->sendNotification(
+                        $monthlyDuty->primaryDriver->fcm_token,
+                        "🛑 Duty Cancelled",
+                        "Your duty for {$monthlyDuty->department_name} has been cancelled.",
+                        ['link' => route('driver.dashboard')]
+                    );
+                }
             }
 
             // Get all log IDs for this duty

@@ -9,17 +9,24 @@ use App\Models\Driver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Services\AuditLogService;
+use App\Services\NotificationService;
 
 class DutyService
 {
     protected $fcmService;
     protected $whatsapp;
+    protected $notificationService;
 
-    public function __construct(AuditLogService $auditLogger, FcmService $fcmService, WhatsAppService $whatsapp)
-    {
+    public function __construct(
+        AuditLogService $auditLogger, 
+        FcmService $fcmService, 
+        WhatsAppService $whatsapp,
+        NotificationService $notificationService
+    ) {
         $this->auditLogger = $auditLogger;
         $this->fcmService = $fcmService;
         $this->whatsapp = $whatsapp;
+        $this->notificationService = $notificationService;
     }
 
     public function createMonthlyDuty(array $data, int $creatorId)
@@ -61,10 +68,10 @@ class DutyService
 
             // Push Notification to Driver
             if ($duty->primaryDriver && $duty->primaryDriver->fcm_token) {
-                $this->fcmService->sendNotification(
+                $this->notificationService->sendNotification(
                     $duty->primaryDriver->fcm_token,
-                    "New Monthly Duty Assigned",
-                    "You have been assigned a new duty for {$duty->department_name} starting from " . $duty->start_date->format('d M'),
+                    "🚕 New Monthly Duty Assigned",
+                    "You have been assigned a new duty for {$duty->department_name}.",
                     ['link' => route('driver.dashboard')]
                 );
             }
@@ -115,6 +122,19 @@ class DutyService
         ]);
 
         $this->auditLogger->log('End Duty', 'daily_duty_logs', $log->id, "Ended at {$data['end_km']} KM. Total: {$totalKm}");
+
+        // FCM Notification to Driver
+        $replacement = $log->replacements()->first();
+        $driver = $replacement ? $replacement->replacementDriver : $log->monthlyDuty->primaryDriver;
+        
+        if ($driver && $driver->fcm_token) {
+            $this->notificationService->sendNotification(
+                $driver->fcm_token,
+                "✅ Trip Completed!",
+                "Total Distance: {$totalKm} KM. Summary recorded successfully.",
+                ['link' => route('driver.history')]
+            );
+        }
 
         // WhatsApp Invoice Notification
         $replacement = $log->replacements()->first();
@@ -177,10 +197,10 @@ class DutyService
             // Push Notification to Replacement Driver
             $replacementDriver = Driver::find($replacementDriverId);
             if ($replacementDriver && $replacementDriver->fcm_token) {
-                $this->fcmService->sendNotification(
+                $this->notificationService->sendNotification(
                     $replacementDriver->fcm_token,
-                    "Replacement Duty Assigned",
-                    "You have been assigned as a replacement for today's duty ({$log->duty_date})",
+                    "🔄 Replacement Duty Assigned",
+                    "You are assigned as a replacement for today's duty ({$log->duty_date->format('d M')})",
                     ['link' => route('driver.dashboard')]
                 );
             }

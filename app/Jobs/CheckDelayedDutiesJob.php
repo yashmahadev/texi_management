@@ -95,8 +95,19 @@ class CheckDelayedDutiesJob implements ShouldQueue
             'type' => $type === 'start_delay' ? 'Start' : 'End',
         ];
 
-        // Ensure WhatsAppService has sendDelayAlert handling types or create a generic one
+        // WhatsApp Delay Alert
         $whatsapp->sendDelayAlert($driver->mobile_number, $details);
+
+        // FCM Delay Alert
+        if ($driver->fcm_token) {
+            $notificationService = app(\App\Services\NotificationService::class);
+            $notificationService->sendNotification(
+                $driver->fcm_token,
+                "⚠️ Alert: Duty Delay",
+                "Your duty for {$details['department']} was due to start at {$details['time']}. Please report status.",
+                ['link' => route('driver.dashboard')]
+            );
+        }
         
         cache()->put($cacheKey, true, now()->addDay());
         
