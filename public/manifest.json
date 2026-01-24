@@ -1,21 +1,83 @@
 {
-  "name": "Hindustan Tours & Travels",
-  "short_name": "HTT",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0d6efd",
-  "icons": [
-    {
-      "src": "/icons/icon-2.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-2.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    "name": "Hindustan Tours & Travels",
+    "short_name": "HTT",
+    "description": "Digital Duty & Fleet Management System - Phase 1 Implementation",
+    "start_url": "/driver/login",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#ffffff",
+    "theme_color": "#0d6efd",
+    "lang": "en",
+    "dir": "ltr",
+    "categories": [
+        "transportation",
+        "business",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "/favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/web-app-manifest-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/web-app-manifest-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/web-app-manifest-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/web-app-manifest-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Driver Dashboard",
+            "short_name": "Dashboard",
+            "description": "View your assigned duties and current status",
+            "url": "/driver/dashboard",
+            "icons": [
+                {
+                    "src": "/favicon-96x96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Duty History",
+            "short_name": "History",
+            "description": "View your past completed duties",
+            "url": "/driver/history",
+            "icons": [
+                {
+                    "src": "/favicon-96x96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ],
+    "prefer_related_applications": false
 }
