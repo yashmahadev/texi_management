@@ -118,6 +118,12 @@ class MonthlyDutyController extends Controller
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
 
+            // 0. Notify Driver before deletion
+            if ($monthlyDuty->primaryDriver) {
+                $whatsapp = app(\App\Services\WhatsAppService::class);
+                $whatsapp->sendDutyCancellation($monthlyDuty->primaryDriver->mobile_number, (string)$monthlyDuty->id);
+            }
+
             // Get all log IDs for this duty
             $logIds = $monthlyDuty->dailyLogs()->pluck('id');
 

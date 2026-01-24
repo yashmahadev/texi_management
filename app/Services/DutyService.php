@@ -12,13 +12,14 @@ use App\Services\AuditLogService;
 
 class DutyService
 {
-    protected $auditLogger;
     protected $fcmService;
+    protected $whatsapp;
 
-    public function __construct(AuditLogService $auditLogger, FcmService $fcmService)
+    public function __construct(AuditLogService $auditLogger, FcmService $fcmService, WhatsAppService $whatsapp)
     {
         $this->auditLogger = $auditLogger;
         $this->fcmService = $fcmService;
+        $this->whatsapp = $whatsapp;
     }
 
     public function createMonthlyDuty(array $data, int $creatorId)
@@ -68,6 +69,16 @@ class DutyService
                 );
             }
 
+            // WhatsApp Notification to Driver
+            if ($duty->primaryDriver) {
+                $this->whatsapp->sendDutyAssignment($duty->primaryDriver->mobile_number, [
+                    'driver_name' => $duty->primaryDriver->name,
+                    'vehicle_number' => $vehicle->vehicle_number,
+                    'reporting_time' => Carbon::parse($duty->expected_start_time)->format('h:i A'),
+                    'reporting_address' => $duty->department_name // Using department as reporting address for now
+                ]);
+            }
+
             return $duty;
         });
     }
@@ -104,6 +115,18 @@ class DutyService
         ]);
 
         $this->auditLogger->log('End Duty', 'daily_duty_logs', $log->id, "Ended at {$data['end_km']} KM. Total: {$totalKm}");
+
+        // WhatsApp Invoice Notification
+        $replacement = $log->replacements()->first();
+        $driver = $replacement ? $replacement->replacementDriver : $log->monthlyDuty->primaryDriver;
+
+        if ($driver) {
+            $this->whatsapp->sendInvoice($driver->mobile_number, [
+                'customer_name' => $log->monthlyDuty->officer_name,
+                'amount' => '0', // Placeholder: logic for price not yet implemented in Phase 1
+                'bill_no' => 'BILL-' . $log->id
+            ]);
+        }
 
         return $log;
     }
@@ -160,6 +183,16 @@ class DutyService
                     "You have been assigned as a replacement for today's duty ({$log->duty_date})",
                     ['link' => route('driver.dashboard')]
                 );
+            }
+
+            // WhatsApp Notification to Replacement Driver
+            if ($replacementDriver) {
+                $this->whatsapp->sendDutyAssignment($replacementDriver->mobile_number, [
+                    'driver_name' => $replacementDriver->name,
+                    'vehicle_number' => $log->monthlyDuty->vehicle->vehicle_number,
+                    'reporting_time' => Carbon::parse($log->monthlyDuty->expected_start_time)->format('h:i A'),
+                    'reporting_address' => $log->monthlyDuty->department_name
+                ]);
             }
         });
     }

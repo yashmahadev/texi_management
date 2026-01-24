@@ -19,28 +19,46 @@ Route::get('/', function () {
     return redirect()->route('driver.login');
 });
 
-Route::get('/test-whatsapp', function (\App\Services\WhatsAppService $whatsapp) {
-    $to = '+918690065830';
+Route::get('/test-whatsapp', function (Illuminate\Http\Request $request, \App\Services\WhatsAppService $whatsapp) {
+    $to = $request->query('to', '+918690065830');
+    $type = $request->query('type', 'all');
+    $results = [];
 
-    // 1. Test Template by Direct Name
-    $res1 = $whatsapp->sendByName('test', $to, ["1" => "12/1", "2" => "3pm"]);
-    
-    // 2. Test Dynamic Duty Assignment (Will fall back to text if template SID missing)
-    $res2 = $whatsapp->sendDutyAssignment($to, [
-        'driver_name' => 'John Doe',
-        'vehicle_number' => 'GJ01AB1234',
-        'reporting_time' => '10:00 AM',
-        'reporting_address' => 'Airport Terminal 1'
-    ]);
-    
-    // 3. Test Direct Notification call
-    $res3 = $whatsapp->sendNotification($to, 'test', ["1" => "OTP", "2" => "9999"]);
+    if ($type === 'otp' || $type === 'all') {
+        $results['otp'] = $whatsapp->sendOTP($to, '123456');
+    }
+    if ($type === 'delay' || $type === 'all') {
+        $results['delay_alert'] = $whatsapp->sendDelayAlert($to, [
+            'department' => 'Police Dept',
+            'vehicle' => 'GJ01AB1234',
+            'time' => '10:00 AM'
+        ]);
+    }
+    if ($type === 'duty_assigned' || $type === 'all') {
+        $results['duty_assigned'] = $whatsapp->sendDutyAssignment($to, [
+            'driver_name' => 'Yash',
+            'vehicle_number' => 'GJ01XY7890',
+            'reporting_time' => '09:00 AM',
+            'reporting_address' => 'District Court'
+        ]);
+    }
+    if ($type === 'duty_cancelled' || $type === 'all') {
+        $results['duty_cancelled'] = $whatsapp->sendDutyCancellation($to, '101');
+    }
+    if ($type === 'payment' || $type === 'all') {
+        $results['payment_invoice'] = $whatsapp->sendInvoice($to, [
+            'customer_name' => 'John Doe',
+            'amount' => '1500',
+            'bill_no' => 'INV-2024-001'
+        ]);
+    }
 
     return [
-        'template_test_success' => $res1,
-        'duty_assignment_success' => $res2,
-        'notification_success' => $res3,
-        'message' => 'Multiple templates attempted. Check logs/phone.'
+        'target' => $to,
+        'selected_type' => $type,
+        'results' => $results,
+        'available_types' => ['all', 'otp', 'delay', 'duty_assigned', 'duty_cancelled', 'payment'],
+        'message' => 'Test messages sent. Check your WhatsApp.'
     ];
 });
 
