@@ -54,7 +54,7 @@
                 <tr>
                     <td>#{{ $duty->id }}</td>
                     <td>
-                        {{ $duty->start_date->format('d M') }} - {{ $duty->end_date->format('d M Y') }}
+                        {{ $duty->start_date->toAppDate() }} - {{ $duty->end_date->toAppDate() }}
                     </td>
                     <td>{{ $duty->vehicle->vehicle_number }}</td>
                     <td>{{ $duty->primaryDriver->name }}</td>
@@ -62,7 +62,7 @@
                         {{ $duty->officer_name }}<br>
                         <small class="text-muted">{{ $duty->department_name }}</small>
                     </td>
-                    <td>{{ $duty->created_at->format('d M Y') }}</td>
+                    <td>{{ $duty->created_at->toAppDate() }}</td>
                     <td>
                         <div class="btn-group">
                             <a href="{{ route('admin.monthly-duties.show', $duty->id) }}" class="btn btn-sm btn-outline-info">

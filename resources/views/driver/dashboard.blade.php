@@ -4,7 +4,7 @@
 <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
     <div class="card-body">
         <h5>Welcome, {{ Auth::guard('driver')->user()->name }}</h5>
-        <p class="mb-0 small"><i class="bi bi-calendar-day"></i> {{ now()->format('l, d M Y') }}</p>
+        <p class="mb-0 small"><i class="bi bi-calendar-day"></i> {{ now()->toAppDate() }}</p>
     </div>
 </div>
 
@@ -33,7 +33,7 @@
             </div>
             <div class="mb-3">
                 <label class="text-muted small">Expected Start</label>
-                <div class="fw-bold">{{ \Carbon\Carbon::parse($currentDuty->expected_start_time)->format('h:i A') }}</div>
+                <div class="fw-bold">{{ \Carbon\Carbon::parse($currentDuty->expected_start_time)->format('H:i:s') }}</div>
             </div>
 
             <hr>
@@ -89,7 +89,7 @@
             @elseif($todayLog->status == 'started')
                 <div class="mb-3">
                     <label class="text-muted small">Start Time</label>
-                    <div class="fw-bold">{{ \Carbon\Carbon::parse($todayLog->start_time)->format('h:i A') }}</div>
+                    <div class="fw-bold">{{ \Carbon\Carbon::parse($todayLog->start_time)->toAppDateTime() }}</div>
                 </div>
                 <div class="mb-3">
                     <label class="text-muted small">Start KM</label>

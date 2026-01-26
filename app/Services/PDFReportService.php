@@ -60,7 +60,7 @@ class PDFReportService
                     return $log;
                 })
                 ->groupBy(function($log) {
-                    return $log->duty_date->format('Y-m-d');
+                    return $log->duty_date->format('Y-m-d'); // Keep Y-m-d for grouping internally
                 });
         }
 

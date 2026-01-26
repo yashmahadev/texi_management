@@ -22,5 +22,13 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
+
+        \Illuminate\Support\Carbon::macro('toAppDate', function () {
+            return $this->format(config('app.date_format', 'd-m-Y'));
+        });
+
+        \Illuminate\Support\Carbon::macro('toAppDateTime', function () {
+            return $this->format(config('app.datetime_format', 'd-m-Y H:i:s'));
+        });
     }
 }

@@ -3,7 +3,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Dashboard</h2>
-    <span>{{ now()->format('l, d M Y') }}</span>
+    <span>{{ now()->toAppDate() }}</span>
 </div>
 
 <div class="row mb-4 g-3">
@@ -115,7 +115,7 @@
                         {{ $log->monthlyDuty->officer_name }}<br>
                         <small class="text-muted">{{ $log->monthlyDuty->department_name }}</small>
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('h:i A') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i:s') }}</td>
                     <td>
                         <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
                             {{ ucfirst($log->status) }}
