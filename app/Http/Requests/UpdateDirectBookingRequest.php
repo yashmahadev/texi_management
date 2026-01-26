@@ -30,6 +30,8 @@ class UpdateDirectBookingRequest extends FormRequest
             'booking_datetime' => 'required|date',
             'booking_end_datetime' => 'nullable|date|after_or_equal:booking_datetime',
             'estimated_km' => 'nullable|integer|min:1',
+            'base_fare' => 'nullable|numeric|min:0',
+            'per_km_rate' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'admin_notes' => 'nullable|string',
         ];

@@ -23,7 +23,8 @@ class DirectBooking extends Model
         'actual_km',
         'status',
         'notes',
-        'admin_notes',
+        'base_fare',
+        'per_km_rate',
         'created_by',
     ];
 
@@ -32,6 +33,8 @@ class DirectBooking extends Model
         'booking_end_datetime' => 'datetime',
         'estimated_km' => 'integer',
         'actual_km' => 'integer',
+        'base_fare' => 'decimal:2',
+        'per_km_rate' => 'decimal:2',
     ];
 
     /**

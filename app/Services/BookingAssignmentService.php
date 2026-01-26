@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\Auth;
 class BookingAssignmentService
 {
     protected $auditLogService;
+    protected $notificationService;
 
-    public function __construct(AuditLogService $auditLogService)
+    public function __construct(AuditLogService $auditLogService, DirectBookingNotificationService $notificationService)
     {
         $this->auditLogService = $auditLogService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -47,6 +49,9 @@ class BookingAssignmentService
                 'assigned_by' => Auth::guard('web')->id(),
                 'is_active' => true,
             ]);
+
+            // Notify Driver
+            $this->notificationService->notifyDriverAssigned($booking, $driver);
 
             // Audit log
             $this->auditLogService->log(

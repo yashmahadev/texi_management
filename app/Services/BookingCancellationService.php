@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Auth;
 class BookingCancellationService
 {
     protected $auditLogService;
+    protected $notificationService;
 
-    public function __construct(AuditLogService $auditLogService)
+    public function __construct(AuditLogService $auditLogService, DirectBookingNotificationService $notificationService)
     {
         $this->auditLogService = $auditLogService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -32,6 +34,9 @@ class BookingCancellationService
 
             // Log cancellation
             $this->logCancellation($booking, $reason);
+
+            // Notify parties
+            $this->notificationService->notifyBookingCancelled($booking, $reason);
 
             // Log status change
             $cancelledBy = null;

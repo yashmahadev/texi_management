@@ -106,6 +106,31 @@
             </div>
 
             <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Base Fare (₹) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input type="number" name="base_fare" class="form-control @error('base_fare') is-invalid @enderror" 
+                               value="{{ old('base_fare', $booking->base_fare) }}" step="0.01" min="0" required>
+                    </div>
+                    @error('base_fare')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Per KM Rate (₹/km) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input type="number" name="per_km_rate" class="form-control @error('per_km_rate') is-invalid @enderror" 
+                               value="{{ old('per_km_rate', $booking->per_km_rate) }}" step="0.01" min="0" required>
+                    </div>
+                    @error('per_km_rate')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
                 <div class="col-md-12">
                     <label class="form-label fw-bold">Customer Notes</label>
                     <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" 

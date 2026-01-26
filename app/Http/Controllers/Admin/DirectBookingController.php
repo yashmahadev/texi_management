@@ -64,7 +64,11 @@ class DirectBookingController extends Controller
     public function create()
     {
         $customers = $this->customerService->getActiveCustomersForDropdown();
-        return view('admin.direct_bookings.create', compact('customers'));
+        $defaults = [
+            'base_fare' => \App\Models\Setting::get('booking_base_fare', 50.00),
+            'per_km_rate' => \App\Models\Setting::get('booking_per_km_rate', 10.00),
+        ];
+        return view('admin.direct_bookings.create', compact('customers', 'defaults'));
     }
 
     /**

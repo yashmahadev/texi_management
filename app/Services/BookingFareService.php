@@ -22,8 +22,8 @@ class BookingFareService
      */
     public function calculateFare(DirectBooking $booking, float $actualKm)
     {
-        $baseFare = $this->getBaseFare();
-        $perKmRate = $this->getPerKmRate();
+        $baseFare = $booking->base_fare ?? $this->getBaseFare();
+        $perKmRate = $booking->per_km_rate ?? $this->getPerKmRate();
 
         $calculatedFare = $baseFare + ($actualKm * $perKmRate);
 
@@ -163,19 +163,21 @@ class BookingFareService
     public function createEstimatedFare(DirectBooking $booking)
     {
         if ($booking->estimated_km && !$booking->fare) {
-            $baseFare = $this->getBaseFare();
-            $perKmRate = $this->getPerKmRate();
+            $baseFare = $booking->base_fare ?? $this->getBaseFare();
+            $perKmRate = $booking->per_km_rate ?? $this->getPerKmRate();
             $estimatedFare = $baseFare + ($booking->estimated_km * $perKmRate);
 
-            BookingFare::create([
-                'booking_id' => $booking->id,
-                'base_fare' => $baseFare,
-                'per_km_rate' => $perKmRate,
-                'total_km' => $booking->estimated_km,
-                'calculated_fare' => $estimatedFare,
-                'final_fare' => $estimatedFare,
-                'is_locked' => false,
-            ]);
+            BookingFare::updateOrCreate(
+                ['booking_id' => $booking->id],
+                [
+                    'base_fare' => $baseFare,
+                    'per_km_rate' => $perKmRate,
+                    'total_km' => $booking->estimated_km,
+                    'calculated_fare' => $estimatedFare,
+                    'final_fare' => $estimatedFare,
+                    'is_locked' => false,
+                ]
+            );
         }
     }
 }

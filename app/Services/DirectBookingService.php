@@ -12,11 +12,19 @@ class DirectBookingService
 {
     protected $auditLogService;
     protected $assignmentService;
+    protected $notificationService;
+    protected $fareService;
 
-    public function __construct(AuditLogService $auditLogService, BookingAssignmentService $assignmentService)
-    {
+    public function __construct(
+        AuditLogService $auditLogService, 
+        BookingAssignmentService $assignmentService,
+        DirectBookingNotificationService $notificationService,
+        BookingFareService $fareService
+    ) {
         $this->auditLogService = $auditLogService;
         $this->assignmentService = $assignmentService;
+        $this->notificationService = $notificationService;
+        $this->fareService = $fareService;
     }
 
     /**
@@ -30,8 +38,14 @@ class DirectBookingService
             // Create the booking
             $booking = DirectBooking::create($data);
 
+            // Create initial fare record (estimate) with custom rates if provided
+            $this->fareService->createEstimatedFare($booking);
+
             // Log initial status
             $this->logStatusChange($booking, null, 'CREATED', 'Booking created');
+
+            // Notify Customer
+            $this->notificationService->notifyBookingCreated($booking);
 
             // Audit log
             $this->auditLogService->log(
@@ -62,6 +76,9 @@ class DirectBookingService
             DB::beginTransaction();
 
             $booking->update($data);
+
+            // Update/Recalculate estimated fare if rates changed
+            $this->fareService->createEstimatedFare($booking);
 
             $this->auditLogService->log(
                 'BOOKING_UPDATED',
@@ -123,6 +140,15 @@ class DirectBookingService
                 $booking->id,
                 "Status changed from {$currentStatus} to {$newStatus}"
             );
+
+            // Notification triggers based on status
+            if ($newStatus === 'ACCEPTED') {
+                $this->notificationService->notifyDriverAccepted($booking);
+            } elseif ($newStatus === 'STARTED') {
+                $this->notificationService->notifyTripStarted($booking);
+            } elseif ($newStatus === 'COMPLETED') {
+                $this->notificationService->notifyTripCompleted($booking);
+            }
 
             DB::commit();
             return true;
