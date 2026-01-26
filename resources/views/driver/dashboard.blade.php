@@ -8,44 +8,6 @@
     </div>
 </div>
 
-@if($activeDirectBookings->count() > 0)
-    <div class="mb-4">
-        <h6 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2"></i>Active Direct Bookings</h6>
-        @foreach($activeDirectBookings as $booking)
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <div class="fw-bold">{{ $booking->booking_number }}</div>
-                            <div class="text-muted small">{{ $booking->booking_datetime->format('d M, h:i A') }}</div>
-                        </div>
-                        @php
-                            $statusColors = [
-                                'ASSIGNED' => 'info', 'ACCEPTED' => 'primary', 'STARTED' => 'warning'
-                            ];
-                        @endphp
-                        <span class="badge bg-{{ $statusColors[$booking->status] ?? 'secondary' }}">
-                            {{ $booking->status }}
-                        </span>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <i class="bi bi-person text-primary me-1"></i> {{ $booking->customer_name }}
-                    </div>
-                    
-                    <div class="mb-3 small">
-                        <div class="text-truncate"><i class="bi bi-geo-alt text-success me-1"></i> {{ $booking->pickup_location }}</div>
-                        <div class="text-truncate"><i class="bi bi-geo-alt text-danger me-1"></i> {{ $booking->drop_location }}</div>
-                    </div>
-
-                    <a href="{{ route('driver.direct-bookings.show', $booking) }}" class="btn btn-outline-primary btn-sm w-100">
-                        View Details & Actions
-                    </a>
-                </div>
-            </div>
-        @endforeach
-    </div>
-@endif
 
 @if($currentDuty)
     @php
@@ -63,16 +25,28 @@
         <div class="card-body">
             <div class="mb-3">
                 <label class="text-muted small">Vehicle</label>
-                <div class="fw-bold">{{ $currentDuty->vehicle->vehicle_number }}</div>
+                <div class="fw-bold">{{ $currentDuty->vehicle->vehicle_number ?? 'N/A' }}</div>
             </div>
             <div class="mb-3">
-                <label class="text-muted small">Officer / Dept</label>
-                <div class="fw-bold">{{ $currentDuty->officer_name }}</div>
-                <div class="small">{{ $currentDuty->department_name }}</div>
+                @if($todayLog->monthly_duty_id)
+                    <label class="text-muted small">Officer / Dept</label>
+                    <div class="fw-bold">{{ $currentDuty->officer_name }}</div>
+                    <div class="small">{{ $currentDuty->department_name }}</div>
+                @else
+                    <label class="text-muted small">Customer / Trip</label>
+                    <div class="fw-bold">{{ $currentDuty->customer_name }}</div>
+                    <div class="small text-truncate">{{ $currentDuty->pickup_location }} <i class="bi bi-arrow-right mx-1"></i> {{ $currentDuty->drop_location }}</div>
+                @endif
             </div>
             <div class="mb-3">
                 <label class="text-muted small">Expected Start</label>
-                <div class="fw-bold">{{ \Carbon\Carbon::parse($currentDuty->expected_start_time)->format('H:i:s') }}</div>
+                <div class="fw-bold">
+                    @if($todayLog->monthly_duty_id)
+                        {{ \Carbon\Carbon::parse($currentDuty->expected_start_time)->format('H:i:s') }}
+                    @else
+                        {{ $currentDuty->booking_datetime->toAppDateTime() }}
+                    @endif
+                </div>
             </div>
 
             <hr>

@@ -20,7 +20,11 @@
                     </div>
                     <div class="col-6 text-end">
                         Total: {{ $log->total_km }} km<br>
-                        {{ $log->monthlyDuty->vehicle->vehicle_number ?? '' }}
+                        @if($log->monthly_duty_id)
+                            {{ $log->monthlyDuty->vehicle->vehicle_number ?? '' }}
+                        @elseif($log->direct_booking_id)
+                            {{ $log->directBooking->vehicle->vehicle_number ?? '' }}
+                        @endif
                     </div>
                 </div>
             </div>

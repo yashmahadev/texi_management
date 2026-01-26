@@ -7,6 +7,7 @@ use App\Models\BookingAssignment;
 use App\Models\Driver;
 use App\Models\Vehicle;
 use App\Models\MonthlyDuty;
+use App\Models\DailyDutyLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,26 @@ class BookingAssignmentService
                 'assigned_by' => Auth::guard('web')->id(),
                 'is_active' => true,
             ]);
+
+            // Update DirectBooking record with driver and vehicle
+            $booking->update([
+                'driver_id' => $driverId,
+                'vehicle_id' => $vehicleId,
+                'status' => 'ASSIGNED' // DirectBookingService calls this service, then updates status. But we align here too.
+            ]);
+
+            // Auto-generate daily logs if they don't exist
+            $startDate = $booking->booking_datetime->copy()->startOfDay();
+            $endDate = ($booking->booking_end_datetime ?? $booking->booking_datetime)->copy()->startOfDay();
+
+            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+                DailyDutyLog::firstOrCreate([
+                    'direct_booking_id' => $booking->id,
+                    'duty_date' => $date->format('Y-m-d'),
+                ], [
+                    'status' => 'pending',
+                ]);
+            }
 
             // Notify Driver
             $this->notificationService->notifyDriverAssigned($booking, $driver);

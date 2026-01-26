@@ -79,6 +79,9 @@ class DutyController extends Controller
             })
             ->orWhereHas('replacements', function($q) use ($driverId) {
                 $q->where('replacement_driver_id', $driverId);
+            })
+            ->orWhereHas('directBooking', function($q) use ($driverId) {
+                $q->where('driver_id', $driverId);
             });
         })
         ->whereDate('duty_date', '<=', now()->toDateString())

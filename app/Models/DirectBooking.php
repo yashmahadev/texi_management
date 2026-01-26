@@ -26,6 +26,8 @@ class DirectBooking extends Model
         'base_fare',
         'per_km_rate',
         'created_by',
+        'driver_id',
+        'vehicle_id',
     ];
 
     protected $casts = [
@@ -110,6 +112,21 @@ class DirectBooking extends Model
     public function cancellation()
     {
         return $this->hasOne(BookingCancellation::class, 'booking_id');
+    }
+
+    public function dailyLogs()
+    {
+        return $this->hasMany(DailyDutyLog::class, 'direct_booking_id');
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
+
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class);
     }
 
     /**

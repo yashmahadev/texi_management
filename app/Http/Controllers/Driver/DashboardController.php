@@ -14,45 +14,35 @@ class DashboardController extends Controller
         $driver = Auth::guard('driver')->user();
         $driverId = $driver->id;
         
-        // Get current active monthly duty
-        // Logic: Duty where primary_driver is me, AND date range covers today.
-        // OR checks for replacements assignment.
-        // For simplicity: Check primary first.
-        
         $today = now()->format('Y-m-d');
         
-        $currentDuty = MonthlyDuty::where('primary_driver_id', $driverId)
-            ->where('start_date', '<=', $today)
-            ->where('end_date', '>=', $today)
-            ->first();
-
-        if ($currentDuty) {
-            // Ensure today's log exists
-            $todayLog = \App\Models\DailyDutyLog::firstOrCreate(
-                [
-                    'monthly_duty_id' => $currentDuty->id,
-                    'duty_date' => $today,
-                ],
-                [
-                    'status' => 'pending',
-                ]
-            );
-            
-            $currentDuty->load(['vehicle']);
-            $currentDuty->setRelation('dailyLogs', collect([$todayLog]));
-        } else {
-            // Check if I am a replacement for TODAY
-            $replacementLog = \App\Models\DailyDutyLog::whereDate('duty_date', $today)
-                ->whereHas('replacements', function($q) use ($driverId) {
+        // Find today's log for this driver (either primary, replacement or direct)
+        $todayLog = \App\Models\DailyDutyLog::where('duty_date', $today)
+            ->where(function($query) use ($driverId) {
+                // Monthly Duty (Primary)
+                $query->whereHas('monthlyDuty', function($q) use ($driverId) {
+                    $q->where('primary_driver_id', $driverId);
+                })
+                // Monthly Duty (Replacement)
+                ->orWhereHas('replacements', function($q) use ($driverId) {
                     $q->where('replacement_driver_id', $driverId);
                 })
-                ->with(['monthlyDuty.vehicle'])
-                ->first();
+                // Direct Booking
+                ->orWhereHas('directBooking', function($q) use ($driverId) {
+                    $q->where('driver_id', $driverId);
+                });
+            })
+            ->with(['monthlyDuty.vehicle', 'directBooking.vehicle'])
+            ->first();
 
-            if ($replacementLog) {
-                $currentDuty = $replacementLog->monthlyDuty;
-                $currentDuty->setRelation('dailyLogs', collect([$replacementLog]));
+        $currentDuty = null;
+        if ($todayLog) {
+            if ($todayLog->monthly_duty_id) {
+                $currentDuty = $todayLog->monthlyDuty;
+            } else {
+                $currentDuty = $todayLog->directBooking;
             }
+            $currentDuty->setRelation('dailyLogs', collect([$todayLog]));
         }
         
         // Phase-2: Get active direct bookings
