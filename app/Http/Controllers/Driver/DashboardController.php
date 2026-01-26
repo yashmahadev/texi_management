@@ -11,7 +11,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $driverId = Auth::guard('driver')->id();
+        $driver = Auth::guard('driver')->user();
+        $driverId = $driver->id;
         
         // Get current active monthly duty
         // Logic: Duty where primary_driver is me, AND date range covers today.
@@ -53,7 +54,11 @@ class DashboardController extends Controller
                 $currentDuty->setRelation('dailyLogs', collect([$replacementLog]));
             }
         }
+        
+        // Phase-2: Get active direct bookings
+        $directBookingService = app(\App\Services\DirectBookingService::class);
+        $activeDirectBookings = $directBookingService->getDriverBookings($driver, ['ASSIGNED', 'ACCEPTED', 'STARTED']);
 
-        return view('driver.dashboard', compact('currentDuty', 'today'));
+        return view('driver.dashboard', compact('currentDuty', 'today', 'activeDirectBookings'));
     }
 }
