@@ -125,7 +125,14 @@ class DutyService
 
         // FCM Notification to Driver
         $replacement = $log->replacements()->first();
-        $driver = $replacement ? $replacement->replacementDriver : $log->monthlyDuty->primaryDriver;
+        $driver = null;
+        if ($replacement) {
+            $driver = $replacement->replacementDriver;
+        } elseif ($log->monthlyDuty) {
+            $driver = $log->monthlyDuty->primaryDriver;
+        } elseif ($log->directBooking) {
+            $driver = $log->directBooking->driver;
+        }
         
         if ($driver && $driver->fcm_token) {
             $this->notificationService->sendNotification(
@@ -137,12 +144,10 @@ class DutyService
         }
 
         // WhatsApp Invoice Notification
-        $replacement = $log->replacements()->first();
-        $driver = $replacement ? $replacement->replacementDriver : $log->monthlyDuty->primaryDriver;
-
         if ($driver) {
+            $customerName = $log->monthlyDuty ? $log->monthlyDuty->officer_name : ($log->directBooking ? $log->directBooking->customer_name : 'Customer');
             $this->whatsapp->sendInvoice($driver->mobile_number, [
-                'customer_name' => $log->monthlyDuty->officer_name,
+                'customer_name' => $customerName,
                 'amount' => '0', // Placeholder: logic for price not yet implemented in Phase 1
                 'bill_no' => 'BILL-' . $log->id
             ]);
@@ -154,12 +159,22 @@ class DutyService
     public function assignReplacement(DailyDutyLog $log, int $replacementDriverId, string $reason, int $assignedBy)
     {
         return DB::transaction(function () use ($log, $replacementDriverId, $reason, $assignedBy) {
-            $originalDriverId = $log->monthlyDuty->primary_driver_id;
-            
-            // If already replaced, original driver might be different? 
-            // For Phase 1, assume replace primary driver or current assigned driver.
-            // But monthly_duty stores primary.
-            // DutyReplacement stores original/replacement.
+            $originalDriverId = null;
+            $vehicleNumber = 'N/A';
+            $expectedStartTime = '00:00:00';
+            $reportingAddress = 'N/A';
+
+            if ($log->monthlyDuty) {
+                $originalDriverId = $log->monthlyDuty->primary_driver_id;
+                $vehicleNumber = $log->monthlyDuty->vehicle->vehicle_number;
+                $expectedStartTime = $log->monthlyDuty->expected_start_time;
+                $reportingAddress = $log->monthlyDuty->department_name;
+            } elseif ($log->directBooking) {
+                $originalDriverId = $log->directBooking->driver_id;
+                $vehicleNumber = $log->directBooking->vehicle->vehicle_number;
+                $expectedStartTime = $log->directBooking->booking_datetime->format('H:i:s');
+                $reportingAddress = $log->directBooking->pickup_location;
+            }
             
             DutyReplacement::create([
                 'daily_duty_log_id' => $log->id,
@@ -170,28 +185,8 @@ class DutyService
                 'assigned_at' => now(),
             ]);
 
-            $log->update(['status' => 'replaced']); // Or keep pending but assigned?
-            // "replaced" status meant effectively "Someone else doing it".
-            // Actually, we usually want the log to be fillable by the NEW driver.
-            // If status is 'replaced', does it mean 'cancelled'?
-            // Prompt: "daily_duty_logs.status (pending, started, completed, missing, disputed, replaced)".
-            // If replaced, we probably need a NEW log for the replacement driver OR update the driver logic.
-            // Driver App: "View assigned monthly duty".
-            // If checking assignments, we need to know who is driving TODAY.
-            // If replacement exists, the driver for TODAY is the replacement.
-            // So `replaced` status might be final for the log? Or just an indicator?
-            // If I mark "replaced", creates a NEW log?
-            // Prompt doesn't specify.
-            // "Driver Replacement: Assign replacement per date... Store original + replacement driver".
-            // Simpler: The Log belongs to MonthlyDuty (Primary Driver).
-            // If replaced, we note it in replacements table.
-            // AND we probably should allow the replacement driver to see it.
-            // Driver App Query: Check MonthlyDuty where Primary Driver is ME OR (Replacement where Replacement is ME and Date matches).
-            // So I'll keep status 'pending' (or 'started') but adding the replacement record modifies visibility.
-            // Prompt lists 'replaced' as a STATUS.
-            // I'll set status to 'pending' to allow start, but maybe 'replaced' means "Primary driver replaced"?
-            // I'll leave status as 'pending' but log the replacement action.
-            
+            $log->update(['status' => 'replaced']);
+
             $this->auditLogger->log('Assign Replacement', 'duty_replacements', $log->id, "Replaced with Driver ID {$replacementDriverId}");
 
             // Push Notification to Replacement Driver
@@ -209,9 +204,9 @@ class DutyService
             if ($replacementDriver) {
                 $this->whatsapp->sendDutyAssignment($replacementDriver->mobile_number, [
                     'driver_name' => $replacementDriver->name,
-                    'vehicle_number' => $log->monthlyDuty->vehicle->vehicle_number,
-                    'reporting_time' => Carbon::parse($log->monthlyDuty->expected_start_time)->format('h:i A'),
-                    'reporting_address' => $log->monthlyDuty->department_name
+                    'vehicle_number' => $vehicleNumber,
+                    'reporting_time' => Carbon::parse($expectedStartTime)->format('h:i A'),
+                    'reporting_address' => $reportingAddress
                 ]);
             }
         });

@@ -25,7 +25,12 @@
         <div class="card-body">
             <div class="mb-3">
                 <label class="text-muted small">Vehicle</label>
-                <div class="fw-bold">{{ $currentDuty->vehicle->vehicle_number ?? 'N/A' }}</div>
+                <div class="fw-bold">
+                    {{ $currentDuty->vehicle->vehicle_number ?? 'N/A' }}
+                    @if(isset($currentDuty->vehicle->vehicle_type))
+                        <span class="badge bg-light text-dark border small ms-1">{{ $currentDuty->vehicle->vehicle_type }}</span>
+                    @endif
+                </div>
             </div>
             <div class="mb-3">
                 @if($todayLog->monthly_duty_id)
@@ -33,19 +38,52 @@
                     <div class="fw-bold">{{ $currentDuty->officer_name }}</div>
                     <div class="small">{{ $currentDuty->department_name }}</div>
                 @else
-                    <label class="text-muted small">Customer / Trip</label>
-                    <div class="fw-bold">{{ $currentDuty->customer_name }}</div>
-                    <div class="small text-truncate">{{ $currentDuty->pickup_location }} <i class="bi bi-arrow-right mx-1"></i> {{ $currentDuty->drop_location }}</div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <label class="text-muted small">Customer</label>
+                            <div class="fw-bold">{{ $currentDuty->customer_name }}</div>
+                        </div>
+                        <a href="tel:{{ $currentDuty->customer_mobile }}" class="btn btn-sm btn-success rounded-pill px-3">
+                            <i class="bi bi-telephone-outbound me-1"></i> Call
+                        </a>
+                    </div>
+                    <div class="mt-2">
+                        <label class="text-muted small">Trip Details</label>
+                        <div class="small border-start border-3 border-success ps-2 mb-2">
+                            <i class="bi bi-geo-alt-fill text-success small"></i> <strong>From:</strong><br>
+                            {{ $currentDuty->pickup_location }}
+                        </div>
+                        <div class="small border-start border-3 border-danger ps-2">
+                            <i class="bi bi-geo-alt-fill text-danger small"></i> <strong>To:</strong><br>
+                            {{ $currentDuty->drop_location }}
+                        </div>
+                    </div>
                 @endif
             </div>
-            <div class="mb-3">
-                <label class="text-muted small">Expected Start</label>
-                <div class="fw-bold">
-                    @if($todayLog->monthly_duty_id)
-                        {{ \Carbon\Carbon::parse($currentDuty->expected_start_time)->format('H:i:s') }}
-                    @else
-                        {{ $currentDuty->booking_datetime->toAppDateTime() }}
-                    @endif
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label class="text-muted small">Expected Start</label>
+                    <div class="fw-bold">
+                        @if($todayLog->monthly_duty_id)
+                            {{ \Carbon\Carbon::parse($currentDuty->expected_start_time)->format('h:i A') }}
+                        @else
+                            {{ $currentDuty->booking_datetime->format('d M, h:i A') }}
+                        @endif
+                    </div>
+                </div>
+                <div class="col-6 text-end">
+                    <label class="text-muted small">Expected End</label>
+                    <div class="fw-bold">
+                        @if($todayLog->monthly_duty_id)
+                            @if($currentDuty->expected_end_time)
+                                {{ $currentDuty->end_date->format('d M') }}, {{ \Carbon\Carbon::parse($currentDuty->expected_end_time)->format('h:i A') }}
+                            @else
+                                {{ $currentDuty->end_date->format('d M') }}
+                            @endif
+                        @else
+                            {{ $currentDuty->booking_end_datetime ? $currentDuty->booking_end_datetime->format('d M, h:i A') : 'N/A' }}
+                        @endif
+                    </div>
                 </div>
             </div>
 
