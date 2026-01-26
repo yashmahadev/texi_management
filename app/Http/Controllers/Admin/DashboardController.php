@@ -30,7 +30,7 @@ class DashboardController extends Controller
         $missingDuties = DailyDutyLog::where('status', 'missing')->count();
 
         // Pending Duties Table
-        $todaysDuties = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver'])
+        $todaysDuties = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver', 'directBooking.vehicle', 'directBooking.driver'])
             ->whereDate('duty_date', now())
             ->get();
 

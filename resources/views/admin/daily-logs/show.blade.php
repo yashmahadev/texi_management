@@ -13,6 +13,50 @@
                 <h5 class="mb-0">Duty Information</h5>
             </div>
             <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6 border-end">
+                        <h6>Vehicle Information</h6>
+                        @php
+                            $vehicle = $log->monthlyDuty->vehicle ?? $log->directBooking->vehicle ?? null;
+                        @endphp
+                        @if($vehicle)
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-2 rounded me-3">
+                                    <i class="bi bi-truck fs-3"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-5">{{ $vehicle->vehicle_number }}</div>
+                                    <div class="text-muted small">{{ $vehicle->vehicle_type }} | {{ $vehicle->model }}</div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-danger">Vehicle Info Not Found</div>
+                        @endif
+                    </div>
+                    <div class="col-md-6 ps-md-4">
+                        <h6>Driver Information</h6>
+                        @php
+                            $driver = $log->monthlyDuty->primaryDriver ?? $log->directBooking->driver ?? null;
+                        @endphp
+                        @if($driver)
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-2 rounded me-3">
+                                    <i class="bi bi-person fs-3"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-5">{{ $driver->name }}</div>
+                                    <div class="text-muted small">{{ $driver->mobile_number }}</div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-danger">Driver Not Assigned</div>
+                        @endif
+                    </div>
+                </div>
+                
+                <hr class="mb-4">
+                
+                <h6 class="mb-3">Log Details</h6>
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="text-muted small">Date</label>

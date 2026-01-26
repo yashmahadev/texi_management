@@ -68,9 +68,9 @@
                 @forelse($logs as $log)
                 <tr>
                     <td>{{ $log->duty_date->toAppDate() }}</td>
-                    <td>{{ $log->monthlyDuty->vehicle->vehicle_number }}</td>
-                    <td>{{ $log->monthlyDuty->primaryDriver->name }}</td>
-                    <td>{{ $log->monthlyDuty->department_name }}</td>
+                    <td>{{ $log->monthlyDuty->vehicle->vehicle_number ?? ($log->directBooking->vehicle->vehicle_number ?? '-') }}</td>
+                    <td>{{ $log->monthlyDuty->primaryDriver->name ?? ($log->directBooking->driver->name ?? 'Unassigned') }}</td>
+                    <td>{{ $log->monthlyDuty->department_name ?? ($log->directBooking->customer_name ?? '-') }}</td>
                     <td>
                         <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
                             {{ ucfirst($log->status) }}

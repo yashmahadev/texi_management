@@ -109,13 +109,44 @@
             <tbody>
                 @forelse($todaysDuties as $log)
                 <tr>
-                    <td>{{ $log->monthlyDuty->vehicle->vehicle_number }}</td>
-                    <td>{{ $log->monthlyDuty->primaryDriver->name }}</td>
                     <td>
-                        {{ $log->monthlyDuty->officer_name }}<br>
-                        <small class="text-muted">{{ $log->monthlyDuty->department_name }}</small>
+                        @if($log->monthlyDuty)
+                            {{ $log->monthlyDuty->vehicle->vehicle_number }}
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->vehicle->vehicle_number }}
+                        @else
+                            -
+                        @endif
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i:s') }}</td>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ $log->monthlyDuty->primaryDriver->name }}
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->driver->name ?? 'Unassigned' }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ $log->monthlyDuty->officer_name }}<br>
+                            <small class="text-muted">{{ $log->monthlyDuty->department_name }}</small>
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->customer_name }} (Direct)<br>
+                            <small class="text-muted">{{ $log->directBooking->pickup_location }} → {{ $log->directBooking->drop_location }}</small>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i:s') }}
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->booking_datetime->toAppDateTime() }}
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>
                         <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
                             {{ ucfirst($log->status) }}

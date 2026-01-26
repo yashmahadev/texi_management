@@ -18,7 +18,7 @@ class DailyDutyLogController extends Controller
     public function index(Request $request)
     {
         $duties = \App\Models\MonthlyDuty::with(['vehicle', 'primaryDriver'])->latest()->get();
-        $query = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver']);
+        $query = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver', 'directBooking.vehicle', 'directBooking.driver']);
 
         // Default: only records up to current date (if no filters)
         if (!$request->filled('start_date') && !$request->filled('end_date') && !$request->filled('monthly_duty_id')) {
@@ -46,11 +46,19 @@ class DailyDutyLogController extends Controller
         // Filter by Search (Vehicle or Driver Name)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('monthlyDuty', function ($q) use ($search) {
-                $q->whereHas('vehicle', function ($vq) use ($search) {
-                    $vq->where('vehicle_number', 'like', "%{$search}%");
-                })->orWhereHas('primaryDriver', function ($dq) use ($search) {
-                    $dq->where('name', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->whereHas('monthlyDuty', function ($mq) use ($search) {
+                    $mq->whereHas('vehicle', function ($vq) use ($search) {
+                        $vq->where('vehicle_number', 'like', "%{$search}%");
+                    })->orWhereHas('primaryDriver', function ($dq) use ($search) {
+                        $dq->where('name', 'like', "%{$search}%");
+                    });
+                })->orWhereHas('directBooking', function ($bq) use ($search) {
+                    $bq->whereHas('vehicle', function ($vq) use ($search) {
+                        $vq->where('vehicle_number', 'like', "%{$search}%");
+                    })->orWhereHas('driver', function ($dq) use ($search) {
+                        $dq->where('name', 'like', "%{$search}%");
+                    });
                 });
             });
         }
@@ -62,7 +70,7 @@ class DailyDutyLogController extends Controller
 
     public function show(DailyDutyLog $log)
     {
-        $log->load(['monthlyDuty', 'replacements']);
+        $log->load(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver', 'directBooking.vehicle', 'directBooking.driver', 'replacements']);
         return view('admin.daily-logs.show', compact('log'));
     }
     

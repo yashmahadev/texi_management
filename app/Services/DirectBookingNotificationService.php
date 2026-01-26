@@ -57,12 +57,12 @@ class DirectBookingNotificationService
                    "Time: {$booking->booking_datetime->format('d M, h:i A')}\n" .
                    "Please login to accept the trip.";
 
-        return $this->whatsAppService->sendWithTemplate($driver->mobile, 'duty_assigned', [
+        return $this->whatsAppService->sendWithTemplate($driver->mobile_number, 'duty_assigned', [
             "1" => $driver->name,
             "2" => $booking->activeAssignment->vehicle->vehicle_number ?? 'Assigned Vehicle',
             "3" => $booking->booking_datetime->format('d M, h:i A'),
             "4" => $booking->pickup_location
-        ]) ?: $this->sendFallbackWhatsApp($driver->mobile, $message);
+        ]) ?: $this->sendFallbackWhatsApp($driver->mobile_number, $message);
     }
 
     /**
@@ -81,7 +81,7 @@ class DirectBookingNotificationService
         return $this->whatsAppService->sendWithTemplate($booking->customer_mobile, 'driver_details', [
             "1" => $booking->booking_number,
             "2" => $driver->name,
-            "3" => $driver->mobile,
+            "3" => $driver->mobile_number,
             "4" => $vehicle->vehicle_number
         ]) ?: $this->sendFallbackWhatsApp($booking->customer_mobile, $message);
     }
@@ -141,9 +141,9 @@ class DirectBookingNotificationService
                     'driver'
                 );
             }
-            $this->whatsAppService->sendWithTemplate($driver->mobile, 'duty_cancelled', [
+            $this->whatsAppService->sendWithTemplate($driver->mobile_number, 'duty_cancelled', [
                 "1" => $booking->booking_number
-            ]) ?: $this->sendFallbackWhatsApp($driver->mobile, $message);
+            ]) ?: $this->sendFallbackWhatsApp($driver->mobile_number, $message);
         }
     }
 
