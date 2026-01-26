@@ -51,8 +51,36 @@
                                 <input type="number" name="start_km" class="form-control form-control-lg" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Odometer Photo</label>
-                                <input type="file" name="photo" class="form-control" accept="image/*">
+                                <label class="form-label d-block">Odometer Photo</label>
+                                <div class="photo-selection-container p-3 border rounded bg-light text-center">
+                                    <div id="start-preview-container" class="mb-0 d-none text-center">
+                                        <img id="start-photo-preview" src="#" alt="Preview" class="img-fluid rounded shadow-sm border mb-2" style="max-height: 200px;">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearPhoto('start')">
+                                                <i class="bi bi-x-circle"></i> Change
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="start-actions">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center justify-content-center" onclick="triggerPhoto('start', true)">
+                                                    <i class="bi bi-camera fs-3 mb-1"></i>
+                                                    <span class="small fw-bold">Take Photo</span>
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center justify-content-center" onclick="triggerPhoto('start', false)">
+                                                    <i class="bi bi-images fs-3 mb-1"></i>
+                                                    <span class="small fw-bold">Gallery</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="file" name="photo" id="start-photo-input" class="d-none" accept="image/*" onchange="previewPhoto(this, 'start')">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-success w-100">Confirm Start</button>
                         </form>
@@ -79,8 +107,36 @@
                                 <input type="number" name="end_km" class="form-control form-control-lg" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Odometer Photo</label>
-                                <input type="file" name="photo" class="form-control" accept="image/*">
+                                <label class="form-label d-block">Odometer Photo</label>
+                                <div class="photo-selection-container p-3 border rounded bg-light text-center">
+                                    <div id="end-preview-container" class="mb-0 d-none text-center">
+                                        <img id="end-photo-preview" src="#" alt="Preview" class="img-fluid rounded shadow-sm border mb-2" style="max-height: 200px;">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearPhoto('end')">
+                                                <i class="bi bi-x-circle"></i> Change
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="end-actions">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center justify-content-center" onclick="triggerPhoto('end', true)">
+                                                    <i class="bi bi-camera fs-3 mb-1"></i>
+                                                    <span class="small fw-bold">Take Photo</span>
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center justify-content-center" onclick="triggerPhoto('end', false)">
+                                                    <i class="bi bi-images fs-3 mb-1"></i>
+                                                    <span class="small fw-bold">Gallery</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="file" name="photo" id="end-photo-input" class="d-none" accept="image/*" onchange="previewPhoto(this, 'end')">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-danger w-100">Confirm End</button>
                         </form>
@@ -121,4 +177,46 @@
         <i class="bi bi-clock-history me-2 text-primary"></i> View Past Duties
     </a>
 </div>
+
+@push('scripts')
+<script>
+    function triggerPhoto(prefix, useCamera) {
+        const input = document.getElementById(prefix + '-photo-input');
+        if (useCamera) {
+            input.setAttribute('capture', 'environment');
+        } else {
+            input.removeAttribute('capture');
+        }
+        input.click();
+    }
+
+    function previewPhoto(input, prefix) {
+        const preview = document.getElementById(prefix + '-photo-preview');
+        const container = document.getElementById(prefix + '-preview-container');
+        const actions = document.getElementById(prefix + '-actions');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                container.classList.remove('d-none');
+                actions.classList.add('d-none');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function clearPhoto(prefix) {
+        const input = document.getElementById(prefix + '-photo-input');
+        const preview = document.getElementById(prefix + '-photo-preview');
+        const container = document.getElementById(prefix + '-preview-container');
+        const actions = document.getElementById(prefix + '-actions');
+
+        input.value = "";
+        preview.src = "#";
+        container.classList.add('d-none');
+        actions.classList.remove('d-none');
+    }
+</script>
+@endpush
 @endsection
