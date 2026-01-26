@@ -74,6 +74,7 @@
         <!-- Header -->
         <nav class="navbar navbar-light bg-white border-bottom px-3">
             <span class="navbar-brand mb-0 h1">Duty App</span>
+            <div id="google_translate_element"></div>
             @auth('driver')
                 <form action="{{ route('driver.logout') }}" method="POST" class="d-inline">
                     @csrf
@@ -110,7 +111,7 @@
         </div>
         @endauth
     </div>
-
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
@@ -118,7 +119,16 @@
                 .then(reg => console.log('Service Worker registered'))
                 .catch(err => console.error('SW registration failed', err));
         }
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,hi,gu',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
     </script>
+    
     @include('partials.fcm-scripts', ['guard' => 'driver'])
     @stack('scripts')
 </body>
