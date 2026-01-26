@@ -8,15 +8,15 @@
         @forelse($logs as $log)
             <div class="list-group-item px-3 py-3 border-bottom">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="fw-bold">{{ $log->duty_date->format('d M Y') }}</div>
+                    <div class="fw-bold">{{ $log->duty_date->toAppDate() }}</div>
                     <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : 'secondary') }}">
                         {{ ucfirst($log->status) }}
                     </span>
                 </div>
                 <div class="row small text-muted">
                     <div class="col-6">
-                        Start: {{ $log->start_time ? \Carbon\Carbon::parse($log->start_time)->format('H:i') : '-' }}<br>
-                        End: {{ $log->end_time ? \Carbon\Carbon::parse($log->end_time)->format('H:i') : '-' }}
+                        Start: {{ $log->start_time ? \Carbon\Carbon::parse($log->start_time)->toAppDateTime() : '-' }}<br>
+                        End: {{ $log->end_time ? \Carbon\Carbon::parse($log->end_time)->toAppDateTime() : '-' }}
                     </div>
                     <div class="col-6 text-end">
                         Total: {{ $log->total_km }} km<br>

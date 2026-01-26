@@ -36,7 +36,7 @@
             <tbody>
                 @forelse($logs as $log)
                 <tr>
-                    <td>{{ $log->created_at->format('d M H:i:s') }}</td>
+                    <td>{{ $log->created_at->toAppDateTime() }}</td>
                     <td>
                         @if($log->performer)
                             {{ $log->performer->name }}

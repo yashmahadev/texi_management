@@ -32,7 +32,7 @@
             </p>
         @endif
         <h3 style="margin: 15px 0 5px 0; padding: 0; text-decoration: underline;">Bill Processing Report</h3>
-        <p style="margin: 0; font-size: 10px;">Period: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+        <p style="margin: 0; font-size: 10px;">Period: {{ \Carbon\Carbon::parse($startDate)->toAppDate() }} to {{ \Carbon\Carbon::parse($endDate)->toAppDate() }}</p>
     </div>
 
     @php 
@@ -61,7 +61,7 @@
                 <tr>
                     @if($loop->first)
                         <td rowspan="{{ count($dayLogs) }}" style="vertical-align: top; font-weight: bold;">
-                            {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
+                            {{ \Carbon\Carbon::parse($date)->toAppDate() }}
                         </td>
                     @endif
                     <td>{{ $log->monthlyDuty->vehicle->vehicle_number }}</td>
@@ -99,7 +99,7 @@
             </tr>
         </table>
         <p style="text-align: center; font-size: 8px; margin-top: 30px; color: #888;">
-            Generated via Fleet Management System on {{ date('d/m/Y H:i') }}
+            Generated via Fleet Management System on {{ now()->toAppDateTime() }}
         </p>
     </div>
 </body>

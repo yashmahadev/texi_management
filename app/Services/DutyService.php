@@ -59,7 +59,7 @@ class DutyService
             for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
                 DailyDutyLog::create([
                     'monthly_duty_id' => $duty->id,
-                    'duty_date' => $date->format('Y-m-d'),
+                    'duty_date' => $date->format('Y-m-d'), // Database storage usually stays Y-m-d
                     'status' => 'pending',
                 ]);
             }
@@ -200,7 +200,7 @@ class DutyService
                 $this->notificationService->sendNotification(
                     $replacementDriver->fcm_token,
                     "🔄 Replacement Duty Assigned",
-                    "You are assigned as a replacement for today's duty ({$log->duty_date->format('d M')})",
+                    "You are assigned as a replacement for today's duty ({$log->duty_date->toAppDate()})",
                     ['link' => route('driver.dashboard')]
                 );
             }

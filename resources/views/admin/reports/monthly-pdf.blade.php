@@ -28,7 +28,7 @@
                 {{ $company['email'] ? 'Email: ' . $company['email'] : '' }}
             </p>
         @endif
-        <h3 style="margin: 15px 0 5px 0; padding: 0; text-decoration: underline;">Monthly Duty Report - {{ $monthlyDuty->start_date->format('F Y') }}</h3>
+        <h3 style="margin: 15px 0 5px 0; padding: 0; text-decoration: underline;">Monthly Duty Report - {{ $monthlyDuty->start_date->toAppDate() }}</h3>
     </div>
 
     <div>
@@ -53,7 +53,7 @@
         <tbody>
             @foreach($monthlyDuty->dailyLogs as $log)
             <tr>
-                <td>{{ $log->duty_date->format('d/m/Y') }}</td>
+                <td>{{ $log->duty_date->toAppDate() }}</td>
                 <td>{{ $log->start_time }}</td>
                 <td>{{ $log->end_time }}</td>
                 <td>{{ $log->start_km }}</td>

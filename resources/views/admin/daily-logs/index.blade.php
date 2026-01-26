@@ -67,7 +67,7 @@
             <tbody>
                 @forelse($logs as $log)
                 <tr>
-                    <td>{{ $log->duty_date->format('d M') }}</td>
+                    <td>{{ $log->duty_date->toAppDate() }}</td>
                     <td>{{ $log->monthlyDuty->vehicle->vehicle_number }}</td>
                     <td>{{ $log->monthlyDuty->primaryDriver->name }}</td>
                     <td>{{ $log->monthlyDuty->department_name }}</td>
@@ -78,8 +78,8 @@
                     </td>
                     <td>
                         <small>
-                            S: {{ $log->start_time ? \Carbon\Carbon::parse($log->start_time)->format('H:i') : '-' }}<br>
-                            E: {{ $log->end_time ? \Carbon\Carbon::parse($log->end_time)->format('H:i') : '-' }}
+                            S: {{ $log->start_time ? \Carbon\Carbon::parse($log->start_time)->format('H:i:s') : '-' }}<br>
+                            E: {{ $log->end_time ? \Carbon\Carbon::parse($log->end_time)->format('H:i:s') : '-' }}
                         </small>
                     </td>
                     <td>{{ $log->total_km }}</td>

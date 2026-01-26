@@ -43,7 +43,7 @@
             <tbody>
                 @forelse($duties as $duty)
                 <tr>
-                    <td>{{ $duty->start_date->format('M Y') }}</td>
+                    <td>{{ $duty->start_date->toAppDate() }}</td>
                     <td>{{ $duty->vehicle->vehicle_number }}</td>
                     <td>{{ $duty->department_name }}</td>
                     <td>{{ $duty->dailyLogs->sum('total_km') }}</td>
