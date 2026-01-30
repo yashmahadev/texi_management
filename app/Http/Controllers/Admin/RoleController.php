@@ -26,6 +26,9 @@ class RoleController extends Controller
         $request->validate([
             'name' => 'required|unique:roles,name',
             'permissions' => 'nullable|array',
+        ], [
+            'name.required' => 'Role name is required.',
+            'name.unique' => 'This role name ":input" already exists. Please choose a different name.',
         ]);
 
         $role = Role::create(['name' => $request->name]);
@@ -50,6 +53,9 @@ class RoleController extends Controller
         $request->validate([
             'name' => 'required|unique:roles,name,' . $role->id,
             'permissions' => 'nullable|array',
+        ], [
+            'name.required' => 'Role name is required.',
+            'name.unique' => 'The role name ":input" is already taken by another role.',
         ]);
 
         $role->update(['name' => $request->name]);

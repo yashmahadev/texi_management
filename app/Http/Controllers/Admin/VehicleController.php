@@ -94,13 +94,13 @@ class VehicleController extends Controller
         
         $request->validate([
             'owner_name' => 'required|string|max:255',
-            'owner_mobile' => 'required|string|max:10',
-            'owner_aadhaar_number' => 'nullable|string|max:20',
-            'owner_pancard_number' => 'nullable|string|max:20',
+            'owner_mobile' => 'required|string|max:10|unique:owners,mobile',
+            'owner_aadhaar_number' => 'nullable|string|max:20|unique:owners,aadhaar_number',
+            'owner_pancard_number' => 'nullable|string|max:20|unique:owners,pancard_number',
             'owner_address' => 'nullable|string',
             
             'vehicles' => 'required|array|min:1',
-            'vehicles.*.vehicle_number' => 'required|string|max:20',
+            'vehicles.*.vehicle_number' => 'required|string|max:20|unique:vehicles,vehicle_number',
             'vehicles.*.make_model' => 'required|string|max:255',
             'vehicles.*.fuel_type' => 'required|string',
             'vehicles.*.transmission_type' => 'required|string',
@@ -108,18 +108,28 @@ class VehicleController extends Controller
             'vehicles.*.vehicle_type_custom' => 'required_if:vehicles.*.vehicle_type,Bus|nullable|string',
             'vehicles.*.pass_type' => 'required|string|in:Private,Taxi',
             'vehicles.*.puc_expiry_date' => 'nullable|date',
+            'vehicles.*.insurance_expiry_date' => 'nullable|date',
             'vehicles.*.challan_count' => 'nullable|integer',
             'vehicles.*.challan_amount' => 'nullable|numeric',
             'vehicles.*.rc_book' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             
             'vehicles.*.driver_name' => 'required|string|max:255',
-            'vehicles.*.driver_mobile' => 'required|string|max:10',
+            'vehicles.*.driver_mobile' => 'required|string|max:10|unique:drivers,mobile_number',
             'vehicles.*.driver_age' => 'nullable|integer',
             'vehicles.*.driver_dl_number' => 'nullable|string|max:50',
             'vehicles.*.driver_dl_expiry' => 'nullable|date',
             'vehicles.*.driver_dl_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'vehicles.*.is_police_verified' => 'boolean',
             'vehicles.*.police_verification_document' => 'required_if:vehicles.*.is_police_verified,1|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ], [
+            'owner_mobile.unique' => 'The owner mobile number :input is already in use by another owner.',
+            'owner_aadhaar_number.unique' => 'This Aadhaar number is already registered.',
+            'owner_pancard_number.unique' => 'This PAN card number is already registered.',
+            'vehicles.*.vehicle_number.required' => 'Vehicle number is required for all entries.',
+            'vehicles.*.vehicle_number.unique' => 'Vehicle # :input is already registered. Duplicate entries are not allowed.',
+            'vehicles.*.make_model.required' => 'Please provide Make & Model for all vehicles.',
+            'vehicles.*.driver_mobile.unique' => 'Driver mobile :input is already registered with another driver.',
+            'vehicles.*.police_verification_document.required_if' => 'Please upload the Police Verification document as the driver is marked as verified.',
         ]);
 
         try {
@@ -176,6 +186,7 @@ class VehicleController extends Controller
                     'color' => $vehicleData['color'] ?? null,
                     'pass_type' => $vehicleData['pass_type'],
                     'puc_expiry_date' => $vehicleData['puc_expiry_date'] ?? null,
+                    'insurance_expiry_date' => $vehicleData['insurance_expiry_date'] ?? null,
                     'challan_count' => $vehicleData['challan_count'] ?? 0,
                     'challan_amount' => $vehicleData['challan_amount'] ?? 0,
                     'insurance_details' => $vehicleData['insurance_details'] ?? null,
@@ -242,16 +253,22 @@ class VehicleController extends Controller
             'vehicle_type' => 'required|string',
             'pass_type' => 'required|string',
             'puc_expiry_date' => 'nullable|date',
+            'insurance_expiry_date' => 'nullable|date',
             'status' => 'required|string',
             'rc_book' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             
             'driver_name' => 'required|string|max:255',
-            'driver_mobile' => 'required|string|max:10',
+            'driver_mobile' => 'required|string|max:10|unique:drivers,mobile_number,' . $vehicle->driver_id,
             'driver_age' => 'nullable|integer',
             'driver_dl_number' => 'nullable|string|max:50',
             'driver_dl_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'is_police_verified' => 'boolean',
             'police_verification_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ], [
+            'vehicle_number.unique' => 'The vehicle number :input is already registered to another vehicle.',
+            'driver_mobile.unique' => 'This mobile number :input is already assigned to another driver.',
+            'driver_mobile.required' => 'Driver mobile number is mandatory.',
+            'make_model.required' => 'Make & Model field cannot be empty.',
         ]);
 
         try {
@@ -296,6 +313,7 @@ class VehicleController extends Controller
                 'color' => $request->color,
                 'pass_type' => $request->pass_type,
                 'puc_expiry_date' => $request->puc_expiry_date,
+                'insurance_expiry_date' => $request->insurance_expiry_date,
                 'status' => $request->status,
             ]);
 

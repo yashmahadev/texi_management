@@ -21,8 +21,13 @@ class DepartmentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:departments,name',
             'group' => 'required|in:Government,Corporate',
+        ], [
+            'name.required' => 'Please provide a department name.',
+            'name.unique' => 'The department ":input" is already registered. Please use a unique name.',
+            'group.required' => 'Please select a group (Government or Corporate).',
+            'group.in' => 'The selected group is invalid. Please choose Government or Corporate.',
         ]);
 
         $department = Department::create([

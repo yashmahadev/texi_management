@@ -189,11 +189,24 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({ name, group })
         })
-        .then(response => response.json())
+        .then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await response.json() : null;
+
+            if (!response.ok) {
+                if (response.status === 422 && data) {
+                    const firstError = Object.values(data.errors)[0][0];
+                    throw new Error(firstError);
+                }
+                throw new Error(data?.message || `Server error: ${response.status}`);
+            }
+            return data;
+        })
         .then(data => {
             const option = document.createElement('option');
             option.value = data.id;
@@ -206,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.hide();
             document.getElementById('new_dept_name').value = '';
         })
-        .catch(error => alert('Error saving department'));
+        .catch(error => alert(error.message));
     });
 
     function fetchVehicles() {
@@ -223,8 +236,17 @@ document.addEventListener('DOMContentLoaded', function() {
         vehicleSelect.innerHTML = '<option value="">Loading...</option>';
         vehicleSelect.disabled = true;
 
-        fetch(`{{ route('admin.monthly-duties.vehicles-by-type') }}?type=${type}&start_date=${startDate}&end_date=${endDate}`)
-            .then(response => response.json())
+        fetch(`{{ route('admin.monthly-duties.vehicles-by-type') }}?type=${type}&start_date=${startDate}&end_date=${endDate}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson ? await response.json() : null;
+                if (!response.ok) throw new Error(data?.message || `Error: ${response.status}`);
+                return data;
+            })
             .then(data => {
                 vehicleSelect.innerHTML = '<option value="">Select Vehicle</option>';
                 if (data.length === 0) {
@@ -248,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error fetching vehicles:', error);
-                vehicleSelect.innerHTML = '<option value="">Error loading vehicles</option>';
+                vehicleSelect.innerHTML = `<option value="">${error.message}</option>`;
             });
     }
 

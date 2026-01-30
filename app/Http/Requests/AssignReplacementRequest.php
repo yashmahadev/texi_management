@@ -29,4 +29,14 @@ class AssignReplacementRequest extends FormRequest
             }
         });
     }
+
+    public function messages(): array
+    {
+        return [
+            'replacement_driver_id.required' => 'Please select a driver to replace the current one.',
+            'replacement_driver_id.exists' => 'The selected replacement driver is invalid.',
+            'reason.required' => 'Please provide a reason for the replacement.',
+            'reason.min' => 'The reason must be at least 5 characters long.',
+        ];
+    }
 }

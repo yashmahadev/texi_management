@@ -66,7 +66,7 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Make & Model *</label>
-                        <input type="text" name="vehicles[0][make_model]" class="form-control" required placeholder="e.g. Swift Dzire">
+                        <input type="text" name="vehicles[0][make_model]" class="form-control" required placeholder="e.g. 2024-Swift Dzire">
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Fuel Type *</label>
@@ -101,7 +101,7 @@
                         <input type="text" name="vehicles[0][vehicle_type_custom]" class="form-control">
                     </div>
                     <div class="col-6 col-md-3 mb-3">
-                        <label class="form-label">Pass Type *</label>
+                        <label class="form-label">Passing Type *</label>
                         <select name="vehicles[0][pass_type]" class="form-select" required>
                             <option value="Private">Private Pass</option>
                             <option value="Taxi">Taxi Pass</option>
@@ -126,9 +126,13 @@
                             <input type="number" name="vehicles[0][challan_amount]" class="form-control" value="0">
                         </div>
                     </div>
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">Insurance Details</label>
                         <textarea name="vehicles[0][insurance_details]" class="form-control" rows="1"></textarea>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Insurance Expiry Date</label>
+                        <input type="date" name="vehicles[0][insurance_expiry_date]" class="form-control">
                     </div>
 
                     <!-- Driver Details -->

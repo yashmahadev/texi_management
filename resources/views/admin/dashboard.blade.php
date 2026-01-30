@@ -109,13 +109,13 @@
             <tbody>
                 @forelse($todaysDuties as $log)
                 <tr>
-                    <td>{{ $log->monthlyDuty->vehicle->vehicle_number }}</td>
-                    <td>{{ $log->monthlyDuty->primaryDriver->name }}</td>
+                    <td>{{ $log->monthlyDuty?->vehicle?->vehicle_number ?? 'N/A' }}</td>
+                    <td>{{ $log->monthlyDuty?->primaryDriver?->name ?? 'N/A' }}</td>
                     <td>
-                        {{ $log->monthlyDuty->officer_name }}<br>
-                        <small class="text-muted">{{ $log->monthlyDuty->department_name }}</small>
+                        {{ $log->monthlyDuty?->officer_name ?? 'N/A' }}<br>
+                        <small class="text-muted">{{ $log->monthlyDuty?->department_name ?? 'N/A' }}</small>
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i:s') }}</td>
+                    <td>{{ $log->monthlyDuty?->expected_start_time ? \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i:s') : 'N/A' }}</td>
                     <td>
                         <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
                             {{ ucfirst($log->status) }}

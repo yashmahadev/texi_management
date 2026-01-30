@@ -32,6 +32,9 @@ class DriverAuthController extends Controller
     {
         $request->validate([
             'mobile_number' => 'required|string|exists:drivers,mobile_number',
+        ], [
+            'mobile_number.required' => 'Please enter your mobile number.',
+            'mobile_number.exists' => 'This mobile number is not registered in our system.',
         ]);
 
         $otp = env('APP_ENV') == 'local' ? '123456' :(string) rand(100000, 999999);
@@ -65,6 +68,9 @@ class DriverAuthController extends Controller
     {
         $request->validate([
             'otp' => 'required|string|size:6',
+        ], [
+            'otp.required' => 'Please enter the 6-digit OTP.',
+            'otp.size' => 'The OTP must be exactly 6 digits.',
         ]);
 
         $mobile = session('auth_mobile');
