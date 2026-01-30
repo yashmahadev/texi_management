@@ -27,6 +27,7 @@ class Vehicle extends Model
         'driver_id',
         'owner_id',
         'puc_expiry_date',
+        'insurance_expiry_date',
         'fuel_type',
         'transmission_type',
         'color',
@@ -51,6 +52,7 @@ class Vehicle extends Model
 
     protected $casts = [
         'puc_expiry_date' => 'date',
+        'insurance_expiry_date' => 'date',
         'is_driver_owner' => 'boolean',
     ];
 

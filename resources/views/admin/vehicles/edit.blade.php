@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Pass Type *</label>
+                    <label class="form-label">Passing Type *</label>
                     <select name="pass_type" class="form-select" required>
                         <option value="Private" {{ old('pass_type', $vehicle->pass_type) == 'Private' ? 'selected' : '' }}>Private</option>
                         <option value="Taxi" {{ old('pass_type', $vehicle->pass_type) == 'Taxi' ? 'selected' : '' }}>Taxi</option>
@@ -89,12 +89,17 @@
                     </select>
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">PUC Expiry Date</label>
                     <input type="date" name="puc_expiry_date" class="form-control" value="{{ old('puc_expiry_date', $vehicle->puc_expiry_date ? $vehicle->puc_expiry_date->format('Y-m-d') : '') }}">
                 </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Insurance Expiry Date</label>
+                    <input type="date" name="insurance_expiry_date" class="form-control" value="{{ old('insurance_expiry_date', $vehicle->insurance_expiry_date ? $vehicle->insurance_expiry_date->format('Y-m-d') : '') }}">
+                </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">Status *</label>
                     <select name="status" class="form-select" required>
                         <option value="active" {{ old('status', $vehicle->status) == 'active' ? 'selected' : '' }}>Active</option>
@@ -103,7 +108,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">RC Book (Upload to change)</label>
                     <input type="file" name="rc_book" class="form-control">
                     @if($vehicle->rc_book_path)

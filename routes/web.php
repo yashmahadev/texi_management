@@ -311,9 +311,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('reports.download')
             ->middleware('can:download_reports');
 
-        // Modules
-        Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class);
+        // Phase-2: Customer Module
+        Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class)
+            ->middleware('can:view_customers');
 
+        // Direct Booking
+        Route::prefix('direct-bookings')->name('direct-bookings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\DirectBookingController::class, 'index'])
+                ->name('index')
+                ->middleware('can:view_direct_bookings');
+            Route::get('/create', [\App\Http\Controllers\Admin\DirectBookingController::class, 'create'])
+                ->name('create')
+                ->middleware('can:create_direct_bookings');
+            Route::post('/', [\App\Http\Controllers\Admin\DirectBookingController::class, 'store'])
+                ->name('store')
+                ->middleware('can:create_direct_bookings');
+        });
         
         // Access Control
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)

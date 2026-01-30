@@ -36,6 +36,11 @@ class SettingController extends Controller
             'notification_sound' => 'nullable|file|mimes:mp3,wav,ogg|max:2048',
             'booking_base_fare' => 'nullable|numeric|min:0',
             'booking_per_km_rate' => 'nullable|numeric|min:0',
+        ], [
+            'company_email.email' => 'Please enter a valid company email address.',
+            'company_logo.image' => 'The logo must be an image file (JPEG, PNG, JPG, SVG).',
+            'company_logo.max' => 'The logo size must be less than 2MB.',
+            'notification_sound.mimes' => 'The notification sound must be an MP3, WAV or OGG file.',
         ]);
 
         if ($request->hasFile('company_logo')) {

@@ -92,6 +92,11 @@ class DailyDutyLogController extends Controller
             'end_km' => 'nullable|integer',
             'total_km' => 'nullable|integer',
             'status' => 'required|in:pending,started,completed,missing,approved,disputed,replaced',
+        ], [
+            'status.required' => 'Please select a status for this log.',
+            'status.in' => 'The selected status is invalid.',
+            'start_km.integer' => 'Start KM must be a whole number.',
+            'end_km.integer' => 'End KM must be a whole number.',
         ]);
 
         $log->update($request->all());

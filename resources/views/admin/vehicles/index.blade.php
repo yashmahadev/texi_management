@@ -74,7 +74,14 @@
                         <td>
                             <div class="fw-bold fs-6 text-primary">{{ $vehicle->vehicle_number }}</div>
                             <small class="text-muted d-block">{{ $vehicle->make_model }}</small>
-                            <span class="badge bg-light text-dark border small mt-1">{{ $vehicle->pass_type }}</span>
+                            <div class="mt-1">
+                                <span class="badge bg-light text-dark border small">{{ $vehicle->pass_type }}</span>
+                                @if($vehicle->insurance_expiry_date)
+                                    <span class="badge {{ $vehicle->insurance_expiry_date->isPast() ? 'bg-danger' : ($vehicle->insurance_expiry_date->diffInDays(now()) < 30 ? 'bg-warning' : 'bg-info-subtle text-info') }} border small">
+                                        Ins Exp: {{ $vehicle->insurance_expiry_date->format('d/m/y') }}
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <div>{{ $vehicle->vehicle_type }}</div>

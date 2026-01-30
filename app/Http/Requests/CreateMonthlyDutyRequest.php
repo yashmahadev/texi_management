@@ -51,4 +51,18 @@ class CreateMonthlyDutyRequest extends FormRequest
             'pincode' => 'nullable|string|max:10',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'department_id.required' => 'Please select a department.',
+            'department_id.exists' => 'The selected department is invalid or has been removed.',
+            'vehicle_id.required' => 'Please select a vehicle for this duty.',
+            'vehicle_id.exists' => 'The selected vehicle no longer exists in our records.',
+            'start_date.required' => 'A start date is required for the duty.',
+            'end_date.required' => 'An end date is required for the duty.',
+            'end_date.after_or_equal' => 'The end date must be the same as or after the start date.',
+            'officer_name.required' => 'Please enter the name of the reporting officer.',
+        ];
+    }
 }

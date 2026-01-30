@@ -31,6 +31,7 @@ class DashboardController extends Controller
 
         // Pending Duties Table
         $todaysDuties = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver', 'directBooking.vehicle', 'directBooking.driver'])
+            ->whereHas('monthlyDuty')
             ->whereDate('duty_date', now())
             ->get();
 
