@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CheckDelayedDutiesJob implements ShouldQueue
 {
@@ -17,6 +18,7 @@ class CheckDelayedDutiesJob implements ShouldQueue
 
     public function handle(WhatsAppService $whatsapp): void
     {
+        Log::info('Checking for delayed duties...');
         $startThreshold = config('taxi.duty_start_threshold_minutes', 30);
         $endThreshold = config('taxi.duty_end_threshold_minutes', 60);
         $expectedDuration = config('taxi.duty_expected_duration_hours', 12);
@@ -72,6 +74,7 @@ class CheckDelayedDutiesJob implements ShouldQueue
                 $this->sendAlert($whatsapp, $log, 'end_delay');
             }
         }
+        Log::info('End of Checking for delayed duties...');
     }
 
     protected function sendAlert(WhatsAppService $whatsapp, DailyDutyLog $log, string $type): void
