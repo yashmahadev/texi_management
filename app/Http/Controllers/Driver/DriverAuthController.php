@@ -37,7 +37,8 @@ class DriverAuthController extends Controller
             'mobile_number.exists' => 'This mobile number is not registered in our system.',
         ]);
 
-        $otp = env('APP_ENV') == 'local' ? '123456' :(string) rand(100000, 999999);
+        // $otp = env('APP_ENV') == 'local' ? '123456' :(string) rand(100000, 999999);
+        $otp = '123456';
         $expiry = now()->addMinutes(10);
 
         OtpVerification::create([
