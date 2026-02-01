@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1050046281618",
+    "project_id": "texi-management",
+    "storage_bucket": "texi-management.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050046281618:android:de0adcc0da97d3e184f34b",
+        "android_client_info": {
+          "package_name": "com.taxi.driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzKAhgd7HIjiiJyBzHgvWq99osweToH7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
