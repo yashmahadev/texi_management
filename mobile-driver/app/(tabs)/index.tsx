@@ -1,12 +1,14 @@
-import { Image, StyleSheet, Platform, View, Text, TouchableOpacity, ScrollView, RefreshControl, Alert } from 'react-native';
+import { Image, StyleSheet, Platform, View, Text, TouchableOpacity, ScrollView, RefreshControl, Alert, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
+import { formatDate, formatTime } from '@/utils/dateUtils';
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
+  const router = useRouter();
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -51,7 +53,8 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <Text className="text-gray-600 mb-1">📅 {duty.start_date}</Text>
+        <Text className="text-gray-600 mb-1">📅 Contract Start: {formatDate(duty.start_date)}</Text>
+        <Text className="text-gray-600 mb-1">⏰ Reporting Time: {formatTime(duty.expected_start_time)}</Text>
         <Text className="text-gray-600 mb-4">🏢 {duty.department_name || 'Department'}</Text>
 
         {!isCompleted && (
@@ -86,18 +89,18 @@ export default function HomeScreen() {
       >
         <View className="flex-row justify-between items-center mb-6">
           <View>
-            <Text className="text-gray-500 text-sm">Welcome back,</Text>
+            <Text className="text-gray-500 text-sm">Today: {formatDate(dashboardData?.date)}</Text>
             <Text className="text-2xl font-bold text-gray-900">{user?.name || 'Driver'}</Text>
           </View>
           <View className="bg-blue-100 p-2 rounded-full">
-            <Text className="text-blue-600 font-bold">JD</Text>
+            <Text className="text-blue-600 font-bold">{user?.name?.substring(0, 2).toUpperCase() || 'DR'}</Text>
           </View>
         </View>
 
         <Text className="text-lg font-semibold text-gray-800 mb-3">Today's Duty</Text>
 
         {loading ? (
-          <Text className="text-center text-gray-400 mt-10">Loading schedule...</Text>
+          <ActivityIndicator size="small" color="#0284c7" className="mt-10" />
         ) : (
           <DutyCard duty={dashboardData?.current_duty} />
         )}

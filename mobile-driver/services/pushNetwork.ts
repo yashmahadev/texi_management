@@ -17,11 +17,12 @@ export async function registerForPushNotificationsAsync() {
     let token;
 
     if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
+        await Notifications.setNotificationChannelAsync('custom-sound', {
+            name: 'Custom Sound Notification',
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#FF231F7C',
+            sound: 'notification.wav', // The filename in android/app/src/main/res/raw/notification.wav
         });
     }
 

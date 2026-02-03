@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import '../global.css';
 import 'react-native-reanimated';
+import * as Notifications from 'expo-notifications';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '@/store/authStore';
@@ -17,6 +18,20 @@ export default function RootLayout() {
 
   useEffect(() => {
     checkAuth();
+
+    // Listen for notification clicks
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      const link = data?.link as string | undefined;
+
+      if (link && typeof link === 'string') {
+        router.push(link as any);
+      } else {
+        router.replace('/(tabs)');
+      }
+    });
+
+    return () => subscription.remove();
   }, []);
 
   useEffect(() => {
@@ -25,10 +40,8 @@ export default function RootLayout() {
     const inAuthGroup = segments[0] === '(tabs)';
 
     if (!isAuthenticated && inAuthGroup) {
-      // Redirect to the login page if not authenticated
       router.replace('/login');
     } else if (isAuthenticated && (segments[0] === 'login' || segments[0] === 'verify')) {
-      // Redirect to the home page if already authenticated
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, segments, isLoading]);

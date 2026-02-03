@@ -2,6 +2,7 @@ import { View, Text, FlatList, ActivityIndicator, RefreshControl, Alert } from '
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '@/services/api';
+import { formatDate, formatTime } from '@/utils/dateUtils';
 
 export default function HistoryScreen() {
     const [logs, setLogs] = useState<any[]>([]);
@@ -50,7 +51,7 @@ export default function HistoryScreen() {
     const renderItem = ({ item }: { item: any }) => (
         <View className="bg-white p-4 mb-3 rounded-lg shadow-sm mx-4">
             <View className="flex-row justify-between mb-2">
-                <Text className="font-bold text-gray-800">{item.duty_date}</Text>
+                <Text className="font-bold text-gray-800">{formatDate(item.duty_date)}</Text>
                 <Text className={`font-bold uppercase text-xs px-2 py-1 rounded ${item.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                     }`}>
                     {item.status}
@@ -58,10 +59,14 @@ export default function HistoryScreen() {
             </View>
             <Text className="text-gray-600">🚗 {item.monthly_duty?.vehicle?.vehicle_number || 'N/A'}</Text>
             <View className="flex-row justify-between mt-2">
-                <Text>Start: {item.start_time || '-'}</Text>
-                <Text>End: {item.end_time || '-'}</Text>
+                <Text className="text-gray-700">Start: {formatTime(item.start_time)}</Text>
+                <Text className="text-gray-700">End: {formatTime(item.end_time)}</Text>
             </View>
-            {item.total_km && <Text className="mt-2 text-right font-semibold text-blue-600">{item.total_km} KM</Text>}
+            {!!item.total_km && (
+                <Text className="mt-2 text-right font-semibold text-blue-600">
+                    {item.total_km} KM
+                </Text>
+            )}
         </View>
     );
 
