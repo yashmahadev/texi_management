@@ -90,9 +90,9 @@ trait FCMPushNotification
             'notification' => [
                 'sound' => $soundFile === 'default' ? 'default' : $soundFile,
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                'channel_id' => "default",
+                'channel_id' => "custom-sound",
                 'notification_priority' => 'PRIORITY_HIGH',
-                'default_sound' => true,
+                'default_sound' => $soundFile === 'default',
                 'default_vibrate_timings' => true,
                 'default_light_settings' => true,
             ]

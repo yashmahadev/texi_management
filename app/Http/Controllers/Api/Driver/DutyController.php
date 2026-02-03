@@ -87,7 +87,8 @@ class DutyController extends Controller
             });
         })
         ->whereDate('duty_date', '<=', now()->toDateString())
-        ->latest('duty_date')
+        ->orderByDesc('duty_date')
+        ->orderByDesc('start_time')
         ->with(['monthlyDuty.vehicle'])
         ->paginate(15);
 
