@@ -20,6 +20,7 @@ class DailyDutyLog extends Model
         'status',
         'start_photo_path',
         'end_photo_path',
+        'direct_booking_id',
     ];
 
     protected $casts = [
@@ -39,5 +40,10 @@ class DailyDutyLog extends Model
     public function billingLog()
     {
         return $this->hasOne(BillingLog::class);
+    }
+
+    public function directBooking()
+    {
+        return $this->belongsTo(DirectBooking::class);
     }
 }

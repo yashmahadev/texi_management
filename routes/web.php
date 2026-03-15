@@ -285,9 +285,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->middleware('can:view_replacements');
         
         // Reports
-        Route::get('reports', [ReportController::class, 'index'])
+        Route::get('reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])
             ->name('reports.index')
             ->middleware('can:view_reports');
+        
+        // Phase-2: Direct Booking Reports
+        Route::prefix('reports/direct-bookings')->name('reports.direct-bookings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\DirectBookingReportController::class, 'index'])
+                ->name('index')->middleware('can:view_reports');
+            Route::get('/daily-trips', [\App\Http\Controllers\Admin\DirectBookingReportController::class, 'dailyTrips'])
+                ->name('daily-trips')->middleware('can:view_reports');
+            Route::get('/revenue', [\App\Http\Controllers\Admin\DirectBookingReportController::class, 'revenueSummary'])
+                ->name('revenue')->middleware('can:view_reports');
+        });
         Route::get('reports/bill-processing', [ReportController::class, 'billProcessing'])
             ->name('reports.bill-processing')
             ->middleware('can:view_reports');
@@ -336,6 +346,37 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])
             ->name('settings.update')
             ->middleware('can:manage_settings');
+
+        // Phase-2: Customer Module
+        Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class)
+            ->middleware('can:view_customers');
+
+        // Phase-2: Direct Bookings
+        Route::prefix('direct-bookings')->name('direct-bookings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\DirectBookingController::class, 'index'])
+                ->name('index')->middleware('can:view_direct_bookings');
+            Route::get('/create', [\App\Http\Controllers\Admin\DirectBookingController::class, 'create'])
+                ->name('create')->middleware('can:create_direct_bookings');
+            
+            // IMPORTANT: This route must come BEFORE /{booking} to avoid route conflicts
+            Route::get('/available-resources', [\App\Http\Controllers\Admin\DirectBookingController::class, 'getAvailableResources'])
+                ->name('available-resources');
+            
+            Route::post('/', [\App\Http\Controllers\Admin\DirectBookingController::class, 'store'])
+                ->name('store')->middleware('can:create_direct_bookings');
+            Route::get('/{booking}', [\App\Http\Controllers\Admin\DirectBookingController::class, 'show'])
+                ->name('show')->middleware('can:view_direct_bookings');
+            Route::get('/{booking}/edit', [\App\Http\Controllers\Admin\DirectBookingController::class, 'edit'])
+                ->name('edit')->middleware('can:edit_direct_bookings');
+            Route::put('/{booking}', [\App\Http\Controllers\Admin\DirectBookingController::class, 'update'])
+                ->name('update')->middleware('can:edit_direct_bookings');
+            Route::post('/{booking}/assign', [\App\Http\Controllers\Admin\DirectBookingController::class, 'assignDriver'])
+                ->name('assign')->middleware('can:assign_drivers_to_bookings');
+            Route::post('/{booking}/cancel', [\App\Http\Controllers\Admin\DirectBookingController::class, 'cancel'])
+                ->name('cancel')->middleware('can:cancel_bookings');
+            Route::post('/{booking}/adjust-fare', [\App\Http\Controllers\Admin\DirectBookingController::class, 'adjustFare'])
+                ->name('adjust-fare')->middleware('can:adjust_booking_fares');
+        });
     });
 });
 
@@ -355,6 +396,16 @@ Route::prefix('driver')->name('driver.')->group(function () {
         Route::post('duty/{log}/start', [DutyController::class, 'start'])->name('duty.start');
         Route::post('duty/{log}/end', [DutyController::class, 'end'])->name('duty.end');
         Route::get('history', [DutyController::class, 'history'])->name('history');
+
+        // Phase-2: Direct Bookings for Drivers
+        Route::prefix('direct-bookings')->name('direct-bookings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Driver\DirectBookingDriverController::class, 'index'])->name('index');
+            Route::get('/{booking}', [\App\Http\Controllers\Driver\DirectBookingDriverController::class, 'show'])->name('show');
+            Route::post('/{booking}/accept', [\App\Http\Controllers\Driver\DirectBookingDriverController::class, 'accept'])->name('accept');
+            Route::post('/{booking}/reject', [\App\Http\Controllers\Driver\DirectBookingDriverController::class, 'reject'])->name('reject');
+            Route::post('/{booking}/start', [\App\Http\Controllers\Driver\DirectBookingDriverController::class, 'start'])->name('start');
+            Route::post('/{booking}/end', [\App\Http\Controllers\Driver\DirectBookingDriverController::class, 'end'])->name('end');
+        });
     });
 });
 

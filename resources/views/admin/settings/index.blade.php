@@ -97,6 +97,40 @@
 
                     <hr class="my-4 opacity-50">
 
+                    <h6 class="mb-3 text-primary">
+                        <i class="bi bi-cash-coin me-2"></i> Direct Booking Fare Settings
+                    </h6>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Base Fare (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" name="booking_base_fare" 
+                                       class="form-control @error('booking_base_fare') is-invalid @enderror" 
+                                       value="{{ old('booking_base_fare', $settings['booking_base_fare']) }}" 
+                                       step="0.01" min="0">
+                            </div>
+                            @error('booking_base_fare') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            <div class="form-text small">Initial charge applied to every booking.</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Per KM Rate (₹/km)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" name="booking_per_km_rate" 
+                                       class="form-control @error('booking_per_km_rate') is-invalid @enderror" 
+                                       value="{{ old('booking_per_km_rate', $settings['booking_per_km_rate']) }}" 
+                                       step="0.01" min="0">
+                            </div>
+                            @error('booking_per_km_rate') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            <div class="form-text small">Rate charged per kilometer traveled.</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 opacity-50">
+
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary px-4">
                             <i class="bi bi-save me-2"></i> Save Changes

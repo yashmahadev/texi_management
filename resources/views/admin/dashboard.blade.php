@@ -124,95 +124,75 @@
             </div>
         </div>
     </div>
-    
-    <div class="card-body p-0">
-        <div class="tab-content" id="dutyTabsContent">
-            <!-- Today's Duties -->
-            <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>Driver</th>
-                                <th>Officer/Dept</th>
-                                <th>Expected Start</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($todaysDuties as $log)
-                            <tr>
-                                <td>{{ $log->monthlyDuty?->vehicle?->vehicle_number ?? 'N/A' }}</td>
-                                <td>{{ $log->monthlyDuty?->primaryDriver?->name ?? 'N/A' }}</td>
-                                <td>
-                                    {{ $log->monthlyDuty?->officer_name ?? 'N/A' }}<br>
-                                    <small class="text-muted">{{ $log->monthlyDuty?->department_name ?? 'N/A' }}</small>
-                                </td>
-                                <td>{{ $log->monthlyDuty?->expected_start_time ? \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i') : 'N/A' }}</td>
-                                <td>
-                                    <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
-                                        {{ ucfirst($log->status) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.daily-logs.show', $log->id) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">No duties found for today matching criteria.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Tomorrow's Duties -->
-            <div class="tab-pane fade" id="tomorrow" role="tabpanel" aria-labelledby="tomorrow-tab">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>Driver</th>
-                                <th>Officer/Dept</th>
-                                <th>Expected Start</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($tomorrowsDuties as $log)
-                            <tr>
-                                <td>{{ $log->monthlyDuty?->vehicle?->vehicle_number ?? 'N/A' }}</td>
-                                <td>{{ $log->monthlyDuty?->primaryDriver?->name ?? 'N/A' }}</td>
-                                <td>
-                                    {{ $log->monthlyDuty?->officer_name ?? 'N/A' }}<br>
-                                    <small class="text-muted">{{ $log->monthlyDuty?->department_name ?? 'N/A' }}</small>
-                                </td>
-                                <td>{{ $log->monthlyDuty?->expected_start_time ? \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i') : 'N/A' }}</td>
-                                <td>
-                                    <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
-                                        {{ ucfirst($log->status) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.daily-logs.show', $log->id) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">No duties scheduled for tomorrow matching criteria.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Vehicle</th>
+                    <th>Driver</th>
+                    <th>Officer/Dept</th>
+                    <th>Expected Start</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($todaysDuties as $log)
+                <tr>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ $log->monthlyDuty->vehicle->vehicle_number }}
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->vehicle->vehicle_number }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ $log->monthlyDuty->primaryDriver->name }}
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->driver->name ?? 'Unassigned' }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ $log->monthlyDuty->officer_name }}<br>
+                            <small class="text-muted">{{ $log->monthlyDuty->department_name }}</small>
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->customer_name }} (Direct)<br>
+                            <small class="text-muted">{{ $log->directBooking->pickup_location }} → {{ $log->directBooking->drop_location }}</small>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if($log->monthlyDuty)
+                            {{ \Carbon\Carbon::parse($log->monthlyDuty->expected_start_time)->format('H:i:s') }}
+                        @elseif($log->directBooking)
+                            {{ $log->directBooking->booking_datetime->toAppDateTime() }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : ($log->status == 'pending' ? 'warning' : 'secondary')) }}">
+                            {{ ucfirst($log->status) }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ route('admin.daily-logs.show', $log->id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="text-center py-4">No duties scheduled for today.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 @endsection

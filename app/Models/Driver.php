@@ -52,4 +52,24 @@ class Driver extends Authenticatable
     {
         return $this->hasMany(DutyReplacement::class, 'replacement_driver_id');
     }
+
+    // Phase-2: Direct Booking Relationships
+    public function directBookingAssignments()
+    {
+        return $this->hasMany(BookingAssignment::class);
+    }
+
+    public function activeDirectBookings()
+    {
+        return $this->hasManyThrough(
+            DirectBooking::class,
+            BookingAssignment::class,
+            'driver_id', // Foreign key on booking_assignments table
+            'id', // Foreign key on direct_bookings table
+            'id', // Local key on drivers table
+            'booking_id' // Local key on booking_assignments table
+        )
+        ->where('booking_assignments.is_active', true)
+        ->whereIn('direct_bookings.status', ['ASSIGNED', 'ACCEPTED', 'STARTED']);
+    }
 }

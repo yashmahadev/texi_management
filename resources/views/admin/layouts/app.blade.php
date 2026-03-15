@@ -147,6 +147,22 @@
             </a>
             @endcan
 
+            @if(auth()->user()->can('view_customers') || auth()->user()->can('view_direct_bookings'))
+            <hr class="text-white opacity-25 mx-3">
+            <div class="px-3 mb-2 text-uppercase small text-white-50">Direct Bookings</div>
+            @endif
+
+            @can('view_customers')
+            <a href="{{ route('admin.customers.index') }}" class="{{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
+                <i class="bi bi-people me-2"></i> Customers
+            </a>
+            @endcan
+
+            @can('view_direct_bookings')
+            <a href="{{ route('admin.direct-bookings.index') }}" class="{{ request()->routeIs('admin.direct-bookings.*') ? 'active' : '' }}">
+                <i class="bi bi-calendar-check me-2"></i> Direct Bookings
+            </a>
+            @endcan
 
             @can('view_reports')
             <a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">

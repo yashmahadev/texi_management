@@ -65,4 +65,10 @@ class Vehicle extends Model
     {
         return $this->hasMany(MonthlyDuty::class);
     }
+
+    // Phase-2: Direct Booking Relationship
+    public function directBookingAssignments()
+    {
+        return $this->hasMany(BookingAssignment::class);
+    }
 }

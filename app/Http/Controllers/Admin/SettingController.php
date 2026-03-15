@@ -18,6 +18,8 @@ class SettingController extends Controller
             'company_email' => Setting::get('company_email'),
             'company_logo' => Setting::get('company_logo'),
             'notification_sound' => Setting::get('notification_sound'),
+            'booking_base_fare' => Setting::get('booking_base_fare', 50.00),
+            'booking_per_km_rate' => Setting::get('booking_per_km_rate', 10.00),
         ];
 
         return view('admin.settings.index', compact('settings'));
@@ -32,6 +34,8 @@ class SettingController extends Controller
             'company_email' => 'nullable|email|max:255',
             'company_logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             'notification_sound' => 'nullable|file|mimes:mp3,wav,ogg|max:2048',
+            'booking_base_fare' => 'nullable|numeric|min:0',
+            'booking_per_km_rate' => 'nullable|numeric|min:0',
         ], [
             'company_email.email' => 'Please enter a valid company email address.',
             'company_logo.image' => 'The logo must be an image file (JPEG, PNG, JPG, SVG).',

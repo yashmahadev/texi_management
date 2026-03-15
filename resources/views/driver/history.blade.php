@@ -7,10 +7,20 @@
     <div class="list-group list-group-flush">
         @forelse($logs as $log)
             <div class="list-group-item px-3 py-3 border-bottom">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="fw-bold">{{ $log->duty_date->toAppDate() }}</div>
                     <span class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'started' ? 'primary' : 'secondary') }}">
                         {{ ucfirst($log->status) }}
+                    </span>
+                </div>
+                <div class="mb-2">
+                    <i class="bi bi-person text-muted small me-1"></i>
+                    <span class="small fw-semibold">
+                        @if($log->monthly_duty_id)
+                            {{ $log->monthlyDuty->officer_name }} ({{ $log->monthlyDuty->department_name }})
+                        @elseif($log->direct_booking_id)
+                            {{ $log->directBooking->customer_name }}
+                        @endif
                     </span>
                 </div>
                 <div class="row small text-muted">
@@ -20,7 +30,15 @@
                     </div>
                     <div class="col-6 text-end">
                         Total: {{ $log->total_km }} km<br>
-                        {{ $log->monthlyDuty->vehicle->vehicle_number ?? '' }}
+                        <span class="text-dark">
+                            @if($log->monthly_duty_id)
+                                {{ $log->monthlyDuty->vehicle->vehicle_number ?? '' }}
+                                <small class="text-muted">({{ $log->monthlyDuty->vehicle->vehicle_type ?? '' }})</small>
+                            @elseif($log->direct_booking_id)
+                                {{ $log->directBooking->vehicle->vehicle_number ?? '' }}
+                                <small class="text-muted">({{ $log->directBooking->vehicle->vehicle_type ?? '' }})</small>
+                            @endif
+                        </span>
                     </div>
                 </div>
             </div>
