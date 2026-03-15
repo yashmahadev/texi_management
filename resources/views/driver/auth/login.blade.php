@@ -2,7 +2,9 @@
 
 @section('content')
 <div class="text-center mt-5">
-    <h3 class="mb-4">Driver Login</h3>
+    <div class="mb-4 text-center">
+        @include('components.logo', ['iconClass' => 'fs-1 text-primary', 'textClass' => 'fs-3 fw-bold text-dark'])
+    </div>
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <p class="text-muted mb-4">Enter your registered mobile number to receive OTP via WhatsApp.</p>

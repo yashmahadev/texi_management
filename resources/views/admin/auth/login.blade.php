@@ -12,7 +12,9 @@
             <div class="col-md-4">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <h4 class="text-center mb-4">Duty Management</h4>
+                        <div class="mb-4 text-center">
+                            @include('components.logo', ['iconClass' => 'fs-1 text-primary', 'textClass' => 'fs-3 fw-bold text-dark'])
+                        </div>
                         <form action="{{ route('admin.login') }}" method="POST">
                             @csrf
                             <div class="mb-3">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duty Management - Admin</title>
+    <title>Admin Portal</title>
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -96,7 +96,7 @@
 </head>
 <body>
     <div class="mobile-header d-lg-none">
-        <h5 class="mb-0">Admin Panel</h5>
+        @include('components.logo', ['iconClass' => 'fs-4 text-warning', 'textClass' => 'fs-5 text-white fw-bold'])
         <button class="btn btn-outline-light btn-sm" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
@@ -106,7 +106,9 @@
 
     <div class="sidebar" id="adminSidebar">
         <div class="p-3 text-white">
-            <h4 class="d-none d-lg-block">Admin Panel</h4>
+            <div class="d-none d-lg-block mb-3 text-start">
+                @include('components.logo', ['iconClass' => 'fs-3 text-warning', 'textClass' => 'fs-5 text-white fw-bold', 'wrapperClass' => 'justify-content-start'])
+            </div>
             <div class="d-flex align-items-center">
                 <i class="bi bi-person-circle fs-4 me-2"></i>
                 <div>

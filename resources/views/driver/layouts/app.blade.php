@@ -73,7 +73,7 @@
     <div class="mobile-container">
         <!-- Header -->
         <nav class="navbar navbar-light bg-white border-bottom px-3">
-            <span class="navbar-brand mb-0 h1">Duty App</span>
+            @include('components.logo', ['iconClass' => 'fs-5 text-primary', 'textClass' => 'h6 mb-0 text-dark fw-bold'])
             <div id="google_translate_element"></div>
             @auth('driver')
                 <form action="{{ route('driver.logout') }}" method="POST" class="d-inline">
