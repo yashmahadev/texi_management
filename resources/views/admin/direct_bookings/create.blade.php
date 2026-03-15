@@ -52,8 +52,8 @@
             <div class="row mb-3">
                 <div class="col-md-12">
                     <label class="form-label fw-bold">Pickup Location <span class="text-danger">*</span></label>
-                    <textarea name="pickup_location" class="form-control @error('pickup_location') is-invalid @enderror" 
-                              rows="2" required>{{ old('pickup_location') }}</textarea>
+                    <textarea name="pickup_location" id="pickup_location" class="form-control @error('pickup_location') is-invalid @enderror" 
+                              rows="2" required autocomplete="off">{{ old('pickup_location') }}</textarea>
                     @error('pickup_location')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -63,8 +63,8 @@
             <div class="row mb-3">
                 <div class="col-md-12">
                     <label class="form-label fw-bold">Drop Location <span class="text-danger">*</span></label>
-                    <textarea name="drop_location" class="form-control @error('drop_location') is-invalid @enderror" 
-                              rows="2" required>{{ old('drop_location') }}</textarea>
+                    <textarea name="drop_location" id="drop_location" class="form-control @error('drop_location') is-invalid @enderror" 
+                              rows="2" required autocomplete="off">{{ old('drop_location') }}</textarea>
                     @error('drop_location')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -309,6 +309,82 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedDriver = this.options[this.selectedIndex];
         // Note: Additional logic can be added here if needed
     });
+
+    // --- Free OpenStreetMap Nominatim Location Autocomplete ---
+    function setupAutocomplete(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        // Wrap input in a relative container
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // Create dropdown container
+        const dropdown = document.createElement('ul');
+        dropdown.className = 'list-group position-absolute w-100 shadow';
+        dropdown.style.zIndex = '1050';
+        dropdown.style.display = 'none';
+        dropdown.style.maxHeight = '250px';
+        dropdown.style.overflowY = 'auto';
+        dropdown.style.top = '100%';
+        dropdown.style.left = '0';
+        wrapper.appendChild(dropdown);
+
+        let timeout = null;
+
+        input.addEventListener('input', function() {
+            clearTimeout(timeout);
+            const query = this.value.trim();
+            if (query.length < 3) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            timeout = setTimeout(() => {
+                // Fetch from OSM Nominatim (Free, no API key needed)
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`)
+                    .then(res => res.json())
+                    .then(data => {
+                        dropdown.innerHTML = '';
+                        if (data.length > 0) {
+                            data.forEach(item => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item list-group-item-action py-2 px-3 small';
+                                li.style.cursor = 'pointer';
+                                li.textContent = item.display_name;
+                                li.addEventListener('mousedown', function(e) {
+                                    e.preventDefault(); // prevent input blur
+                                    input.value = item.display_name;
+                                    dropdown.style.display = 'none';
+                                });
+                                dropdown.appendChild(li);
+                            });
+                            dropdown.style.display = 'block';
+                        } else {
+                            dropdown.style.display = 'none';
+                        }
+                    })
+                    .catch(err => console.error("Autocomplete error:", err));
+            }, 600); // 600ms debounce
+        });
+
+        // Hide on blur
+        input.addEventListener('blur', function() {
+            dropdown.style.display = 'none';
+        });
+
+        // Show on focus if valid
+        input.addEventListener('focus', function() {
+            if (dropdown.children.length > 0 && input.value.trim().length >= 3) {
+                dropdown.style.display = 'block';
+            }
+        });
+    }
+
+    setupAutocomplete('pickup_location');
+    setupAutocomplete('drop_location');
 });
 </script>
 @endpush

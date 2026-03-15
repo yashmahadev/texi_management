@@ -58,60 +58,43 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>#</th>
-                        <th>Vehicle Details</th>
-                        <th>Type & Configuration</th>
-                        <th>Driver Details</th>
-                        <th>Owner/Vendor</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-nowrap">Driver ID</th>
+                        <th class="text-nowrap">Driver Name</th>
+                        <th class="text-nowrap">Mobile</th>
+                        <th class="text-nowrap">License Number</th>
+                        <th class="text-nowrap">License Expiry</th>
+                        <th class="text-nowrap">Vehicle Type</th>
+                        <th class="text-nowrap">Vehicle Number</th>
+                        <th class="text-nowrap">Commission %</th>
+                        <th class="text-nowrap">Status</th>
+                        <th class="text-nowrap">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($vehicles as $vehicle)
                     <tr>
-                        <td>{{ ($vehicles->currentPage() - 1) * $vehicles->perPage() + $loop->iteration }}</td>
-                        <td>
-                            <div class="fw-bold fs-6 text-primary">{{ $vehicle->vehicle_number }}</div>
-                            <small class="text-muted d-block">{{ $vehicle->make_model }}</small>
-                            <div class="mt-1">
-                                <span class="badge bg-light text-dark border small">{{ $vehicle->pass_type }}</span>
-                                @if($vehicle->insurance_expiry_date)
-                                    <span class="badge {{ $vehicle->insurance_expiry_date->isPast() ? 'bg-danger' : ($vehicle->insurance_expiry_date->diffInDays(now()) < 30 ? 'bg-warning' : 'bg-info-subtle text-info') }} border small">
-                                        Ins Exp: {{ $vehicle->insurance_expiry_date->format('d/m/y') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </td>
-                        <td>
-                            <div>{{ $vehicle->vehicle_type }}</div>
-                            <small class="text-muted">
-                                {{ $vehicle->fuel_type }} | {{ $vehicle->transmission_type }}
-                            </small>
-                        </td>
-                        <td>
-                            <div class="fw-medium">{{ $vehicle->driver->name ?? 'N/A' }}</div>
-                            <small class="text-muted d-block">
-                                <i class="bi bi-phone small"></i> {{ $vehicle->driver->mobile_number ?? 'No Mobile' }}
-                            </small>
-                            @if($vehicle->driver && $vehicle->driver->is_police_verified)
-                                <span class="badge bg-success-subtle text-success small" style="font-size: 0.7rem;">
-                                    <i class="bi bi-patch-check"></i> Police Verified
-                                </span>
+                        <td class="text-nowrap">
+                            @if($vehicle->driver)
+                                DR-{{ str_pad($vehicle->driver->id, 3, '0', STR_PAD_LEFT) }}
+                            @else
+                                N/A
                             @endif
                         </td>
-                        <td>
-                            <div class="fw-medium">{{ $vehicle->owner->name ?? $vehicle->owner_name ?? 'N/A' }}</div>
-                            <small class="text-muted">
-                                <i class="bi bi-phone small"></i> {{ $vehicle->owner->mobile ?? $vehicle->owner_mobile ?? 'N/A' }}
-                            </small>
+                        <td class="text-nowrap">{{ $vehicle->driver->name ?? 'N/A' }}</td>
+                        <td class="text-nowrap">{{ $vehicle->driver->mobile_number ?? 'N/A' }}</td>
+                        <td class="text-nowrap">{{ $vehicle->driver->driving_licence_number ?? 'N/A' }}</td>
+                        <td class="text-nowrap">
+                            {{ $vehicle->driver && $vehicle->driver->dl_expiry ? \Carbon\Carbon::parse($vehicle->driver->dl_expiry)->format('d-M-Y') : 'N/A' }}
                         </td>
-                        <td>
+                        <td class="text-nowrap">{{ $vehicle->vehicle_type ?? 'N/A' }}</td>
+                        <td class="text-nowrap fw-bold text-primary">{{ $vehicle->vehicle_number ?? 'N/A' }}</td>
+                        <td class="text-nowrap">{{ $vehicle->commission_percentage ?? '-' }}</td>
+                        <td class="text-nowrap">
                             <span class="badge rounded-pill bg-{{ $vehicle->status == 'active' ? 'success' : ($vehicle->status == 'maintenance' ? 'warning' : 'secondary') }}">
                                 {{ ucfirst($vehicle->status) }}
                             </span>
                         </td>
-                        <td>
+                        <td class="text-nowrap">
                             <div class="btn-group btn-group-sm">
                                 <a href="{{ route('admin.vehicles.edit', $vehicle->id) }}" class="btn btn-outline-secondary" title="Edit">
                                     <i class="bi bi-pencil"></i>
@@ -128,7 +111,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5">
+                        <td colspan="10" class="text-center py-5">
                             <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
                             No vehicles found matching your criteria.
                         </td>

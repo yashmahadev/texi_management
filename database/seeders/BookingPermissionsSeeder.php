@@ -54,20 +54,22 @@ class BookingPermissionsSeeder extends Seeder
         }
 
         // Add default settings for booking fares
-        DB::table('settings')->insert([
+        DB::table('settings')->updateOrInsert(
+            ['key' => 'booking_base_fare'],
             [
-                'key' => 'booking_base_fare',
                 'value' => '50',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
+            ]
+        );
+        DB::table('settings')->updateOrInsert(
+            ['key' => 'booking_per_km_rate'],
             [
-                'key' => 'booking_per_km_rate',
                 'value' => '10',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-        ]);
+            ]
+        );
 
         $this->command->info('Phase-2 permissions and settings seeded successfully!');
     }
