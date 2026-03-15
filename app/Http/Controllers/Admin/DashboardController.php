@@ -34,6 +34,11 @@ class DashboardController extends Controller
             ->whereDate('duty_date', now())
             ->get();
 
+        $tomorrowsDuties = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver', 'directBooking.vehicle', 'directBooking.driver'])
+            ->whereHas('monthlyDuty')
+            ->whereDate('duty_date', now()->addDay())
+            ->get();
+
         return view('admin.dashboard', compact(
             'pendingDuties', 
             'completedDuties', 
