@@ -99,8 +99,24 @@ class DutyService
     public function updateMonthlyDuty(MonthlyDuty $duty, array $data): MonthlyDuty
     {
         return DB::transaction(function () use ($duty, $data) {
+            $department = \App\Models\Department::findOrFail($data['department_id']);
+            $vehicle    = \App\Models\Vehicle::findOrFail($data['vehicle_id']);
+
+            $oldStart = $duty->start_date->toDateString();
+            $oldEnd   = $duty->end_date->toDateString();
+            $newStart = $data['start_date'];
+            $newEnd   = $data['end_date'];
+            $datesChanged = ($oldStart !== $newStart || $oldEnd !== $newEnd);
+
             $duty->update([
+                'group'               => $data['group'],
+                'department_id'       => $data['department_id'],
+                'department_name'     => $department->name,
                 'officer_name'        => $data['officer_name'],
+                'vehicle_id'          => $data['vehicle_id'],
+                'primary_driver_id'   => $vehicle->driver_id,
+                'start_date'          => $newStart,
+                'end_date'            => $newEnd,
                 'expected_start_time' => $data['expected_start_time'],
                 'expected_end_time'   => $data['expected_end_time'] ?? null,
                 'state'               => $data['state'] ?? null,
@@ -109,6 +125,23 @@ class DutyService
                 'route_remarks'       => $data['route_remarks'] ?? null,
                 'is_recurring'        => !empty($data['is_recurring']),
             ]);
+
+            // If dates changed, regenerate daily logs
+            if ($datesChanged) {
+                // Delete existing pending logs only (don't touch started/completed)
+                $duty->dailyLogs()->where('status', 'pending')->delete();
+
+                // Re-create logs for the new date range
+                $start = Carbon::parse($newStart);
+                $end   = Carbon::parse($newEnd);
+                for ($date = $start; $date->lte($end); $date->addDay()) {
+                    // Only create if no log exists for this date (preserve completed/started)
+                    DailyDutyLog::firstOrCreate(
+                        ['monthly_duty_id' => $duty->id, 'duty_date' => $date->format('Y-m-d')],
+                        ['status' => 'pending']
+                    );
+                }
+            }
 
             $this->auditLogger->log('Update Monthly Duty', 'monthly_duties', $duty->id, "Updated duty for {$duty->department_name}");
 

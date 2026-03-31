@@ -76,6 +76,11 @@
                             <a href="{{ route('admin.monthly-duties.show', $duty->id) }}" class="btn btn-sm btn-outline-info">
                                 <i class="bi bi-eye"></i> View
                             </a>
+                            @can('update', $duty)
+                            <a href="{{ route('admin.monthly-duties.edit', $duty->id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            @endcan
                             @can('delete', $duty)
                                 <form action="{{ route('admin.monthly-duties.destroy', $duty->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this duty? All associated daily logs, replacements, and billing records will be permanently removed.')">
                                     @csrf

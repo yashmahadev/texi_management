@@ -110,7 +110,11 @@ class MonthlyDutyController extends Controller
     public function edit(MonthlyDuty $monthlyDuty)
     {
         $this->authorize('update', $monthlyDuty);
-        return view('admin.monthly-duties.edit', compact('monthlyDuty'));
+        $monthlyDuty->load(['vehicle', 'primaryDriver', 'department']);
+        $groups  = ['Government', 'Corporate'];
+        $types   = config('taxi.vehicle_types');
+        $officers = MonthlyDuty::distinct()->orderBy('officer_name')->pluck('officer_name');
+        return view('admin.monthly-duties.edit', compact('monthlyDuty', 'groups', 'types', 'officers'));
     }
 
     public function update(Request $request, MonthlyDuty $monthlyDuty)
@@ -118,7 +122,34 @@ class MonthlyDutyController extends Controller
         $this->authorize('update', $monthlyDuty);
 
         $request->validate([
+            'group'               => 'required|in:Government,Corporate',
+            'department_id'       => 'required|exists:departments,id',
             'officer_name'        => 'required|string|min:2|max:255',
+            'vehicle_id'          => [
+                'required',
+                'exists:vehicles,id',
+                function ($attribute, $value, $fail) use ($monthlyDuty, $request) {
+                    $startDate = $request->input('start_date');
+                    $endDate   = $request->input('end_date');
+                    if ($startDate && $endDate) {
+                        $overlap = MonthlyDuty::where('vehicle_id', $value)
+                            ->where('id', '!=', $monthlyDuty->id) // exclude current duty
+                            ->where(function ($q) use ($startDate, $endDate) {
+                                $q->whereBetween('start_date', [$startDate, $endDate])
+                                  ->orWhereBetween('end_date', [$startDate, $endDate])
+                                  ->orWhere(function ($q2) use ($startDate, $endDate) {
+                                      $q2->where('start_date', '<=', $startDate)
+                                         ->where('end_date', '>=', $endDate);
+                                  });
+                            })->exists();
+                        if ($overlap) {
+                            $fail('This vehicle is already assigned to another duty during the selected period.');
+                        }
+                    }
+                },
+            ],
+            'start_date'          => 'required|date',
+            'end_date'            => 'required|date|after_or_equal:start_date',
             'expected_start_time' => 'required|date_format:H:i',
             'expected_end_time'   => 'nullable|date_format:H:i',
             'state'               => 'nullable|string|max:100',
@@ -127,8 +158,17 @@ class MonthlyDutyController extends Controller
             'route_remarks'       => 'nullable|string|max:1000',
             'is_recurring'        => 'nullable|boolean',
         ], [
+            'group.required'                  => 'Please select a group.',
+            'group.in'                        => 'Group must be Government or Corporate.',
+            'department_id.required'          => 'Please select a department.',
+            'department_id.exists'            => 'The selected department is invalid.',
             'officer_name.required'           => 'Officer name is required.',
             'officer_name.min'                => 'Officer name must be at least 2 characters.',
+            'vehicle_id.required'             => 'Please select a vehicle.',
+            'vehicle_id.exists'               => 'The selected vehicle does not exist.',
+            'start_date.required'             => 'Start date is required.',
+            'end_date.required'               => 'End date is required.',
+            'end_date.after_or_equal'         => 'End date must be on or after the start date.',
             'expected_start_time.required'    => 'Expected start time is required.',
             'expected_start_time.date_format' => 'Start time must be in HH:MM format.',
             'expected_end_time.date_format'   => 'End time must be in HH:MM format.',
@@ -143,35 +183,39 @@ class MonthlyDutyController extends Controller
 
     public function getVehiclesByType(Request $request)
     {
-        $type = $request->type;
+        $type      = $request->type;
         $startDate = $request->start_date;
-        $endDate = $request->end_date;
+        $endDate   = $request->end_date;
+        $excludeId = $request->exclude_duty_id; // exclude current duty when editing
 
         $vehicles = Vehicle::with('driver')
             ->where('status', 'active')
             ->where('vehicle_type', $type)
             ->get();
 
-        // Check for overlaps if dates are provided
         $overlappingVehicleIds = [];
         if ($startDate && $endDate) {
-            $overlappingVehicleIds = MonthlyDuty::where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate, $endDate])
-                      ->orWhereBetween('end_date', [$startDate, $endDate])
-                      ->orWhere(function ($q) use ($startDate, $endDate) {
-                          $q->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                      });
-            })->pluck('vehicle_id')->toArray();
+            $query = MonthlyDuty::where(function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('start_date', [$startDate, $endDate])
+                  ->orWhereBetween('end_date', [$startDate, $endDate])
+                  ->orWhere(function ($q2) use ($startDate, $endDate) {
+                      $q2->where('start_date', '<=', $startDate)
+                         ->where('end_date', '>=', $endDate);
+                  });
+            });
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+            $overlappingVehicleIds = $query->pluck('vehicle_id')->toArray();
         }
-            
-        $data = $vehicles->map(function($v) use ($overlappingVehicleIds) {
+
+        $data = $vehicles->map(function ($v) use ($overlappingVehicleIds) {
             return [
-                'id' => $v->id,
+                'id'            => $v->id,
                 'vehicle_number' => $v->vehicle_number,
-                'driver_name' => $v->driver->name ?? 'No Driver',
+                'driver_name'   => $v->driver->name ?? 'No Driver',
                 'driver_mobile' => $v->driver->mobile_number ?? '',
-                'is_assigned' => in_array($v->id, $overlappingVehicleIds)
+                'is_assigned'   => in_array($v->id, $overlappingVehicleIds),
             ];
         });
 
