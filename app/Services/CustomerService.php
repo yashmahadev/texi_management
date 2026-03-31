@@ -29,7 +29,8 @@ class CustomerService
             });
         }
 
-        return $query->latest()->paginate($filters['per_page'] ?? 15);
+        return $query->orderBy($filters['sort'] ?? 'created_at', $filters['dir'] ?? 'desc')
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     /**

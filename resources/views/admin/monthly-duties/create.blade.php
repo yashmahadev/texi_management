@@ -72,29 +72,36 @@
                     </select>
                 </div>
                 
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">Expected Start Time *</label>
                     <input type="time" name="expected_start_time" class="form-control" value="{{ old('expected_start_time') }}" required>
                 </div>
 
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">Expected End Time</label>
                     <input type="time" name="expected_end_time" class="form-control" value="{{ old('expected_end_time') }}">
                 </div>
 
-                <div class="col-sm-4 col-6 mb-3">
-                    <label class="form-label">State</label>
-                    <input type="text" name="state" class="form-control" value="{{ old('state') }}">
+                @include('partials.state-city-select', [
+                    'selectedState'   => old('state'),
+                    'selectedCity'    => old('city'),
+                    'selectedPincode' => old('pincode'),
+                ])
+
+                <div class="col-12 mb-3">
+                    <label class="form-label">Route / Remarks</label>
+                    <textarea name="route_remarks" class="form-control" rows="2" placeholder="Enter route details or any remarks...">{{ old('route_remarks') }}</textarea>
                 </div>
 
-                <div class="col-sm-4 col-6 mb-3">
-                    <label class="form-label">City</label>
-                    <input type="text" name="city" class="form-control" value="{{ old('city') }}">
-                </div>
-
-                <div class="col-sm-4 col-12 mb-3">
-                    <label class="form-label">Pincode</label>
-                    <input type="text" name="pincode" class="form-control" value="{{ old('pincode') }}">
+                <div class="col-12 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="is_recurring" id="is_recurring" value="1"
+                            {{ old('is_recurring') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="is_recurring">
+                            <strong>Recurring Duty</strong>
+                            <small class="text-muted d-block">When enabled, this duty will automatically renew every month. The system will create next month's duty on the last day of each month.</small>
+                        </label>
+                    </div>
                 </div>
             </div>
             

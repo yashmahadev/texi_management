@@ -23,6 +23,7 @@ class DirectBooking extends Model
         'actual_km',
         'status',
         'notes',
+        'route_remarks',
         'base_fare',
         'per_km_rate',
         'created_by',

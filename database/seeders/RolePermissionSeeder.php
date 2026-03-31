@@ -16,35 +16,45 @@ class RolePermissionSeeder extends Seeder
         // Create Permissions
         $permissions = [
             // Dashboard
-            'view_admin_dashboard' => 'View Admin Dashboard',
-            
+            'view_admin_dashboard'       => 'View Admin Dashboard',
+
             // Vehicles
-            'view_vehicles' => 'View Vehicles',
-            'create_vehicles' => 'Add Vehicles',
-            'edit_vehicles' => 'Edit Vehicles',
-            'delete_vehicles' => 'Delete Vehicles',
-            
-            
+            'view_vehicles'              => 'View Vehicles',
+            'create_vehicles'            => 'Add Vehicles',
+            'edit_vehicles'              => 'Edit Vehicles',
+            'delete_vehicles'            => 'Delete Vehicles',
+
             // Duties
-            'view_monthly_duties' => 'View Monthly Duties',
-            'create_monthly_duties' => 'Create Monthly Duties',
-            'edit_monthly_duties' => 'Edit Monthly Duties',
-            'delete_monthly_duties' => 'Delete Monthly Duties',
-            'view_daily_logs' => 'View Daily Logs',
-            'edit_daily_logs' => 'Edit Daily Logs',
-            'verify_daily_logs' => 'Verify Daily Logs',
-            'view_replacements' => 'View Replacements',
-            'assign_replacements' => 'Assign Replacements',
-            
+            'view_monthly_duties'        => 'View Monthly Duties',
+            'create_monthly_duties'      => 'Create Monthly Duties',
+            'edit_monthly_duties'        => 'Edit Monthly Duties',
+            'delete_monthly_duties'      => 'Delete Monthly Duties',
+            'view_daily_logs'            => 'View Daily Logs',
+            'edit_daily_logs'            => 'Edit Daily Logs',
+            'verify_daily_logs'          => 'Verify Daily Logs',
+            'view_replacements'          => 'View Replacements',
+            'assign_replacements'        => 'Assign Replacements',
+
+            // Customers & Direct Bookings
+            'view_customers'             => 'View Customers',
+            'create_customers'           => 'Create Customers',
+            'edit_customers'             => 'Edit Customers',
+            'view_direct_bookings'       => 'View Direct Bookings',
+            'create_direct_bookings'     => 'Create Direct Bookings',
+            'edit_direct_bookings'       => 'Edit Direct Bookings',
+            'assign_drivers_to_bookings' => 'Assign Drivers to Bookings',
+            'cancel_bookings'            => 'Cancel Bookings',
+            'adjust_booking_fares'       => 'Adjust Booking Fares',
+
             // Reports & Audit
-            'view_reports' => 'View Reports',
-            'download_reports' => 'Download Reports',
-            'view_audit_logs' => 'View Audit Logs',
-            
+            'view_reports'               => 'View Reports',
+            'download_reports'           => 'Download Reports',
+            'view_audit_logs'            => 'View Audit Logs',
+
             // Access Control
-            'manage_roles' => 'Manage Roles',
-            'manage_permissions' => 'Manage Permissions',
-            'manage_settings' => 'Manage System Settings',
+            'manage_roles'               => 'Manage Roles',
+            'manage_permissions'         => 'Manage Permissions',
+            'manage_settings'            => 'Manage System Settings',
         ];
 
         foreach ($permissions as $name => $displayName) {

@@ -17,55 +17,80 @@ class DailyDutyLogController extends Controller
 
     public function index(Request $request)
     {
-        $duties = \App\Models\MonthlyDuty::with(['vehicle', 'primaryDriver'])->latest()->get();
+        $sortable = ['duty_date', 'status', 'total_km'];
+        $sort = in_array($request->sort, $sortable) ? $request->sort : 'duty_date';
+        $dir  = $request->dir === 'asc' ? 'asc' : 'desc';
+
+        // Separate lists for the two independent filter dropdowns
+        $departments = \App\Models\MonthlyDuty::distinct()->orderBy('department_name')->pluck('department_name');
+        $officers    = \App\Models\MonthlyDuty::distinct()->orderBy('officer_name')->pluck('officer_name');
+
         $query = DailyDutyLog::with(['monthlyDuty.vehicle', 'monthlyDuty.primaryDriver', 'directBooking.vehicle', 'directBooking.driver']);
 
-        // Default: only records up to current date (if no filters)
-        if (!$request->filled('start_date') && !$request->filled('end_date') && !$request->filled('monthly_duty_id')) {
+        if (!$request->filled('start_date') && !$request->filled('end_date')
+            && !$request->filled('department') && !$request->filled('officer')) {
             $query->whereDate('duty_date', '<=', now()->toDateString());
         }
 
-        // Filter by Monthly Duty
-        if ($request->filled('monthly_duty_id')) {
-            $query->where('monthly_duty_id', $request->monthly_duty_id);
+        // Filter by Department
+        if ($request->filled('department')) {
+            $query->whereHas('monthlyDuty', fn($q) => $q->where('department_name', $request->department));
         }
 
-        // Filter by Date Range
+        // Filter by Officer
+        if ($request->filled('officer')) {
+            $query->whereHas('monthlyDuty', fn($q) => $q->where('officer_name', $request->officer));
+        }
+
         if ($request->filled('start_date')) {
             $query->whereDate('duty_date', '>=', $request->start_date);
         }
         if ($request->filled('end_date')) {
             $query->whereDate('duty_date', '<=', $request->end_date);
         }
-
-        // Filter by Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
-        // Filter by Search (Vehicle or Driver Name)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->whereHas('monthlyDuty', function ($mq) use ($search) {
-                    $mq->whereHas('vehicle', function ($vq) use ($search) {
-                        $vq->where('vehicle_number', 'like', "%{$search}%");
-                    })->orWhereHas('primaryDriver', function ($dq) use ($search) {
-                        $dq->where('name', 'like', "%{$search}%");
-                    });
+                    $mq->whereHas('vehicle', fn($vq) => $vq->where('vehicle_number', 'like', "%{$search}%"))
+                       ->orWhereHas('primaryDriver', fn($dq) => $dq->where('name', 'like', "%{$search}%"));
                 })->orWhereHas('directBooking', function ($bq) use ($search) {
-                    $bq->whereHas('vehicle', function ($vq) use ($search) {
-                        $vq->where('vehicle_number', 'like', "%{$search}%");
-                    })->orWhereHas('driver', function ($dq) use ($search) {
-                        $dq->where('name', 'like', "%{$search}%");
-                    });
+                    $bq->whereHas('vehicle', fn($vq) => $vq->where('vehicle_number', 'like', "%{$search}%"))
+                       ->orWhereHas('driver', fn($dq) => $dq->where('name', 'like', "%{$search}%"));
                 });
             });
         }
 
-        $logs = $query->latest('duty_date')->paginate(20)->withQueryString();
-            
-        return view('admin.daily-logs.index', compact('logs', 'duties'));
+        if ($request->export === 'csv') {
+            return $this->exportCsv($query->orderBy($sort, $dir)->get());
+        }
+
+        $logs = $query->orderBy($sort, $dir)->paginate(20)->withQueryString();
+        return view('admin.daily-logs.index', compact('logs', 'departments', 'officers', 'sort', 'dir'));
+    }
+
+    private function exportCsv($logs)
+    {
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="daily_logs.csv"'];
+        $callback = function () use ($logs) {
+            $f = fopen('php://output', 'w');
+            fputcsv($f, ['Date', 'Vehicle', 'Driver', 'Department/Customer', 'Status', 'Start Time', 'End Time', 'Start KM', 'End KM', 'Total KM']);
+            foreach ($logs as $log) {
+                fputcsv($f, [
+                    $log->duty_date->toDateString(),
+                    $log->monthlyDuty->vehicle->vehicle_number ?? ($log->directBooking->vehicle->vehicle_number ?? ''),
+                    $log->monthlyDuty->primaryDriver->name ?? ($log->directBooking->driver->name ?? ''),
+                    $log->monthlyDuty->department_name ?? ($log->directBooking->customer_name ?? ''),
+                    $log->status, $log->start_time, $log->end_time,
+                    $log->start_km, $log->end_km, $log->total_km,
+                ]);
+            }
+            fclose($f);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 
     public function show(DailyDutyLog $log)
@@ -86,17 +111,22 @@ class DailyDutyLogController extends Controller
         $this->authorize('update', $log);
 
         $request->validate([
-            'start_time' => 'nullable',
-            'end_time' => 'nullable',
-            'start_km' => 'nullable|integer',
-            'end_km' => 'nullable|integer',
-            'total_km' => 'nullable|integer',
-            'status' => 'required|in:pending,started,completed,missing,approved,disputed,replaced',
+            'start_time' => 'nullable|date_format:H:i:s',
+            'end_time'   => 'nullable|date_format:H:i:s',
+            'start_km'   => 'nullable|integer|min:0',
+            'end_km'     => 'nullable|integer|min:0|gte:start_km',
+            'total_km'   => 'nullable|integer|min:0',
+            'status'     => 'required|in:pending,started,completed,missing,approved,disputed,replaced',
         ], [
-            'status.required' => 'Please select a status for this log.',
-            'status.in' => 'The selected status is invalid.',
-            'start_km.integer' => 'Start KM must be a whole number.',
-            'end_km.integer' => 'End KM must be a whole number.',
+            'status.required'        => 'Please select a status for this log.',
+            'status.in'              => 'The selected status is invalid.',
+            'start_km.integer'       => 'Start KM must be a whole number.',
+            'start_km.min'           => 'Start KM cannot be negative.',
+            'end_km.integer'         => 'End KM must be a whole number.',
+            'end_km.min'             => 'End KM cannot be negative.',
+            'end_km.gte'             => 'End KM must be greater than or equal to Start KM.',
+            'start_time.date_format' => 'Start time must be in HH:MM:SS format.',
+            'end_time.date_format'   => 'End time must be in HH:MM:SS format.',
         ]);
 
         $log->update($request->all());

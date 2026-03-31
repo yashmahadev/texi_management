@@ -24,7 +24,9 @@ class AuthController extends Controller
             'password.required' => 'Password is required.',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $remember = $request->boolean('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             $request->session()->flash('fcm_sync_required', true);
             return redirect()->intended(route('admin.dashboard'));

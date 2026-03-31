@@ -253,7 +253,8 @@ class DirectBookingService
             $query->where('customer_id', $filters['customer_id']);
         }
 
-        return $query->latest('booking_datetime')->paginate($filters['per_page'] ?? 15);
+        return $query->orderBy($filters['sort'] ?? 'booking_datetime', $filters['dir'] ?? 'desc')
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     /**

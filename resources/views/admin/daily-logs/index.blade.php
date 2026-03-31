@@ -2,20 +2,34 @@
 
 @section('content')
 <div class="mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="page-header mb-3">
         <h2>Daily Duty Logs</h2>
+        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export CSV
+        </a>
     </div>
     
-    <div class="card border-0 shadow-sm mb-3">
+    <div class="card border-0 shadow-sm mb-3 filter-card">
         <div class="card-body">
             <form action="{{ route('admin.daily-logs.index') }}" method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Duty (Dept/Officer)</label>
-                    <select name="monthly_duty_id" class="form-select">
-                        <option value="">All Duties</option>
-                        @foreach($duties as $duty)
-                            <option value="{{ $duty->id }}" {{ request('monthly_duty_id') == $duty->id ? 'selected' : '' }}>
-                                {{ $duty->department_name }} ({{ $duty->officer_name }})
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Department</label>
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>
+                                {{ $dept }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Officer</label>
+                    <select name="officer" class="form-select">
+                        <option value="">All Officers</option>
+                        @foreach($officers as $officer)
+                            <option value="{{ $officer }}" {{ request('officer') == $officer ? 'selected' : '' }}>
+                                {{ $officer }}
                             </option>
                         @endforeach
                     </select>
@@ -32,15 +46,15 @@
                     <label class="form-label small fw-bold">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Started</option>
+                        <option value="pending"   {{ request('status') == 'pending'   ? 'selected' : '' }}>Pending</option>
+                        <option value="started"   {{ request('status') == 'started'   ? 'selected' : '' }}>Started</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="missing" {{ request('status') == 'missing' ? 'selected' : '' }}>Missing</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="disputed" {{ request('status') == 'disputed' ? 'selected' : '' }}>Disputed</option>
+                        <option value="missing"   {{ request('status') == 'missing'   ? 'selected' : '' }}>Missing</option>
+                        <option value="approved"  {{ request('status') == 'approved'  ? 'selected' : '' }}>Approved</option>
+                        <option value="disputed"  {{ request('status') == 'disputed'  ? 'selected' : '' }}>Disputed</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end gap-2">
+                <div class="col-md-2 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
                     <a href="{{ route('admin.daily-logs.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
                 </div>
@@ -54,13 +68,13 @@
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Date</th>
+                    @include('partials.sort-th', ['col'=>'duty_date', 'label'=>'Date',     'sort'=>$sort,'dir'=>$dir])
                     <th>Vehicle</th>
                     <th>Driver</th>
                     <th>Dept</th>
-                    <th>Status</th>
+                    @include('partials.sort-th', ['col'=>'status',    'label'=>'Status',   'sort'=>$sort,'dir'=>$dir])
                     <th>Times</th>
-                    <th>Total KM</th>
+                    @include('partials.sort-th', ['col'=>'total_km',  'label'=>'Total KM', 'sort'=>$sort,'dir'=>$dir])
                     <th>Actions</th>
                 </tr>
             </thead>

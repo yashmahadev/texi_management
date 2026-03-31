@@ -75,6 +75,16 @@
                             @error('company_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">GST Number</label>
+                            <input type="text" name="company_gst"
+                                   class="form-control @error('company_gst') is-invalid @enderror"
+                                   value="{{ old('company_gst', $settings['company_gst']) }}"
+                                   placeholder="e.g. 22AAAAA0000A1Z5" maxlength="20">
+                            <div class="form-text small">15-digit GST Identification Number (GSTIN). Printed on invoices and PDFs.</div>
+                            @error('company_gst') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
                         <div class="col-12 mb-3">
                             <label class="form-label d-block">Notification Sound</label>
                             <div class="d-flex align-items-center gap-3">

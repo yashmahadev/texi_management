@@ -23,18 +23,21 @@ class MonthlyDuty extends Model
         'state',
         'city',
         'pincode',
+        'route_remarks',
+        'is_recurring',
         'created_by',
+    ];
+
+    protected $casts = [
+        'start_date'   => 'date',
+        'end_date'     => 'date',
+        'is_recurring' => 'boolean',
     ];
 
     public function department()
     {
         return $this->belongsTo(Department::class);
     }
-
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-    ];
 
     public function vehicle()
     {

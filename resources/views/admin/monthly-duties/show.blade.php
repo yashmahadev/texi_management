@@ -4,6 +4,9 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Duty Details #{{ $monthlyDuty->id }}</h2>
     <div>
+        <a href="{{ route('admin.monthly-duties.edit', $monthlyDuty) }}" class="btn btn-outline-primary me-2">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
         <a href="{{ route('admin.reports.download', $monthlyDuty->id) }}" class="btn btn-outline-danger me-2">
             <i class="bi bi-file-pdf"></i> Download PDF
         </a>
@@ -38,7 +41,23 @@
                 <h6 class="text-muted">Schedule</h6>
                 <p class="mb-1"><strong>Start:</strong> {{ $monthlyDuty->start_date->format('d M Y') }}</p>
                 <p class="mb-1"><strong>End:</strong> {{ $monthlyDuty->end_date->format('d M Y') }}</p>
-                <p class="mb-0"><strong>Time:</strong> {{ \Carbon\Carbon::parse($monthlyDuty->expected_start_time)->format('h:i A') }}</p>
+                <p class="mb-1"><strong>Start Time:</strong> {{ \Carbon\Carbon::parse($monthlyDuty->expected_start_time)->format('h:i A') }}</p>
+                @if($monthlyDuty->expected_end_time)
+                <p class="mb-1"><strong>End Time:</strong> {{ \Carbon\Carbon::parse($monthlyDuty->expected_end_time)->format('h:i A') }}</p>
+                @endif
+                @if($monthlyDuty->state || $monthlyDuty->city)
+                <p class="mb-1"><strong>Location:</strong> {{ implode(', ', array_filter([$monthlyDuty->city, $monthlyDuty->state, $monthlyDuty->pincode])) }}</p>
+                @endif
+                @if($monthlyDuty->route_remarks)
+                <p class="mb-1"><strong>Route/Remarks:</strong> {{ $monthlyDuty->route_remarks }}</p>
+                @endif
+                @if($monthlyDuty->is_recurring)
+                <p class="mb-0 mt-2">
+                    <span class="badge bg-success">
+                        <i class="bi bi-arrow-repeat me-1"></i> Recurring — auto-renews every month
+                    </span>
+                </p>
+                @endif
             </div>
         </div>
     </div>
@@ -93,4 +112,5 @@
         </table>
     </div>
 </div>
+
 @endsection

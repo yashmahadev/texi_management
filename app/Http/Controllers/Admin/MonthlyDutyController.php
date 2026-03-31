@@ -22,26 +22,53 @@ class MonthlyDutyController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', MonthlyDuty::class);
+
+        $sortable = ['id', 'start_date', 'end_date', 'department_name', 'officer_name', 'created_at'];
+        $sort = in_array($request->sort, $sortable) ? $request->sort : 'created_at';
+        $dir  = $request->dir === 'asc' ? 'asc' : 'desc';
+
         $query = MonthlyDuty::with(['vehicle', 'primaryDriver']);
 
         if ($request->filled('department')) {
             $query->where('department_name', 'like', '%' . $request->department . '%');
         }
-
         if ($request->filled('officer')) {
             $query->where('officer_name', 'like', '%' . $request->officer . '%');
         }
-
         if ($request->filled('start_date')) {
             $query->whereDate('start_date', '>=', $request->start_date);
         }
-
         if ($request->filled('end_date')) {
             $query->whereDate('end_date', '<=', $request->end_date);
         }
 
-        $duties = $query->latest()->paginate(10)->withQueryString();
-        return view('admin.monthly-duties.index', compact('duties'));
+        // CSV export
+        if ($request->export === 'csv') {
+            return $this->exportCsv($query->orderBy($sort, $dir)->get());
+        }
+
+        $duties = $query->orderBy($sort, $dir)->paginate(10)->withQueryString();
+        return view('admin.monthly-duties.index', compact('duties', 'sort', 'dir'));
+    }
+
+    private function exportCsv($duties)
+    {
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="monthly_duties.csv"'];
+        $callback = function () use ($duties) {
+            $f = fopen('php://output', 'w');
+            fputcsv($f, ['ID', 'Department', 'Officer', 'Vehicle', 'Driver', 'Start Date', 'End Date', 'Start Time', 'State', 'City', 'Recurrence', 'Created At']);
+            foreach ($duties as $d) {
+                fputcsv($f, [
+                    $d->id, $d->department_name, $d->officer_name,
+                    $d->vehicle->vehicle_number ?? '', $d->primaryDriver->name ?? '',
+                    $d->start_date->toDateString(), $d->end_date->toDateString(),
+                    $d->expected_start_time, $d->state, $d->city,
+                    $d->recurrence_type, $d->created_at->toDateTimeString(),
+                ]);
+            }
+            fclose($f);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 
     public function create()
@@ -58,13 +85,19 @@ class MonthlyDutyController extends Controller
     public function store(\App\Http\Requests\CreateMonthlyDutyRequest $request)
     {
         $this->authorize('create', MonthlyDuty::class);
-        $this->dutyService->createMonthlyDuty($request->validated(), Auth::id());
+        $result = $this->dutyService->createMonthlyDuty($request->validated(), Auth::id());
+
+        // Build success message — tell user how many duties were created
+        $totalCreated = $result['total_created'] ?? 1;
+        $message = $totalCreated > 1
+            ? "Monthly duty created successfully with {$totalCreated} recurrences (total {$totalCreated} duties generated)."
+            : 'Monthly duty created successfully.';
 
         if ($request->input('action') === 'save_and_create') {
-            return redirect()->route('admin.monthly-duties.create')->with('success', 'Monthly duty created. You can create another one now.');
+            return redirect()->route('admin.monthly-duties.create')->with('success', $message . ' You can create another one now.');
         }
 
-        return redirect()->route('admin.monthly-duties.index')->with('success', 'Monthly duty created successfully.');
+        return redirect()->route('admin.monthly-duties.index')->with('success', $message);
     }
 
     public function show(MonthlyDuty $monthlyDuty)
@@ -72,6 +105,40 @@ class MonthlyDutyController extends Controller
         $this->authorize('view', $monthlyDuty);
         $monthlyDuty->load(['dailyLogs', 'vehicle', 'primaryDriver']);
         return view('admin.monthly-duties.show', compact('monthlyDuty'));
+    }
+
+    public function edit(MonthlyDuty $monthlyDuty)
+    {
+        $this->authorize('update', $monthlyDuty);
+        return view('admin.monthly-duties.edit', compact('monthlyDuty'));
+    }
+
+    public function update(Request $request, MonthlyDuty $monthlyDuty)
+    {
+        $this->authorize('update', $monthlyDuty);
+
+        $request->validate([
+            'officer_name'        => 'required|string|min:2|max:255',
+            'expected_start_time' => 'required|date_format:H:i',
+            'expected_end_time'   => 'nullable|date_format:H:i',
+            'state'               => 'nullable|string|max:100',
+            'city'                => 'nullable|string|max:100',
+            'pincode'             => 'nullable|digits:6',
+            'route_remarks'       => 'nullable|string|max:1000',
+            'is_recurring'        => 'nullable|boolean',
+        ], [
+            'officer_name.required'           => 'Officer name is required.',
+            'officer_name.min'                => 'Officer name must be at least 2 characters.',
+            'expected_start_time.required'    => 'Expected start time is required.',
+            'expected_start_time.date_format' => 'Start time must be in HH:MM format.',
+            'expected_end_time.date_format'   => 'End time must be in HH:MM format.',
+            'pincode.digits'                  => 'Pincode must be exactly 6 digits.',
+        ]);
+
+        $this->dutyService->updateMonthlyDuty($monthlyDuty, $request->all());
+
+        return redirect()->route('admin.monthly-duties.show', $monthlyDuty)
+            ->with('success', 'Monthly duty updated successfully.');
     }
 
     public function getVehiclesByType(Request $request)

@@ -152,6 +152,17 @@
                 </div>
             </div>
 
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Route / Remarks</label>
+                    <textarea name="route_remarks" class="form-control @error('route_remarks') is-invalid @enderror" 
+                              rows="2" placeholder="Enter route details or any remarks...">{{ old('route_remarks', $booking->route_remarks) }}</textarea>
+                    @error('route_remarks')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-save me-2"></i> Update Booking

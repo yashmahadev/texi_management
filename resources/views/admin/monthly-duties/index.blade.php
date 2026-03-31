@@ -1,14 +1,19 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header mb-4">
     <h2>Monthly Duties</h2>
-    <a href="{{ route('admin.monthly-duties.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-2"></i> Create New
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export CSV
+        </a>
+        <a href="{{ route('admin.monthly-duties.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i> Create New
+        </a>
+    </div>
 </div>
 
-<div class="card shadow-sm mb-4">
+<div class="card shadow-sm mb-4 filter-card">
     <div class="card-body">
         <form action="{{ route('admin.monthly-duties.index') }}" method="GET" class="row g-3">
             <div class="col-md-5">
@@ -40,12 +45,12 @@
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>ID</th>
-                    <th>Dates</th>
+                    @include('partials.sort-th', ['col'=>'id',              'label'=>'ID',          'sort'=>$sort,'dir'=>$dir])
+                    @include('partials.sort-th', ['col'=>'start_date',      'label'=>'Dates',       'sort'=>$sort,'dir'=>$dir])
                     <th>Vehicle</th>
                     <th>Primary Driver</th>
-                    <th>Officer/Dept</th>
-                    <th>Created At</th>
+                    @include('partials.sort-th', ['col'=>'department_name', 'label'=>'Officer/Dept','sort'=>$sort,'dir'=>$dir])
+                    @include('partials.sort-th', ['col'=>'created_at',      'label'=>'Created At',  'sort'=>$sort,'dir'=>$dir])
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -61,6 +66,9 @@
                     <td>
                         {{ $duty->officer_name }}<br>
                         <small class="text-muted">{{ $duty->department_name }}</small>
+                        @if($duty->is_recurring)
+                            <br><span class="badge bg-success mt-1"><i class="bi bi-arrow-repeat me-1"></i>Recurring</span>
+                        @endif
                     </td>
                     <td>{{ $duty->created_at->toAppDate() }}</td>
                     <td>

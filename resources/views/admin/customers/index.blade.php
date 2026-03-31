@@ -1,11 +1,16 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header mb-4">
     <h2>Customers</h2>
-    <a href="{{ route('admin.customers.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-2"></i> Add New Customer
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export CSV
+        </a>
+        <a href="{{ route('admin.customers.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i> Add New Customer
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
@@ -15,7 +20,7 @@
     </div>
 @endif
 
-<div class="card shadow-sm mb-4">
+<div class="card shadow-sm mb-4 filter-card">
     <div class="card-body">
         <form action="{{ route('admin.customers.index') }}" method="GET" class="row g-3">
             <div class="col-md-4">
@@ -44,11 +49,11 @@
             <thead class="table-light">
                 <tr>
                     <th>#ID</th>
-                    <th>Name</th>
-                    <th>Mobile</th>
+                    @include('partials.sort-th', ['col'=>'name',       'label'=>'Name',       'sort'=>$sort,'dir'=>$dir])
+                    @include('partials.sort-th', ['col'=>'mobile',     'label'=>'Mobile',     'sort'=>$sort,'dir'=>$dir])
                     <th>Email</th>
                     <th>Address</th>
-                    <th>Status</th>
+                    @include('partials.sort-th', ['col'=>'status',     'label'=>'Status',     'sort'=>$sort,'dir'=>$dir])
                     <th>Actions</th>
                 </tr>
             </thead>

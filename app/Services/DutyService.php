@@ -29,62 +29,88 @@ class DutyService
         $this->notificationService = $notificationService;
     }
 
-    public function createMonthlyDuty(array $data, int $creatorId)
+    public function createMonthlyDuty(array $data, int $creatorId): array
     {
         return DB::transaction(function () use ($data, $creatorId) {
-            $vehicle = \App\Models\Vehicle::findOrFail($data['vehicle_id']);
+            $vehicle    = \App\Models\Vehicle::findOrFail($data['vehicle_id']);
             $department = \App\Models\Department::findOrFail($data['department_id']);
-            
-            $duty = MonthlyDuty::create([
-                'group' => $data['group'],
-                'department_id' => $data['department_id'],
-                'department_name' => $data['department_name'] ?? $department->name,
-                'officer_name' => $data['officer_name'],
-                'vehicle_id' => $data['vehicle_id'],
-                'primary_driver_id' => $vehicle->driver_id,
-                'start_date' => $data['start_date'],
-                'end_date' => $data['end_date'],
+
+            $duty = $this->createSingleDuty($data, $creatorId, $vehicle, $department);
+
+            return ['duty' => $duty, 'total_created' => 1];
+        });
+    }
+
+    protected function createSingleDuty(array $data, int $creatorId, $vehicle, $department, bool $notify = true): MonthlyDuty
+    {
+        $duty = MonthlyDuty::create([
+            'group'               => $data['group'],
+            'department_id'       => $data['department_id'],
+            'department_name'     => $data['department_name'] ?? $department->name,
+            'officer_name'        => $data['officer_name'],
+            'vehicle_id'          => $data['vehicle_id'],
+            'primary_driver_id'   => $vehicle->driver_id,
+            'start_date'          => $data['start_date'],
+            'end_date'            => $data['end_date'],
+            'expected_start_time' => $data['expected_start_time'],
+            'expected_end_time'   => $data['expected_end_time'] ?? null,
+            'state'               => $data['state'] ?? null,
+            'city'                => $data['city'] ?? null,
+            'pincode'             => $data['pincode'] ?? null,
+            'route_remarks'       => $data['route_remarks'] ?? null,
+            'is_recurring'        => !empty($data['is_recurring']),
+            'created_by'          => $creatorId,
+        ]);
+
+        // Auto-generate daily logs
+        $startDate = Carbon::parse($data['start_date']);
+        $endDate   = Carbon::parse($data['end_date']);
+        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+            DailyDutyLog::create([
+                'monthly_duty_id' => $duty->id,
+                'duty_date'       => $date->format('Y-m-d'),
+                'status'          => 'pending',
+            ]);
+        }
+
+        $this->auditLogger->log('Create Monthly Duty', 'monthly_duties', $duty->id, "Created duty for {$duty->department_name}");
+
+        if ($notify && $duty->primaryDriver && $duty->primaryDriver->fcm_token) {
+            $this->notificationService->sendNotification(
+                $duty->primaryDriver->fcm_token,
+                "🚕 New Monthly Duty Assigned",
+                "You have been assigned a new duty for {$duty->department_name}.",
+                ['link' => route('driver.dashboard')]
+            );
+        }
+
+        if ($notify && $duty->primaryDriver) {
+            $this->whatsapp->sendDutyAssignment($duty->primaryDriver->mobile_number, [
+                'driver_name'      => $duty->primaryDriver->name,
+                'vehicle_number'   => $vehicle->vehicle_number,
+                'reporting_time'   => Carbon::parse($duty->expected_start_time)->format('h:i A'),
+                'reporting_address' => $duty->department_name,
+            ]);
+        }
+
+        return $duty;
+    }
+
+    public function updateMonthlyDuty(MonthlyDuty $duty, array $data): MonthlyDuty
+    {
+        return DB::transaction(function () use ($duty, $data) {
+            $duty->update([
+                'officer_name'        => $data['officer_name'],
                 'expected_start_time' => $data['expected_start_time'],
-                'expected_end_time' => $data['expected_end_time'] ?? null,
-                'state' => $data['state'] ?? null,
-                'city' => $data['city'] ?? null,
-                'pincode' => $data['pincode'] ?? null,
-                'created_by' => $creatorId,
+                'expected_end_time'   => $data['expected_end_time'] ?? null,
+                'state'               => $data['state'] ?? null,
+                'city'                => $data['city'] ?? null,
+                'pincode'             => $data['pincode'] ?? null,
+                'route_remarks'       => $data['route_remarks'] ?? null,
+                'is_recurring'        => !empty($data['is_recurring']),
             ]);
 
-            // Auto-generate daily logs
-            $startDate = Carbon::parse($data['start_date']);
-            $endDate = Carbon::parse($data['end_date']);
-
-            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
-                DailyDutyLog::create([
-                    'monthly_duty_id' => $duty->id,
-                    'duty_date' => $date->format('Y-m-d'), // Database storage usually stays Y-m-d
-                    'status' => 'pending',
-                ]);
-            }
-
-            $this->auditLogger->log('Create Monthly Duty', 'monthly_duties', $duty->id, "Created duty for {$duty->department_name}");
-
-            // Push Notification to Driver
-            if ($duty->primaryDriver && $duty->primaryDriver->fcm_token) {
-                $this->notificationService->sendNotification(
-                    $duty->primaryDriver->fcm_token,
-                    "🚕 New Monthly Duty Assigned",
-                    "You have been assigned a new duty for {$duty->department_name}.",
-                    ['link' => route('driver.dashboard')]
-                );
-            }
-
-            // WhatsApp Notification to Driver
-            if ($duty->primaryDriver) {
-                $this->whatsapp->sendDutyAssignment($duty->primaryDriver->mobile_number, [
-                    'driver_name' => $duty->primaryDriver->name,
-                    'vehicle_number' => $vehicle->vehicle_number,
-                    'reporting_time' => Carbon::parse($duty->expected_start_time)->format('h:i A'),
-                    'reporting_address' => $duty->department_name // Using department as reporting address for now
-                ]);
-            }
+            $this->auditLogger->log('Update Monthly Duty', 'monthly_duties', $duty->id, "Updated duty for {$duty->department_name}");
 
             return $duty;
         });

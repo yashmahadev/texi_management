@@ -23,15 +23,39 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
+        $sortable = ['name', 'mobile', 'status', 'created_at'];
+        $sort = in_array($request->sort, $sortable) ? $request->sort : 'created_at';
+        $dir  = $request->dir === 'asc' ? 'asc' : 'desc';
+
         $filters = [
-            'status' => $request->get('status'),
-            'search' => $request->get('search'),
+            'status'   => $request->get('status'),
+            'search'   => $request->get('search'),
             'per_page' => 15,
+            'sort'     => $sort,
+            'dir'      => $dir,
         ];
 
-        $customers = $this->customerService->getAllCustomers($filters);
+        if ($request->export === 'csv') {
+            $all = $this->customerService->getAllCustomers(array_merge($filters, ['per_page' => 99999]));
+            return $this->exportCsv($all->items());
+        }
 
-        return view('admin.customers.index', compact('customers'));
+        $customers = $this->customerService->getAllCustomers($filters);
+        return view('admin.customers.index', compact('customers', 'sort', 'dir'));
+    }
+
+    private function exportCsv($customers)
+    {
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="customers.csv"'];
+        $callback = function () use ($customers) {
+            $f = fopen('php://output', 'w');
+            fputcsv($f, ['ID', 'Name', 'Mobile', 'Email', 'Address', 'Status', 'Created At']);
+            foreach ($customers as $c) {
+                fputcsv($f, [$c->id, $c->name, $c->mobile, $c->email, $c->address, $c->status, $c->created_at->toDateTimeString()]);
+            }
+            fclose($f);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 
     /**

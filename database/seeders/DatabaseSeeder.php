@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
             OwnerSeeder::class,
             DepartmentSeeder::class,
             VehicleSeeder::class,
-            MonthlyDutySeeder::class,
-            DailyDutyLogSeeder::class,
-            DutyReplacementSeeder::class,
-            BillingLogSeeder::class,
+            // MonthlyDutySeeder::class,
+            // DailyDutyLogSeeder::class,
+            // DutyReplacementSeeder::class,
+            // BillingLogSeeder::class,
             SettingSeeder::class,
         ]);
     }

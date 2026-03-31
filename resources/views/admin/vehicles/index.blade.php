@@ -1,15 +1,19 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header mb-4">
     <h2>Vehicles</h2>
-    <a href="{{ route('admin.vehicles.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-2"></i> Add Vehicle
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export CSV
+        </a>
+        <a href="{{ route('admin.vehicles.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i> Add Vehicle
+        </a>
+    </div>
 </div>
 
-<!-- Filters -->
-<div class="card shadow-sm border-0 mb-4">
+<div class="card shadow-sm border-0 mb-4 filter-card">
     <div class="card-body">
         <form action="{{ route('admin.vehicles.index') }}" method="GET" class="row g-3">
             <div class="col-md-3">
@@ -59,14 +63,14 @@
                 <thead class="table-light">
                     <tr>
                         <th class="text-nowrap">Driver ID</th>
-                        <th class="text-nowrap">Driver Name</th>
+                        @include('partials.sort-th', ['col'=>'vehicle_number','label'=>'Driver Name',    'sort'=>$sort,'dir'=>$dir])
                         <th class="text-nowrap">Mobile</th>
                         <th class="text-nowrap">License Number</th>
                         <th class="text-nowrap">License Expiry</th>
-                        <th class="text-nowrap">Vehicle Type</th>
-                        <th class="text-nowrap">Vehicle Number</th>
+                        @include('partials.sort-th', ['col'=>'vehicle_type',  'label'=>'Vehicle Type',   'sort'=>$sort,'dir'=>$dir])
+                        @include('partials.sort-th', ['col'=>'vehicle_number','label'=>'Vehicle Number', 'sort'=>$sort,'dir'=>$dir])
                         <th class="text-nowrap">Commission %</th>
-                        <th class="text-nowrap">Status</th>
+                        @include('partials.sort-th', ['col'=>'status',        'label'=>'Status',         'sort'=>$sort,'dir'=>$dir])
                         <th class="text-nowrap">Actions</th>
                     </tr>
                 </thead>

@@ -27,11 +27,12 @@ class PDFReportService
     private function getCompanySettings()
     {
         return [
-            'name' => \App\Models\Setting::get('company_name', 'Government Vehicle Log Book'),
+            'name'    => \App\Models\Setting::get('company_name', 'Government Vehicle Log Book'),
             'address' => \App\Models\Setting::get('company_address'),
-            'mobile' => \App\Models\Setting::get('company_mobile'),
-            'email' => \App\Models\Setting::get('company_email'),
-            'logo' => \App\Models\Setting::get('company_logo'),
+            'mobile'  => \App\Models\Setting::get('company_mobile'),
+            'email'   => \App\Models\Setting::get('company_email'),
+            'logo'    => \App\Models\Setting::get('company_logo'),
+            'gst'     => \App\Models\Setting::get('company_gst'),
         ];
     }
 

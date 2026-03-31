@@ -31,6 +31,9 @@
                 {{ $company['email'] ? 'Email: ' . $company['email'] : '' }}
             </p>
         @endif
+        @if(!empty($company['gst']))
+            <p style="margin: 2px 0; font-size: 9px;">GSTIN: {{ $company['gst'] }}</p>
+        @endif
         <h3 style="margin: 15px 0 5px 0; padding: 0; text-decoration: underline;">Bill Processing Report</h3>
         <p style="margin: 0; font-size: 10px;">Period: {{ \Carbon\Carbon::parse($startDate)->toAppDate() }} to {{ \Carbon\Carbon::parse($endDate)->toAppDate() }}</p>
     </div>
@@ -98,7 +101,10 @@
                 </td>
             </tr>
         </table>
-        <p style="text-align: center; font-size: 8px; margin-top: 30px; color: #888;">
+        <p style="text-align: center; font-size: 9px; margin-top: 20px; color: #555; border-top: 1px solid #ddd; padding-top: 10px;">
+            This is a system-generated document and does not require a physical signature.
+        </p>
+        <p style="text-align: center; font-size: 8px; margin-top: 5px; color: #888;">
             Generated via Fleet Management System on {{ now()->toAppDateTime() }}
         </p>
     </div>

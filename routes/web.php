@@ -240,6 +240,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Auth
     Route::middleware(['auth'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
+
+        // Profile
+        Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile.index');
+        Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
         
         Route::get('dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard')

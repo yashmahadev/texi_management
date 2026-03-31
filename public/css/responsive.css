@@ -1,0 +1,155 @@
+/*
+ * Global Responsive Stylesheet
+ * Covers: mobile (< 576px), tablet (576–991px), laptop (992–1199px), desktop (1200px+)
+ * Applied via admin layout — no per-view changes needed.
+ */
+
+/* ─────────────────────────────────────────
+   Base / All screens
+───────────────────────────────────────── */
+.main-content {
+    padding: 16px;
+}
+
+/* Page title + action button row */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+}
+.page-header h2 { margin-bottom: 0; }
+
+/* Filter cards */
+.filter-card .row { row-gap: 8px; }
+
+/* Tables always scrollable */
+.table-responsive { -webkit-overflow-scrolling: touch; }
+
+/* Action buttons in tables */
+.table .btn-group { display: flex; flex-wrap: nowrap; gap: 2px; }
+
+/* Stat cards equal height */
+.stat-card { height: 100%; }
+
+/* Form labels consistent */
+.form-label { font-weight: 500; margin-bottom: 4px; }
+
+/* Pagination on mobile */
+.pagination { flex-wrap: wrap; }
+
+/* ─────────────────────────────────────────
+   Desktop / Laptop  ≥ 992px
+───────────────────────────────────────── */
+@media (min-width: 992px) {
+    .main-content { padding: 24px; }
+}
+
+/* ─────────────────────────────────────────
+   Tablet  576px – 991px
+───────────────────────────────────────── */
+@media (max-width: 991.98px) {
+    /* Sidebar already handled in layout */
+    .main-content { padding: 14px; }
+
+    /* Stack header buttons below title on small tablets */
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .page-header .d-flex { width: 100%; }
+
+    /* Filter form: 2 columns on tablet */
+    .filter-card .col-md-2,
+    .filter-card .col-md-3,
+    .filter-card .col-md-4,
+    .filter-card .col-md-5 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Dashboard stat cards: 2 per row */
+    .stat-row .col-6 { flex: 0 0 50%; max-width: 50%; }
+
+    /* Hide less important table columns */
+    .table .d-tablet-none { display: none !important; }
+}
+
+/* ─────────────────────────────────────────
+   Mobile  < 576px
+───────────────────────────────────────── */
+@media (max-width: 575.98px) {
+    .main-content { padding: 10px; }
+
+    h2 { font-size: 1.25rem; }
+    h5 { font-size: 1rem; }
+
+    /* Page header: full width stack */
+    .page-header { flex-direction: column; align-items: stretch; }
+    .page-header .d-flex { flex-direction: column; gap: 6px; }
+    .page-header .btn { width: 100%; text-align: center; }
+
+    /* Filter form: full width on mobile */
+    .filter-card .col-md-2,
+    .filter-card .col-md-3,
+    .filter-card .col-md-4,
+    .filter-card .col-md-5,
+    .filter-card .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    /* Cards: reduce padding */
+    .card-body { padding: 12px !important; }
+
+    /* Tables: icon-only action buttons on mobile */
+    .table .btn-text { display: none; }
+    .table .btn-group { gap: 3px; }
+    .table .btn-sm { padding: 3px 7px; }
+
+    /* Stat cards: 2 per row */
+    .stat-row > [class*="col-"] {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Form rows: full width */
+    .row > [class*="col-md-"],
+    .row > [class*="col-lg-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    /* Keep col-6 as 2-column on mobile (stat cards etc.) */
+    .row > .col-6 { flex: 0 0 50%; max-width: 50%; }
+
+    /* Pagination: smaller */
+    .pagination .page-link { padding: 4px 8px; font-size: .8rem; }
+
+    /* Modal: full screen on mobile */
+    .modal-dialog { margin: 0; }
+    .modal-content { border-radius: 0; min-height: 100vh; }
+
+    /* Alert: smaller text */
+    .alert { font-size: .875rem; padding: 10px 12px; }
+
+    /* Input groups: stack on very small screens */
+    .input-group-text { font-size: .875rem; }
+
+    /* Hide non-essential table columns on mobile */
+    .table .d-mobile-none { display: none !important; }
+
+    /* Tabs: scrollable */
+    .nav-tabs, .nav-pills { flex-wrap: nowrap; overflow-x: auto; }
+    .nav-tabs .nav-link, .nav-pills .nav-link { white-space: nowrap; }
+}
+
+/* ─────────────────────────────────────────
+   Print
+───────────────────────────────────────── */
+@media print {
+    .sidebar, .mobile-header, .sidebar-overlay,
+    .btn, .alert, .pagination, .filter-card { display: none !important; }
+    .main-content { margin-left: 0 !important; padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .table { font-size: 11px; }
+}

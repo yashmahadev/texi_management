@@ -43,19 +43,51 @@ class DirectBookingController extends Controller
      */
     public function index(Request $request)
     {
+        $sortable = ['booking_datetime', 'status', 'customer_name', 'booking_number', 'created_at'];
+        $sort = in_array($request->sort, $sortable) ? $request->sort : 'booking_datetime';
+        $dir  = $request->dir === 'asc' ? 'asc' : 'desc';
+
         $filters = [
-            'status' => $request->get('status'),
-            'from_date' => $request->get('from_date'),
-            'to_date' => $request->get('to_date'),
-            'search' => $request->get('search'),
+            'status'      => $request->get('status'),
+            'from_date'   => $request->get('from_date'),
+            'to_date'     => $request->get('to_date'),
+            'search'      => $request->get('search'),
             'customer_id' => $request->get('customer_id'),
-            'per_page' => 15,
+            'per_page'    => 15,
+            'sort'        => $sort,
+            'dir'         => $dir,
         ];
 
-        $bookings = $this->bookingService->getBookingsList($filters);
+        if ($request->export === 'csv') {
+            return $this->exportCsv($this->bookingService->getBookingsList(array_merge($filters, ['per_page' => 99999]))->items());
+        }
+
+        $bookings  = $this->bookingService->getBookingsList($filters);
         $customers = $this->customerService->getActiveCustomersForDropdown();
 
-        return view('admin.direct_bookings.index', compact('bookings', 'customers'));
+        return view('admin.direct_bookings.index', compact('bookings', 'customers', 'sort', 'dir'));
+    }
+
+    private function exportCsv($bookings)
+    {
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="direct_bookings.csv"'];
+        $callback = function () use ($bookings) {
+            $f = fopen('php://output', 'w');
+            fputcsv($f, ['Booking #', 'Customer', 'Mobile', 'Pickup', 'Drop', 'Date', 'End Date', 'Driver', 'Vehicle', 'Status', 'Est. KM', 'Actual KM']);
+            foreach ($bookings as $b) {
+                fputcsv($f, [
+                    $b->booking_number, $b->customer_name, $b->customer_mobile,
+                    $b->pickup_location, $b->drop_location,
+                    $b->booking_datetime->toDateTimeString(),
+                    $b->booking_end_datetime?->toDateTimeString(),
+                    $b->activeAssignment->driver->name ?? '',
+                    $b->activeAssignment->vehicle->vehicle_number ?? '',
+                    $b->status, $b->estimated_km, $b->actual_km,
+                ]);
+            }
+            fclose($f);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 
     /**

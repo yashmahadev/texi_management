@@ -1,12 +1,12 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header mb-4">
     <h2>Dashboard</h2>
-    <span>{{ now()->toAppDate() }}</span>
+    <span class="text-muted">{{ now()->toAppDate() }}</span>
 </div>
 
-<div class="row mb-4 g-3">
+<div class="row mb-4 g-3 stat-row">
     <div class="col-6 col-lg-3">
         <div class="card bg-warning text-dark border-0 shadow-sm h-100">
             <div class="card-body">
