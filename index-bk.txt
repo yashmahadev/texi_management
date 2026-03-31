@@ -1,0 +1,25 @@
+[u968957449@in-mum-web662 public_html]$ nano /home/u968957449/domains/hindustantravelsindia.in/public_html/index.php
+  GNU nano 5.6.1                                                                      /home/u968957449/domains/hindustantravelsindia.in/public_html/index.php
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+// Register the Composer autoloader...
+//require __DIR__.'/../vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request...
+/** @var Application $app */
+//$app = require_once __DIR__.'/../bootstrap/app.php';
+require __DIR__.'/../../../laravel_app/texi_management/vendor/autoload.php';
+$app = require_once __DIR__.'/../../../laravel_app/texi_management/bootstrap/app.php';
+
+$app->handleRequest(Request::capture());
+
