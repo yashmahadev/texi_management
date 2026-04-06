@@ -18,7 +18,15 @@
 <body>
     <div class="header">
         @if($company['logo'])
-            <img src="{{ public_path('storage/' . $company['logo']) }}" style="max-height: 70px; margin-bottom: 10px;">
+            @php
+                $logoPath = storage_path('app/public/' . $company['logo']);
+                if (!file_exists($logoPath)) {
+                    $logoPath = public_path('storage/' . $company['logo']);
+                }
+            @endphp
+            @if(file_exists($logoPath))
+                <img src="{{ $logoPath }}" style="max-height: 70px; margin-bottom: 10px;">
+            @endif
         @endif
         <h2 style="margin: 0; padding: 0;">{{ $company['name'] }}</h2>
         @if($company['address'])
@@ -38,7 +46,7 @@
         <p style="margin: 0; font-size: 10px;">Period: {{ \Carbon\Carbon::parse($startDate)->toAppDate() }} to {{ \Carbon\Carbon::parse($endDate)->toAppDate() }}</p>
     </div>
 
-    @php 
+    @php
         $grandTotalKm = 0;
         $totalRecords = 0;
     @endphp
@@ -57,7 +65,7 @@
         <tbody>
             @forelse($logs as $date => $dayLogs)
                 @foreach($dayLogs as $log)
-                @php 
+                @php
                     $grandTotalKm += $log->total_km;
                     $totalRecords++;
                 @endphp

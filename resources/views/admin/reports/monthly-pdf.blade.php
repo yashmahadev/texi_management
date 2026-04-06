@@ -15,8 +15,15 @@
 <body>
     <div class="header">
         @if($company['logo'])
-            {{-- <img src="{{ public_path('storage/' . $company['logo']) }}" style="max-height: 80px; margin-bottom: 10px;"> --}}
-            <img src="{{ storage_path('app/public/duty_photos/'.$company['logo']) }}" style="max-height: 80px; margin-bottom: 10px;">
+            @php
+                $logoPath = storage_path('app/public/' . $company['logo']);
+                if (!file_exists($logoPath)) {
+                    $logoPath = public_path('storage/' . $company['logo']);
+                }
+            @endphp
+            @if(file_exists($logoPath))
+                <img src="{{ $logoPath }}" style="max-height: 80px; margin-bottom: 10px;">
+            @endif
         @endif
         <h2 style="margin: 0; padding: 0;">{{ $company['name'] }}</h2>
         @if($company['address'])
