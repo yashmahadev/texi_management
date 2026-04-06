@@ -15,7 +15,8 @@
 <body>
     <div class="header">
         @if($company['logo'])
-            <img src="{{ public_path('storage/' . $company['logo']) }}" style="max-height: 80px; margin-bottom: 10px;">
+            {{-- <img src="{{ public_path('storage/' . $company['logo']) }}" style="max-height: 80px; margin-bottom: 10px;"> --}}
+            <img src="{{ storage_path('app/public/duty_photos/'.$company['logo']) }}" style="max-height: 80px; margin-bottom: 10px;">
         @endif
         <h2 style="margin: 0; padding: 0;">{{ $company['name'] }}</h2>
         @if($company['address'])
