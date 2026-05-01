@@ -18,6 +18,16 @@ class Vehicle extends Model
                 $vehicle->driver->delete();
             }
         });
+
+        static::deleted(function ($vehicle) {
+            // Check if owner exists and has no more vehicles
+            if ($vehicle->owner_id) {
+                $owner = Owner::find($vehicle->owner_id);
+                if ($owner && $owner->vehicles()->count() === 0) {
+                    $owner->delete();
+                }
+            }
+        });
     }
 
     protected $fillable = [

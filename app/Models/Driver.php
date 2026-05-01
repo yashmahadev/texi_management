@@ -11,6 +11,24 @@ class Driver extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($driver) {
+            // Check if the driver had a vehicle with an owner
+            if ($driver->vehicle && $driver->vehicle->owner_id) {
+                $ownerId = $driver->vehicle->owner_id;
+                $owner = Owner::find($ownerId);
+                
+                // Delete owner if they have no more vehicles
+                if ($owner && $owner->vehicles()->count() === 0) {
+                    $owner->delete();
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'name',
         'age',
