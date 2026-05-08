@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
+use App\Jobs\SendWhatsAppNotification;
+use App\Jobs\SendFcmNotification;
 
 class DutyService
 {
@@ -62,21 +64,28 @@ class DutyService
             'created_by'          => $creatorId,
         ]);
 
-        // Auto-generate daily logs
+        // Auto-generate daily logs via bulk insert
         $startDate = Carbon::parse($data['start_date']);
         $endDate   = Carbon::parse($data['end_date']);
-        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
-            DailyDutyLog::create([
+        $logs = [];
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $logs[] = [
                 'monthly_duty_id' => $duty->id,
                 'duty_date'       => $date->format('Y-m-d'),
                 'status'          => 'pending',
-            ]);
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ];
+        }
+        
+        if (!empty($logs)) {
+            DailyDutyLog::insert($logs);
         }
 
         $this->auditLogger->log('Create Monthly Duty', 'monthly_duties', $duty->id, "Created duty for {$duty->department_name}");
 
         if ($notify && $duty->primaryDriver && $duty->primaryDriver->fcm_token) {
-            $this->notificationService->sendNotification(
+            SendFcmNotification::dispatch(
                 $duty->primaryDriver->fcm_token,
                 "🚕 New Monthly Duty Assigned",
                 "You have been assigned a new duty for {$duty->department_name}.",
@@ -85,12 +94,16 @@ class DutyService
         }
 
         if ($notify && $duty->primaryDriver) {
-            $this->whatsapp->sendDutyAssignment($duty->primaryDriver->mobile_number, [
-                'driver_name'      => $duty->primaryDriver->name,
-                'vehicle_number'   => $vehicle->vehicle_number,
-                'reporting_time'   => Carbon::parse($duty->expected_start_time)->format('h:i A'),
-                'reporting_address' => $duty->department_name,
-            ]);
+            SendWhatsAppNotification::dispatch(
+                $duty->primaryDriver->mobile_number,
+                'duty_assigned',
+                [
+                    'driver_name'      => $duty->primaryDriver->name,
+                    'vehicle_number'   => $vehicle->vehicle_number,
+                    'reporting_time'   => Carbon::parse($duty->expected_start_time)->format('h:i A'),
+                    'reporting_address' => $duty->department_name,
+                ]
+            );
         }
 
         return $duty;
@@ -182,6 +195,29 @@ class DutyService
 
         $this->auditLogger->log('End Duty', 'daily_duty_logs', $log->id, "Ended at {$data['end_km']} KM. Total: {$totalKm}");
 
+        // Update Direct Booking Stats if applicable
+        if ($log->direct_booking_id) {
+            $booking = $log->directBooking;
+            $booking->update(['actual_km' => $totalKm]);
+            
+            if ($booking->fare) {
+                $booking->fare->update(['total_km' => $totalKm]);
+            }
+        }
+
+        // Update Billing Log
+        \App\Models\BillingLog::updateOrCreate(
+            ['daily_duty_log_id' => $log->id],
+            [
+                'start_time' => $log->start_time,
+                'end_time'   => $log->end_time,
+                'start_km'   => $log->start_km,
+                'end_km'     => $log->end_km,
+                'total_km'   => $totalKm,
+                'status'     => 'pending_approval',
+            ]
+        );
+
         // FCM Notification to Driver
         $replacement = $log->replacements()->first();
         $driver = null;
@@ -194,7 +230,7 @@ class DutyService
         }
         
         if ($driver && $driver->fcm_token) {
-            $this->notificationService->sendNotification(
+            SendFcmNotification::dispatch(
                 $driver->fcm_token,
                 "✅ Trip Completed!",
                 "Total Distance: {$totalKm} KM. Summary recorded successfully.",
@@ -205,11 +241,15 @@ class DutyService
         // WhatsApp Invoice Notification
         if ($driver) {
             $customerName = $log->monthlyDuty ? $log->monthlyDuty->officer_name : ($log->directBooking ? $log->directBooking->customer_name : 'Customer');
-            $this->whatsapp->sendInvoice($driver->mobile_number, [
-                'customer_name' => $customerName,
-                'amount' => '0', // Placeholder: logic for price not yet implemented in Phase 1
-                'bill_no' => 'BILL-' . $log->id
-            ]);
+            SendWhatsAppNotification::dispatch(
+                $driver->mobile_number,
+                'payment_invoice',
+                [
+                    'customer_name' => $customerName,
+                    'amount' => '0', // Placeholder: logic for price not yet implemented in Phase 1
+                    'bill_no' => 'BILL-' . $log->id
+                ]
+            );
         }
 
         return $log;
@@ -251,7 +291,7 @@ class DutyService
             // Push Notification to Replacement Driver
             $replacementDriver = Driver::find($replacementDriverId);
             if ($replacementDriver && $replacementDriver->fcm_token) {
-                $this->notificationService->sendNotification(
+                SendFcmNotification::dispatch(
                     $replacementDriver->fcm_token,
                     "🔄 Replacement Duty Assigned",
                     "You are assigned as a replacement for today's duty ({$log->duty_date->toAppDate()})",
@@ -261,12 +301,16 @@ class DutyService
 
             // WhatsApp Notification to Replacement Driver
             if ($replacementDriver) {
-                $this->whatsapp->sendDutyAssignment($replacementDriver->mobile_number, [
-                    'driver_name' => $replacementDriver->name,
-                    'vehicle_number' => $vehicleNumber,
-                    'reporting_time' => Carbon::parse($expectedStartTime)->format('h:i A'),
-                    'reporting_address' => $reportingAddress
-                ]);
+                SendWhatsAppNotification::dispatch(
+                    $replacementDriver->mobile_number,
+                    'duty_assigned',
+                    [
+                        'driver_name' => $replacementDriver->name,
+                        'vehicle_number' => $vehicleNumber,
+                        'reporting_time' => Carbon::parse($expectedStartTime)->format('h:i A'),
+                        'reporting_address' => $reportingAddress
+                    ]
+                );
             }
         });
     }

@@ -26,7 +26,7 @@
                                 </div>
                                 <div>
                                     <div class="fw-bold fs-5">{{ $vehicle->vehicle_number }}</div>
-                                    <div class="text-muted small">{{ $vehicle->vehicle_type }} | {{ $vehicle->model }}</div>
+                                    <div class="text-muted small">{{ $vehicle->vehicle_type }} | {{ $vehicle->make_model }}</div>
                                 </div>
                             </div>
                         @else

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DailyDutyLog;
 use Illuminate\Http\Request;
+use App\Rules\OdometerContinuityRule;
 
 class DailyDutyLogController extends Controller
 {
@@ -65,20 +66,26 @@ class DailyDutyLogController extends Controller
         }
 
         if ($request->export === 'csv') {
-            return $this->exportCsv($query->orderBy($sort, $dir)->get());
+            return $this->exportCsv($query->orderBy($sort, $dir));
         }
 
         $logs = $query->orderBy($sort, $dir)->paginate(20)->withQueryString();
         return view('admin.daily-logs.index', compact('logs', 'departments', 'officers', 'sort', 'dir'));
     }
 
-    private function exportCsv($logs)
+    private function exportCsv($query)
     {
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="daily_logs.csv"'];
-        $callback = function () use ($logs) {
+        $filename = "daily_logs_" . date('Y-m-d') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        return response()->stream(function () use ($query) {
             $f = fopen('php://output', 'w');
             fputcsv($f, ['Date', 'Vehicle', 'Driver', 'Department/Customer', 'Status', 'Start Time', 'End Time', 'Start KM', 'End KM', 'Total KM']);
-            foreach ($logs as $log) {
+            
+            foreach ($query->cursor() as $log) {
                 fputcsv($f, [
                     $log->duty_date->toDateString(),
                     $log->monthlyDuty->vehicle->vehicle_number ?? ($log->directBooking->vehicle->vehicle_number ?? ''),
@@ -89,8 +96,7 @@ class DailyDutyLogController extends Controller
                 ]);
             }
             fclose($f);
-        };
-        return response()->stream($callback, 200, $headers);
+        }, 200, $headers);
     }
 
     public function show(DailyDutyLog $log)
@@ -111,9 +117,9 @@ class DailyDutyLogController extends Controller
         $this->authorize('update', $log);
 
         $request->validate([
-            'start_time' => 'nullable|date_format:H:i:s',
-            'end_time'   => 'nullable|date_format:H:i:s',
-            'start_km'   => 'nullable|integer|min:0',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time'   => 'nullable|date_format:H:i',
+            'start_km'   => ['nullable', 'integer', 'min:0', new OdometerContinuityRule($log->id)],
             'end_km'     => 'nullable|integer|min:0|gte:start_km',
             'total_km'   => 'nullable|integer|min:0',
             'status'     => 'required|in:pending,started,completed,missing,approved,disputed,replaced',
@@ -125,8 +131,8 @@ class DailyDutyLogController extends Controller
             'end_km.integer'         => 'End KM must be a whole number.',
             'end_km.min'             => 'End KM cannot be negative.',
             'end_km.gte'             => 'End KM must be greater than or equal to Start KM.',
-            'start_time.date_format' => 'Start time must be in HH:MM:SS format.',
-            'end_time.date_format'   => 'End time must be in HH:MM:SS format.',
+            'start_time.date_format' => 'Start time must be in HH:MM format.',
+            'end_time.date_format'   => 'End time must be in HH:MM format.',
         ]);
 
         $log->update($request->all());

@@ -177,12 +177,12 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Actual KM Traveled *</label>
-                        <input type="number" name="actual_km" class="form-control form-control-lg" required min="1" step="0.1" placeholder="Enter final odometer KM">
+                        <input type="number" name="actual_km" class="form-control form-control-lg" value="{{ old('actual_km') }}" required min="1" step="0.1" placeholder="Enter final odometer KM">
                         <small class="text-muted">Total KM will be used to calculate final fare.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Closing Remarks</label>
-                        <textarea name="remarks" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
+                        <textarea name="remarks" class="form-control" rows="2" placeholder="Optional notes...">{{ old('remarks') }}</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

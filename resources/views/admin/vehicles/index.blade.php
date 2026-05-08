@@ -63,10 +63,9 @@
                 <thead class="table-light">
                     <tr>
                         <th class="text-nowrap">Driver ID</th>
+                        <th class="text-nowrap">Owner Name</th>
                         @include('partials.sort-th', ['col'=>'vehicle_number','label'=>'Driver Name',    'sort'=>$sort,'dir'=>$dir])
                         <th class="text-nowrap">Mobile</th>
-                        <th class="text-nowrap">License Number</th>
-                        <th class="text-nowrap">License Expiry</th>
                         @include('partials.sort-th', ['col'=>'vehicle_type',  'label'=>'Vehicle Type',   'sort'=>$sort,'dir'=>$dir])
                         @include('partials.sort-th', ['col'=>'vehicle_number','label'=>'Vehicle Number', 'sort'=>$sort,'dir'=>$dir])
                         <th class="text-nowrap">Commission %</th>
@@ -84,12 +83,9 @@
                                 N/A
                             @endif
                         </td>
+                        <td class="text-nowrap">{{ $vehicle->owner->name ?? 'N/A' }}</td>
                         <td class="text-nowrap">{{ $vehicle->driver->name ?? 'N/A' }}</td>
                         <td class="text-nowrap">{{ $vehicle->driver->mobile_number ?? 'N/A' }}</td>
-                        <td class="text-nowrap">{{ $vehicle->driver->driving_licence_number ?? 'N/A' }}</td>
-                        <td class="text-nowrap">
-                            {{ $vehicle->driver && $vehicle->driver->dl_expiry ? \Carbon\Carbon::parse($vehicle->driver->dl_expiry)->format('d-M-Y') : 'N/A' }}
-                        </td>
                         <td class="text-nowrap">{{ $vehicle->vehicle_type ?? 'N/A' }}</td>
                         <td class="text-nowrap fw-bold text-primary">{{ $vehicle->vehicle_number ?? 'N/A' }}</td>
                         <td class="text-nowrap">{{ $vehicle->commission_percentage ?? '-' }}</td>

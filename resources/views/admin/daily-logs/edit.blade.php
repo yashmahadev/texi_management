@@ -31,12 +31,12 @@
                 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Start Time</label>
-                    <input type="time" name="start_time" class="form-control" value="{{ old('start_time', $log->start_time) }}">
+                    <input type="time" name="start_time" class="form-control" value="{{ old('start_time', $log->start_time ? \Carbon\Carbon::parse($log->start_time)->format('H:i') : '') }}">
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">End Time</label>
-                    <input type="time" name="end_time" class="form-control" value="{{ old('end_time', $log->end_time) }}">
+                    <input type="time" name="end_time" class="form-control" value="{{ old('end_time', $log->end_time ? \Carbon\Carbon::parse($log->end_time)->format('H:i') : '') }}">
                 </div>
                 
                 <div class="col-md-4 mb-3">
@@ -61,4 +61,29 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startKm = document.querySelector('input[name="start_km"]');
+    const endKm = document.querySelector('input[name="end_km"]');
+    const totalKm = document.querySelector('input[name="total_km"]');
+
+    function calculateTotal() {
+        const start = parseInt(startKm.value) || 0;
+        const end = parseInt(endKm.value) || 0;
+        if (end > 0) {
+            totalKm.value = Math.max(0, end - start);
+        }
+    }
+
+    startKm.addEventListener('input', calculateTotal);
+    endKm.addEventListener('input', calculateTotal);
+    
+    // Set total_km to readonly to show it's auto-calculated
+    totalKm.readOnly = true;
+    totalKm.classList.add('bg-light');
+});
+</script>
+@endpush
 @endsection

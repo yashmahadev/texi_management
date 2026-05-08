@@ -13,9 +13,13 @@
         <div class="card-body">
             <form action="{{ route('admin.daily-logs.index') }}" method="GET" class="row g-3">
                 <div class="col-md-2">
+                    <label class="form-label small fw-bold">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Driver, Vehicle, etc." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-2">
                     <label class="form-label small fw-bold">Department</label>
                     <select name="department" class="form-select">
-                        <option value="">All Departments</option>
+                        <option value="">All Depts</option>
                         @foreach($departments as $dept)
                             <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>
                                 {{ $dept }}
@@ -35,12 +39,11 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold">Start Date</label>
-                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold">End Date</label>
-                    <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                    <label class="form-label small fw-bold">Dates</label>
+                    <div class="input-group">
+                        <input type="date" name="start_date" class="form-control form-control-sm" value="{{ request('start_date') }}">
+                        <input type="date" name="end_date" class="form-control form-control-sm" value="{{ request('end_date') }}">
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold">Status</label>
@@ -50,13 +53,11 @@
                         <option value="started"   {{ request('status') == 'started'   ? 'selected' : '' }}>Started</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                         <option value="missing"   {{ request('status') == 'missing'   ? 'selected' : '' }}>Missing</option>
-                        <option value="approved"  {{ request('status') == 'approved'  ? 'selected' : '' }}>Approved</option>
-                        <option value="disputed"  {{ request('status') == 'disputed'  ? 'selected' : '' }}>Disputed</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    <a href="{{ route('admin.daily-logs.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
+                <div class="col-md-2 d-flex align-items-end gap-1">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                    <a href="{{ route('admin.daily-logs.index') }}" class="btn btn-outline-secondary btn-sm w-100">Reset</a>
                 </div>
             </form>
         </div>

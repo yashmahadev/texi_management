@@ -9,6 +9,23 @@ class BookingFare extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($fare) {
+            // Auto-calculate base fare based on total_km if provided
+            $base = (float)($fare->base_fare ?? 0);
+            $rate = (float)($fare->per_km_rate ?? 0);
+            $km   = (int)($fare->total_km ?? 0);
+
+            $fare->calculated_fare = $base + ($rate * $km);
+            
+            // final_fare logic: adjusted takes precedence
+            $fare->final_fare = $fare->admin_adjusted_fare ?? $fare->calculated_fare;
+        });
+    }
+
     protected $fillable = [
         'booking_id',
         'base_fare',

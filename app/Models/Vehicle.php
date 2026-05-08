@@ -13,6 +13,17 @@ class Vehicle extends Model
     {
         parent::boot();
 
+        static::saving(function ($vehicle) {
+            // Auto-update status if insurance/puc expired
+            $today = now()->startOfDay();
+            if ($vehicle->puc_expiry_date && $vehicle->puc_expiry_date->lt($today)) {
+                $vehicle->status = 'inactive';
+            }
+            if ($vehicle->insurance_expiry_date && $vehicle->insurance_expiry_date->lt($today)) {
+                $vehicle->status = 'inactive';
+            }
+        });
+
         static::deleting(function ($vehicle) {
             if ($vehicle->driver) {
                 $vehicle->driver->delete();

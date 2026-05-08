@@ -62,54 +62,55 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Vehicle Number *</label>
-                        <input type="text" name="vehicles[0][vehicle_number]" class="form-control" required placeholder="GJ01AB1234">
+                        <input type="text" name="vehicles[0][vehicle_number]" class="form-control" value="{{ old('vehicles.0.vehicle_number') }}" required placeholder="GJ01AB1234">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Make & Model *</label>
-                        <input type="text" name="vehicles[0][make_model]" class="form-control" required placeholder="e.g. 2024-Swift Dzire">
+                        <input type="text" name="vehicles[0][make_model]" class="form-control" value="{{ old('vehicles.0.make_model') }}" required placeholder="e.g. 2024-Swift Dzire">
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Fuel Type *</label>
                         <select name="vehicles[0][fuel_type]" class="form-select" required>
-                            <option value="Petrol">Petrol</option>
-                            <option value="Diesel">Diesel</option>
-                            <option value="CNG">CNG</option>
+                            @foreach(['Petrol','Diesel','CNG'] as $fuel)
+                                <option value="{{ $fuel }}" {{ old('vehicles.0.fuel_type', 'Petrol') == $fuel ? 'selected' : '' }}>{{ $fuel }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Transmission *</label>
                         <select name="vehicles[0][transmission_type]" class="form-select" required>
-                            <option value="Manual">Manual</option>
-                            <option value="Automatic">Automatic</option>
+                            @foreach(['Manual','Automatic'] as $trans)
+                                <option value="{{ $trans }}" {{ old('vehicles.0.transmission_type', 'Manual') == $trans ? 'selected' : '' }}>{{ $trans }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Color</label>
-                        <input type="text" name="vehicles[0][color]" class="form-control" placeholder="e.g. White">
+                        <input type="text" name="vehicles[0][color]" class="form-control" value="{{ old('vehicles.0.color') }}" placeholder="e.g. White">
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Category *</label>
                         <select name="vehicles[0][vehicle_type]" class="form-select vehicle-type-select" required>
                             @foreach($types as $type)
-                                <option value="{{ $type }}">{{ $type }}</option>
+                                <option value="{{ $type }}" {{ old('vehicles.0.vehicle_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
                             @endforeach
-                            <option value="Bus">Bus</option>
+                            <option value="Bus" {{ old('vehicles.0.vehicle_type') == 'Bus' ? 'selected' : '' }}>Bus</option>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3 d-none custom-type-input">
                         <label class="form-label">Specify Type *</label>
-                        <input type="text" name="vehicles[0][vehicle_type_custom]" class="form-control">
+                        <input type="text" name="vehicles[0][vehicle_type_custom]" class="form-control" value="{{ old('vehicles.0.vehicle_type_custom') }}">
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Passing Type *</label>
                         <select name="vehicles[0][pass_type]" class="form-select" required>
-                            <option value="Private">Private Pass</option>
-                            <option value="Taxi">Taxi Pass</option>
+                            <option value="Private" {{ old('vehicles.0.pass_type', 'Private') == 'Private' ? 'selected' : '' }}>Private Pass</option>
+                            <option value="Taxi" {{ old('vehicles.0.pass_type', 'Private') == 'Taxi' ? 'selected' : '' }}>Taxi Pass</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">PUC Expiry</label>
-                        <input type="date" name="vehicles[0][puc_expiry_date]" class="form-control">
+                        <input type="date" name="vehicles[0][puc_expiry_date]" class="form-control" value="{{ old('vehicles.0.puc_expiry_date') }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">RC Book (Upload)</label>
@@ -117,22 +118,22 @@
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <label class="form-label">Challan Count</label>
-                        <input type="number" name="vehicles[0][challan_count]" class="form-control" value="0">
+                        <input type="number" name="vehicles[0][challan_count]" class="form-control" value="{{ old('vehicles.0.challan_count', 0) }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Total Challan Amt</label>
                         <div class="input-group">
                             <span class="input-group-text">₹</span>
-                            <input type="number" name="vehicles[0][challan_amount]" class="form-control" value="0">
+                            <input type="number" name="vehicles[0][challan_amount]" class="form-control" value="{{ old('vehicles.0.challan_amount', 0) }}">
                         </div>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Insurance Details</label>
-                        <textarea name="vehicles[0][insurance_details]" class="form-control" rows="1"></textarea>
+                        <textarea name="vehicles[0][insurance_details]" class="form-control" rows="1">{{ old('vehicles.0.insurance_details') }}</textarea>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Insurance Expiry Date</label>
-                        <input type="date" name="vehicles[0][insurance_expiry_date]" class="form-control">
+                        <input type="date" name="vehicles[0][insurance_expiry_date]" class="form-control" value="{{ old('vehicles.0.insurance_expiry_date') }}">
                     </div>
 
                     <!-- Driver Details -->
@@ -141,33 +142,33 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Driver Name *</label>
-                        <input type="text" name="vehicles[0][driver_name]" class="form-control" required>
+                        <input type="text" name="vehicles[0][driver_name]" class="form-control" value="{{ old('vehicles.0.driver_name') }}" required>
                     </div>
                     <div class="col-6 col-sm-2 mb-3">
                         <label class="form-label">Mobile *</label>
-                        <input type="text" name="vehicles[0][driver_mobile]" class="form-control" required maxlength="10">
+                        <input type="text" name="vehicles[0][driver_mobile]" class="form-control" value="{{ old('vehicles.0.driver_mobile') }}" required maxlength="10">
                     </div>
                     <div class="col-6 col-sm-1 mb-3">
                         <label class="form-label">Age</label>
-                        <input type="number" name="vehicles[0][driver_age]" class="form-control">
+                        <input type="number" name="vehicles[0][driver_age]" class="form-control" value="{{ old('vehicles.0.driver_age') }}">
                     </div>
                     <div class="col-sm-3 col-12 mb-3">
                         <label class="form-label">DL Number</label>
-                        <input type="text" name="vehicles[0][driver_dl_number]" class="form-control">
+                        <input type="text" name="vehicles[0][driver_dl_number]" class="form-control" value="{{ old('vehicles.0.driver_dl_number') }}">
                     </div>
                     <div class="col-6 col-sm-3 mb-3">
                         <label class="form-label">DL Expiry</label>
-                        <input type="date" name="vehicles[0][driver_dl_expiry]" class="form-control">
+                        <input type="date" name="vehicles[0][driver_dl_expiry]" class="form-control" value="{{ old('vehicles.0.driver_dl_expiry') }}">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Driver Address</label>
-                        <input type="text" name="vehicles[0][driver_address]" class="form-control">
+                        <input type="text" name="vehicles[0][driver_address]" class="form-control" value="{{ old('vehicles.0.driver_address') }}">
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Police Verified?</label>
                         <select name="vehicles[0][is_police_verified]" class="form-select police-verified-select">
-                            <option value="0">No</option>
-                            <option value="1">Yes</option>
+                            <option value="0" {{ old('vehicles.0.is_police_verified', '0') == '0' ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('vehicles.0.is_police_verified') == '1' ? 'selected' : '' }}>Yes</option>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3 d-none police-doc-input">
@@ -252,6 +253,19 @@
 
         // Initialize first block
         initBlockEvents(container.querySelector('.vehicle-driver-block'));
+
+        // Restore conditional field visibility from old() on validation failure
+        const firstBlock = container.querySelector('.vehicle-driver-block');
+        const firstVehicleType = firstBlock.querySelector('.vehicle-type-select');
+        if (firstVehicleType && firstVehicleType.value === 'Bus') {
+            firstBlock.querySelector('.custom-type-input').classList.remove('d-none');
+            firstBlock.querySelector('.custom-type-input input').setAttribute('required', 'required');
+        }
+        const firstPoliceSelect = firstBlock.querySelector('.police-verified-select');
+        if (firstPoliceSelect && firstPoliceSelect.value === '1') {
+            firstBlock.querySelector('.police-doc-input').classList.remove('d-none');
+            firstBlock.querySelector('.police-doc-input input').setAttribute('required', 'required');
+        }
 
         addButton.addEventListener('click', function() {
             const firstBlock = container.querySelector('.vehicle-driver-block');

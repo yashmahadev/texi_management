@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Driver;
 
 use App\Http\Controllers\Controller;
 use App\Models\DailyDutyLog;
+use App\Rules\OdometerContinuityRule;
 use App\Services\DutyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -30,8 +31,12 @@ class DutyController extends Controller
         }
         
         $request->validate([
-            'start_km' => 'required|integer|min:0',
+            'start_km' => ['required', 'integer', 'min:0', new OdometerContinuityRule($log->id)],
             'photo' => 'nullable|image|max:10240', // 10MB
+        ], [
+            'start_km.required' => 'Start KM is required.',
+            'start_km.integer' => 'Start KM must be a whole number.',
+            'start_km.min' => 'Start KM cannot be negative.',
         ]);
 
         $photoPath = null;
@@ -57,6 +62,10 @@ class DutyController extends Controller
         $request->validate([
             'end_km' => 'required|integer|gte:' . $log->start_km,
             'photo' => 'nullable|image|max:10240',
+        ], [
+            'end_km.required' => 'End KM is required.',
+            'end_km.integer' => 'End KM must be a whole number.',
+            'end_km.gte' => 'End KM must be greater than or equal to Start KM (' . $log->start_km . ').',
         ]);
 
         $photoPath = null;

@@ -131,6 +131,11 @@
                 </div>
             </div>
 
+            <div id="fare_estimation" class="alert alert-success d-none mb-3">
+                <i class="bi bi-calculator me-2"></i>
+                <strong>Estimated Total Fare:</strong> ₹<span id="estimated_total">0.00</span>
+            </div>
+
             <div class="alert alert-info">
                 <i class="bi bi-info-circle me-2"></i>
                 <strong>Optional:</strong> You can assign a driver and vehicle now, or do it later from the booking details page.
@@ -396,6 +401,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setupAutocomplete('pickup_location');
     setupAutocomplete('drop_location');
+
+    // Fare Estimation
+    const estKmInput = document.querySelector('input[name="estimated_km"]');
+    const baseFareInput = document.querySelector('input[name="base_fare"]');
+    const kmRateInput = document.querySelector('input[name="per_km_rate"]');
+    const estContainer = document.getElementById('fare_estimation');
+    const estSpan = document.getElementById('estimated_total');
+
+    function updateEstimation() {
+        const km = parseFloat(estKmInput.value) || 0;
+        const base = parseFloat(baseFareInput.value) || 0;
+        const rate = parseFloat(kmRateInput.value) || 0;
+
+        if (km > 0) {
+            const total = base + (km * rate);
+            estSpan.textContent = total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            estContainer.classList.remove('d-none');
+        } else {
+            estContainer.classList.add('d-none');
+        }
+    }
+
+    estKmInput.addEventListener('input', updateEstimation);
+    baseFareInput.addEventListener('input', updateEstimation);
+    kmRateInput.addEventListener('input', updateEstimation);
 });
 </script>
 @endpush

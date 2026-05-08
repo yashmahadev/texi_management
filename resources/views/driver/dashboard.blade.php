@@ -99,7 +99,7 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Start KM *</label>
-                                <input type="number" name="start_km" class="form-control form-control-lg" required>
+                                <input type="number" name="start_km" class="form-control form-control-lg" value="{{ old('start_km') }}" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label d-block">Odometer Photo</label>
@@ -155,7 +155,10 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">End KM *</label>
-                                <input type="number" name="end_km" class="form-control form-control-lg" required>
+                                <input type="number" name="end_km" id="end_km_input" class="form-control form-control-lg" value="{{ old('end_km') }}" required>
+                                <div id="km_preview" class="mt-2 small fw-bold text-primary d-none">
+                                    Total Trip: <span id="calc_total_km">0</span> KM
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label d-block">Odometer Photo</label>
@@ -267,6 +270,25 @@
         preview.src = "#";
         container.classList.add('d-none');
         actions.classList.remove('d-none');
+    }
+
+    // Auto-calculate KM on End Duty
+    const endKmInput = document.getElementById('end_km_input');
+    const startKm = {{ $todayLog->start_km ?? 0 }};
+    const kmPreview = document.getElementById('km_preview');
+    const calcTotalSpan = document.getElementById('calc_total_km');
+
+    if (endKmInput) {
+        endKmInput.addEventListener('input', function() {
+            const endValue = parseInt(this.value) || 0;
+            if (endValue > startKm) {
+                const total = endValue - startKm;
+                calcTotalSpan.textContent = total;
+                kmPreview.classList.remove('d-none');
+            } else {
+                kmPreview.classList.add('d-none');
+            }
+        });
     }
 </script>
 @endpush

@@ -9,6 +9,17 @@ class DailyDutyLog extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($log) {
+            if (isset($log->start_km) && isset($log->end_km)) {
+                $log->total_km = max(0, $log->end_km - $log->start_km);
+            }
+        });
+    }
+
     protected $fillable = [
         'monthly_duty_id',
         'duty_date',
