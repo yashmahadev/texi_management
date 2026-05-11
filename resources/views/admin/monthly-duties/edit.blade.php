@@ -85,7 +85,7 @@
                 {{-- Vehicle Type --}}
                 <div class="col-sm-6 col-md-3 mb-3">
                     <label class="form-label">Vehicle Type *</label>
-                    <select id="vehicle_type" class="form-select" required>
+                    <select name="vehicle_type" id="vehicle_type" class="form-select" required>
                         <option value="">Select Vehicle Type</option>
                         @foreach($types as $type)
                             <option value="{{ $type }}"
@@ -202,8 +202,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // No need for manual initialization as it's handled by the global initSelect2()
-
     const groupSelect   = document.getElementById('group_select');
     const deptSelect    = document.getElementById('department_id');
     const addDeptBtn    = document.getElementById('add_dept_btn');
@@ -215,6 +213,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const originalStart = '{{ $monthlyDuty->start_date->format('Y-m-d') }}';
     const originalEnd   = '{{ $monthlyDuty->end_date->format('Y-m-d') }}';
+
+    // Helper: notify Select2 that a select's options have changed
+    function refreshSelect2(el) {
+        if (window.jQuery && $(el).hasClass('select2-hidden-accessible')) {
+            $(el).trigger('change');
+        }
+    }
 
     // Show warning when dates change
     function checkDateChange() {
@@ -228,17 +233,24 @@ document.addEventListener('DOMContentLoaded', function () {
     endDateInput.addEventListener('change', checkDateChange);
 
     // Group change → reload departments
-    groupSelect.addEventListener('change', function () {
+    $(groupSelect).on('change', function () {
         const group = this.value;
         deptSelect.innerHTML = '<option value="">Loading...</option>';
+        deptSelect.disabled = true;
+        addDeptBtn.disabled = true;
+        refreshSelect2(deptSelect);
 
         if (!group) {
             deptSelect.innerHTML = '<option value="">Select Group First</option>';
+            refreshSelect2(deptSelect);
             return;
         }
 
-        fetch(`{{ route('admin.departments.index') }}?group=${group}`)
-            .then(r => r.json())
+        fetch(`{{ route('admin.departments.index') }}?group=${encodeURIComponent(group)}`)
+            .then(r => {
+                if (!r.ok) throw new Error(`Server error: ${r.status}`);
+                return r.json();
+            })
             .then(data => {
                 deptSelect.innerHTML = '<option value="">Select Department</option>';
                 data.forEach(dept => {
@@ -247,7 +259,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     opt.textContent = dept.name;
                     deptSelect.appendChild(opt);
                 });
-                if (window.jQuery) $(deptSelect).trigger('change');
+                deptSelect.disabled = false;
+                addDeptBtn.disabled = false;
+                refreshSelect2(deptSelect);
+            })
+            .catch(err => {
+                console.error('Error fetching departments:', err);
+                deptSelect.innerHTML = '<option value="">Error loading departments</option>';
+                deptSelect.disabled = false;
+                addDeptBtn.disabled = false;
+                refreshSelect2(deptSelect);
             });
     });
 
@@ -277,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
             opt.textContent = data.name;
             opt.selected = true;
             deptSelect.appendChild(opt);
+            refreshSelect2(deptSelect);
             bootstrap.Modal.getInstance(document.getElementById('addDeptModal')).hide();
             document.getElementById('new_dept_name').value = '';
         })
@@ -291,12 +313,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!type || !startDate || !endDate) {
             vehicleSelect.innerHTML = '<option value="">Select Dates & Type First</option>';
+            refreshSelect2(vehicleSelect);
             return;
         }
 
         vehicleSelect.innerHTML = '<option value="">Loading...</option>';
+        refreshSelect2(vehicleSelect);
 
-        fetch(`{{ route('admin.monthly-duties.vehicles-by-type') }}?type=${type}&start_date=${startDate}&end_date=${endDate}&exclude_duty_id={{ $monthlyDuty->id }}`, {
+        fetch(`{{ route('admin.monthly-duties.vehicles-by-type') }}?type=${encodeURIComponent(type)}&start_date=${startDate}&end_date=${endDate}&exclude_duty_id={{ $monthlyDuty->id }}`, {
             headers: { 'Accept': 'application/json' }
         })
         .then(async r => {
@@ -306,30 +330,32 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             vehicleSelect.innerHTML = '<option value="">Select Vehicle</option>';
-            if (!data.length) {
+            if (!data || !data.length) {
                 vehicleSelect.innerHTML = '<option value="">No vehicles available for this period</option>';
-                return;
+            } else {
+                data.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.id;
+                    opt.textContent = `${v.vehicle_number} — ${v.driver_name} (${v.driver_mobile})`;
+                    if (v.is_assigned) {
+                        opt.disabled = true;
+                        opt.textContent += ' [Already Assigned]';
+                    }
+                    if (v.id == {{ $monthlyDuty->vehicle_id }}) opt.selected = true;
+                    vehicleSelect.appendChild(opt);
+                });
             }
-            data.forEach(v => {
-                const opt = document.createElement('option');
-                opt.value = v.id;
-                opt.textContent = `${v.vehicle_number} — ${v.driver_name} (${v.driver_mobile})`;
-                if (v.is_assigned) {
-                    opt.disabled = true;
-                    opt.textContent += ' [Already Assigned]';
-                }
-                // Pre-select current vehicle
-                if (v.id == {{ $monthlyDuty->vehicle_id }}) opt.selected = true;
-                vehicleSelect.appendChild(opt);
-            });
-            if (window.jQuery) $(vehicleSelect).trigger('change');
+            refreshSelect2(vehicleSelect);
         })
         .catch(e => {
-            vehicleSelect.innerHTML = `<option value="">${e.message}</option>`;
+            console.error('Error fetching vehicles:', e);
+            vehicleSelect.innerHTML = `<option value="">Error: ${e.message}</option>`;
+            refreshSelect2(vehicleSelect);
         });
     }
 
-    typeSelect.addEventListener('change', fetchVehicles);
+    // Use jQuery .on() so Select2-triggered change events are also caught
+    $(typeSelect).on('change', fetchVehicles);
     startDateInput.addEventListener('change', fetchVehicles);
     endDateInput.addEventListener('change', fetchVehicles);
 });
