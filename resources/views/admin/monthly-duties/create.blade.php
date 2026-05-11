@@ -139,13 +139,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Select2
-    $('.select2-tags').select2({
-        tags: true,
-        placeholder: 'Select or Type New',
-        allowClear: true,
-        width: '100%'
-    });
+    // No need for manual initialization as it's handled by the global initSelect2()
 
     const groupSelect = document.getElementById('group_select');
     const deptSelect = document.getElementById('department_id');
@@ -179,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 deptSelect.disabled = false;
                 addDeptBtn.disabled = false;
+                if (window.jQuery) $(deptSelect).trigger('change');
             });
     });
 
@@ -273,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         vehicleSelect.appendChild(option);
                     });
                     vehicleSelect.disabled = false;
+                    if (window.jQuery) $(vehicleSelect).trigger('change');
                 }
             })
             .catch(error => {

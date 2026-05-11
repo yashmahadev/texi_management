@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d6efd">
@@ -298,7 +299,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Global Select2 initialization function
+function initSelect2(container = document) {
+    $(container).find('select').each(function() {
+        if ($(this).hasClass('select2-hidden-accessible') || $(this).hasClass('no-select2')) {
+            return;
+        }
+        
+        const isTags = $(this).hasClass('select2-tags');
+        const placeholder = $(this).data('placeholder') || ($(this).find('option[value=""]').text() || $(this).find('option:first').text());
+        
+        $(this).select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: placeholder,
+            allowClear: !$(this).prop('required'),
+            tags: isTags,
+            dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : $(document.body)
+        });
+    });
+}
+
 $(document).ready(function () {
+    initSelect2();
+
     // Mobile sidebar toggle
     $('#sidebarToggle, #sidebarOverlay').on('click', function () {
         $('#adminSidebar').toggleClass('show');

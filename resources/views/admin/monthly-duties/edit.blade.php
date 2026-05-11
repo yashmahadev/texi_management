@@ -202,13 +202,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Select2 for officer name
-    $('.select2-tags').select2({
-        tags: true,
-        placeholder: 'Select or Type New',
-        allowClear: true,
-        width: '100%'
-    });
+    // No need for manual initialization as it's handled by the global initSelect2()
 
     const groupSelect   = document.getElementById('group_select');
     const deptSelect    = document.getElementById('department_id');
@@ -253,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     opt.textContent = dept.name;
                     deptSelect.appendChild(opt);
                 });
+                if (window.jQuery) $(deptSelect).trigger('change');
             });
     });
 
@@ -327,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (v.id == {{ $monthlyDuty->vehicle_id }}) opt.selected = true;
                 vehicleSelect.appendChild(opt);
             });
+            if (window.jQuery) $(vehicleSelect).trigger('change');
         })
         .catch(e => {
             vehicleSelect.innerHTML = `<option value="">${e.message}</option>`;

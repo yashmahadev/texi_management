@@ -294,6 +294,12 @@
             newBlock.querySelectorAll('.custom-type-input, .police-doc-input').forEach(el => el.classList.add('d-none'));
 
             container.appendChild(newBlock);
+            
+            // Clean up cloned Select2 artifacts and re-initialize
+            $(newBlock).find('.select2-container').remove();
+            $(newBlock).find('select').removeClass('select2-hidden-accessible').removeAttr('data-select2-id').removeAttr('aria-hidden').show();
+            initSelect2(newBlock);
+
             initBlockEvents(newBlock);
             blockIndex++;
             updateBlockCounters();

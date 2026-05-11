@@ -61,54 +61,49 @@
 @once
 @push('scripts')
 <script>
-// State → City dependent dropdown logic
-// Driven entirely from the PHP config passed as inline JSON — no extra HTTP request needed.
-(function () {
+$(document).ready(function() {
     const LOCATIONS = @json($locations);
 
-    function initStateCityPair(stateEl, cityEl) {
-        function populateCities(selectedCity) {
-            const state = stateEl.value;
-            cityEl.innerHTML = '';
+    function populateCities(stateEl, cityEl, selectedCity) {
+        const state = stateEl.value;
+        const $citySelect = $(cityEl);
+        
+        $citySelect.empty();
 
-            if (!state || !LOCATIONS[state]) {
-                cityEl.innerHTML = '<option value="">Select State First</option>';
-                return;
-            }
-
-            cityEl.innerHTML = '<option value="">Select City</option>';
-            LOCATIONS[state].forEach(function (city) {
-                const opt = document.createElement('option');
-                opt.value = city;
-                opt.textContent = city;
-                if (city === selectedCity) opt.selected = true;
-                cityEl.appendChild(opt);
-            });
+        if (!state || !LOCATIONS[state]) {
+            $citySelect.append('<option value="">Select State First</option>');
+            $citySelect.trigger('change');
+            return;
         }
 
-        // On state change — reset city
-        stateEl.addEventListener('change', function () {
-            populateCities('');
+        $citySelect.append('<option value="">Select City</option>');
+        LOCATIONS[state].forEach(function (city) {
+            const isSelected = (city === selectedCity) ? 'selected' : '';
+            $citySelect.append(`<option value="${city}" ${isSelected}>${city}</option>`);
         });
-
-        // On first load — if state already selected, populate cities (keeping saved city)
-        if (stateEl.value) {
-            // Cities are already server-rendered for the saved state,
-            // but re-run to ensure JS state is in sync if user navigates back.
-            const currentCity = cityEl.value;
-            populateCities(currentCity);
-        }
+        
+        $citySelect.trigger('change');
     }
 
-    // Wire up all state/city pairs on the page
-    document.querySelectorAll('.state-select').forEach(function (stateEl) {
-        const uid = stateEl.dataset.uid;
+    // Delegate change event for all state-selects
+    $(document).on('change', '.state-select', function() {
+        const uid = $(this).data('uid');
         const cityEl = document.getElementById('city_' + uid);
         if (cityEl) {
-            initStateCityPair(stateEl, cityEl);
+            populateCities(this, cityEl, '');
         }
     });
-})();
+
+    // Handle initial state for all existing pairs on load
+    $('.state-select').each(function() {
+        const uid = $(this).data('uid');
+        const cityEl = document.getElementById('city_' + uid);
+        if (cityEl && this.value) {
+            const currentCity = $(cityEl).val();
+            populateCities(this, cityEl, currentCity);
+        }
+    });
+});
 </script>
 @endpush
 @endonce
