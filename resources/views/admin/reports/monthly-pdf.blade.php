@@ -6,13 +6,13 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-@page { size: A4 portrait; margin: 10mm 10mm 10mm 10mm; }
+@page { size: A4 portrait; margin: 4mm; }
 
-html, body { width: 100%; }
+html, body { width: 95%; margin: auto; }
 
 body {
     font-family: DejaVu Sans, Arial, sans-serif;
-    font-size: 8pt;
+    font-size: 6pt;
     line-height: 1.25;
     color: #000;
     background: #fff;
