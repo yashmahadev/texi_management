@@ -69,9 +69,14 @@ body {
 .sum-tbl td.val { text-align: right; font-weight: bold; background: #fff; }
 
 .sig-tbl { width: 100%; border-collapse: collapse; }
-.sig-tbl td { border: none; padding: 0 3pt; vertical-align: top; }
-.sig-box { border: 0.5pt solid #000; padding: 20pt 6pt 4pt 6pt; text-align: center; font-size: 7pt; font-weight: bold; }
-.sig-box span { font-size: 6.5pt; font-weight: normal; display: block; margin-top: 1pt; }
+.sig-tbl td { border: none; padding: 0 3pt; vertical-align: top; width: 50%; }
+.sig-box { border: 0.5pt solid #000; text-align: center; }
+.sig-box-top { background: #000; color: #fff; font-size: 6.5pt; font-weight: bold; padding: 2.5pt 4pt; }
+.sig-box-mid { min-height: 38pt; padding: 4pt; font-size: 6pt; }
+.sig-box-mid .sig-for { font-style: italic; margin-bottom: 2pt; }
+.sig-box-mid img { max-height: 22pt; max-width: 65pt; display: block; margin: 0 auto 2pt; }
+.sig-box-mid .co-name { font-size: 6pt; font-weight: bold; }
+.sig-box-bottom { border-top: 0.5pt solid #000; font-size: 6.5pt; font-weight: bold; padding: 3pt 4pt 4pt; line-height: 1.3; }
 
 /* FOOTER */
 .foot { margin-top: 4pt; border-top: 0.5pt solid #000; padding-top: 2pt; text-align: center; }
@@ -188,8 +193,22 @@ body {
             <div class="slabel">Authorisation</div>
             <table class="sig-tbl">
                 <tr>
-                    <td><div class="sig-box">&nbsp;<span>Signature of Officer Authorised</span></div></td>
-                    <td><div class="sig-box">&nbsp;<span>Signature of User</span></div></td>
+                    <td>
+                        <div class="sig-box">
+                            <div class="sig-box-top">Verified from Logbook</div>
+                            <div class="sig-box-mid">
+                                <span class="co-name">{{ $company['name'] }}</span>
+                            </div>
+                            <div class="sig-box-bottom">Authorised Signature</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="sig-box">
+                            <div class="sig-box-top">Signature of User</div>
+                            <div class="sig-box-mid">&nbsp;</div>
+                            <div class="sig-box-bottom">Authorised Signature</div>
+                        </div>
+                    </td>
                 </tr>
             </table>
         </td>
