@@ -188,8 +188,8 @@ body {
             <div class="slabel">Authorisation</div>
             <table class="sig-tbl">
                 <tr>
-                    <td><div class="sig-box">&nbsp;<span>Signature of Officer</span></div></td>
-                    <td><div class="sig-box">&nbsp;<span>Signature of Driver</span></div></td>
+                    <td><div class="sig-box">&nbsp;<span>Signature of Officer Authorised</span></div></td>
+                    <td><div class="sig-box">&nbsp;<span>Signature of User</span></div></td>
                 </tr>
             </table>
         </td>
